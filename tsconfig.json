@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "target": "es5",
+        "skipLibCheck": true,
+        "lib": ["es6", "DOM", "ScriptHost"]
+    },
+    "include": [
+        "src/**/*.ts"
+    ]
+}
