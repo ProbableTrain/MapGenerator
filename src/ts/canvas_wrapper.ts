@@ -1,7 +1,7 @@
 import * as log from 'loglevel';
 import Vector from './vector';
 
-export default class Canvas {
+export default class CanvasWrapper {
     private ctx: CanvasRenderingContext2D;
     
     constructor(canvas: HTMLCanvasElement, private _width: number, private _height: number) {
@@ -29,6 +29,10 @@ export default class Canvas {
 
     drawRectangle(x: number, y: number, width: number, height: number): void {
         this.ctx.fillRect(x, y, width, height);
+    }
+
+    drawSquare(centre: Vector, radius: number) {
+        this.drawRectangle(centre.x - radius, centre.y - radius, 2 * radius, 2 * radius);
     }
 
     setLineWidth(width: number): void {

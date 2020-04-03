@@ -14,12 +14,21 @@ export abstract class BasisField {
         this._centre.copy(centre);
     }
 
+    get centre(): Vector {
+        return this._centre.clone();
+    }
+
     set decay(decay: number) {
         this._decay = decay;
     }
 
     set size(size: number) {
         this._size = size;
+    }
+
+    dragMoveListener(delta: Vector): void {
+        // TODO will have to scale to convert from screen-space to world space
+        this._centre.add(delta);
     }
 
     abstract getTensor(point: Vector): Tensor;

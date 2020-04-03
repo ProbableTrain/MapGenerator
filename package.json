@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/ProbableTrain/MapGenerator#readme",
   "dependencies": {
+    "@interactjs/types": "^1.9.8",
     "@types/dat.gui": "^0.7.5",
     "dat.gui": "^0.7.6",
+    "interactjs": "^1.9.8",
     "loglevel": "^1.6.7"
   },
   "devDependencies": {
