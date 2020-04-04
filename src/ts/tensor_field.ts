@@ -8,12 +8,9 @@ export default class TensorField {
     private basisFields: BasisField[] = [];
     private gridNameIndex = 0;
     private radialNameIndex = 0;
-    private dragController: DragController;
     
-    constructor(private guiFolder: dat.GUI) {
-        this.dragController = new DragController(guiFolder);
-    }
-
+    constructor(private guiFolder: dat.GUI, private dragController: DragController) {}
+ 
     addGrid(centre: Vector, size: number, decay: number, theta: number): void {
         const grid = new Grid(centre, size, decay, theta);
         this.addField(grid);
@@ -26,9 +23,27 @@ export default class TensorField {
 
     private addField(field: BasisField): void {
         const folder = this.guiFolder.addFolder(`${field.FOLDER_NAME}`);
+        
+        // Function to deregister from drag controller
+        const deregisterDrag = this.dragController.register(
+            () => field.centre, field.dragMoveListener.bind(field));
+        const removeFieldObj = {remove: (): void => this.removeField.bind(this)(field, folder, deregisterDrag)};
+        
+        // Give dat gui removeField button
+        folder.add(removeFieldObj, 'remove');
         field.setGui(folder);
-        this.dragController.register(() => field.centre, field.dragMoveListener.bind(field));
+
         this.basisFields.push(field);
+    }
+
+    removeField(field: BasisField, folder: dat.GUI, deregisterDrag: (() => void)): void {
+        const index = this.basisFields.indexOf(field);
+        if (index > -1) {
+            this.guiFolder.removeFolder(folder);
+            // Deregister from drag controller
+            deregisterDrag();
+            this.basisFields.splice(index, 1);
+        }
     }
 
     getCentrePoints(): Vector[] {
@@ -37,11 +52,11 @@ export default class TensorField {
 
     samplePoint(point: Vector): Tensor {
         // Default field is a grid
-        const tensorAcc = new Tensor(0, [0, 0]);
         if (this.basisFields.length === 0) {
-            log.error("No basis fields");
             return new Tensor(1, [0, 0]);
         }
+
+        const tensorAcc = new Tensor(0, [0, 0]);
         this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point)));
         return tensorAcc;
     }

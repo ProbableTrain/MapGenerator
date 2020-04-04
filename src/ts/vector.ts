@@ -7,6 +7,10 @@ export default class Vector {
         return new Vector(0, 0);
     }
 
+    static fromScalar(s: number): Vector {
+        return new Vector(s, s);
+    }
+
     add(v: Vector): Vector {
         this.x += v.x;
         this.y += v.y;
@@ -64,7 +68,7 @@ export default class Vector {
     }
 
     dot(v: Vector): number {
-        return this.x * v.x + this.y + v.y;
+        return this.x * v.x + this.y * v.y;
     }
 
     equals(v: Vector): boolean {
