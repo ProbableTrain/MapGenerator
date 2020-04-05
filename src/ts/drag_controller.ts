@@ -86,6 +86,7 @@ export default class DragController {
         this.updateGui(this.gui);
     }
 
+    // TODO move this elsewhere
     updateGui(gui: dat.GUI): void {
         if (gui.__controllers) {
             gui.__controllers.forEach(c => c.updateDisplay());    

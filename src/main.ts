@@ -25,24 +25,30 @@ field.addGrid(new Vector(size, size), size, 20, 0);
 field.addRadial(new Vector(size/2, size/2), 300, 20);
 
 const params: StreamlineParams = {
-    dsep: 10,
-    dtest: 10,
+    dsep: 30,
+    dtest: 15,
     dstep: 1,
     dlookahead: 5,
     pathIterations: 1000,
+    seedTries: 300,
+    simplifyTolerance: 0.5,
 };
 
 gui.add(params, 'dstep');
+gui.add(params, 'dsep');
+gui.add(params, 'dtest');
 gui.add(params, 'dlookahead');
 gui.add(params, 'pathIterations');
+gui.add(params, 'simplifyTolerance');
 gui.add(dc, 'zoom', 0, 5);
 
 const integrator = new RK4Integrator(field, params);
-const s = new Streamlines(integrator, params);
-let streamlines = [];
+let s = new Streamlines(integrator, params);
+let streamlines: Vector[][] = [];
 
 function setStreamline() {
-    streamlines = s.delete();
+    s = new Streamlines(integrator, params);
+    s.createAllStreamlinesDynamic();
 }
 
 const tmpObj = {
@@ -60,6 +66,8 @@ function getTensorLine(point: Vector, v: Vector, length: number): Vector[] {
 }
 
 function draw(): void {
+    const startTime = performance.now();
+
     const samples = 60;
     const length = 12;
     canvas.setStrokeStyle('white');
@@ -83,11 +91,27 @@ function draw(): void {
     canvas.setFillStyle('red');
     field.getCentrePoints().forEach(v => canvas.drawSquare(dc.worldToScreen(v), 7));
 
-    canvas.setStrokeStyle('white');
-    canvas.setLineWidth(2);
-    streamlines.forEach(s => {
-        canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
-    });
+    if (s.allStreamlinesSimple.length > 0) {
+        canvas.setFillStyle('#ECE5DB');
+        canvas.clearCanvas();
+
+        canvas.setStrokeStyle('#020202');
+        canvas.setLineWidth(3);
+        s.allStreamlinesSimple.forEach(s => {
+            canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
+        });
+
+        canvas.setStrokeStyle('#F8F8F8');
+        canvas.setLineWidth(2);
+        s.allStreamlinesSimple.forEach(s => {
+            canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
+        });
+    }
+
+    // Updates at 60fps
+    while (performance.now() - startTime < 5000/60) {
+        s.update();
+    }
 
     requestAnimationFrame(draw);
 }

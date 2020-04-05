@@ -23,6 +23,10 @@ export default class GridStorage {
         }
     }
 
+    addPolyline(line: Vector[]): void {
+        line.forEach(v => this.addSample(v));
+    }
+
     /**
      * Does not enforce separation
      */
@@ -34,6 +38,7 @@ export default class GridStorage {
     }
 
     /**
+     * Tests whether v is at least d away from samples
      * @param dSq=this.dsepSq squared test distance
      * Could be dtest if we are integrating a streamline
      */
@@ -91,6 +96,9 @@ export default class GridStorage {
     private getSampleCoords(worldV: Vector): Vector {
         const v = this.worldToGrid(worldV);
         if (this.vectorOutOfBounds(v, this.worldDimensions)) {
+            console.log(v);
+            console.log(worldV);
+            console.log(this.origin);
             log.error("Tried to access out-of-bounds sample in grid");
             return Vector.zeroVector();
         }
