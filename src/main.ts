@@ -1,6 +1,5 @@
 import * as log from 'loglevel';
 import * as dat from 'dat.gui';
-import * as work from 'webworkify';
 
 import TensorFieldInterface from './ts/interface/tensor_field_interface';
 import {Grid, Radial} from './ts/impl/basis_field';
@@ -12,8 +11,6 @@ import DomainController from './ts/interface/domain_controller';
 import {EulerIntegrator, RK4Integrator} from './ts/impl/integrator';
 import {StreamlineParams} from './ts/impl/streamlines';
 import StreamlineGenerator from './ts/impl/streamlines';
-import {VectorParams, StreamlineWorkerParams} from './ts/impl/worker/worker_params';
-import {MessageType} from './ts/impl/worker/worker_params';
 
 const size = 800;
 const dc = DomainController.getInstance(Vector.fromScalar(size));
@@ -45,39 +42,16 @@ gui.add(params, 'pathIterations');
 gui.add(params, 'simplifyTolerance');
 gui.add(dc, 'zoom', 0, 5);
 
-// const integrator = new RK4Integrator(field, params);
-// let s = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, params);
-
-// function setStreamline() {
-//     s = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, params);
-//     s.createAllStreamlines();
-// }
-
-// function getStreamlines(): Vector[][] {
-//     return s.allStreamlinesSimple;
-// }
-
-let streamlines: Vector[][] = [];
-function getStreamlines(): Vector[][] {
-    return streamlines;
-}
-
-const streamlineWorker = work(require('./ts/impl/worker/streamline_worker.ts'));
-streamlineWorker.addEventListener('message', (ev: any) => {
-    const streamlineParams = ev.data as VectorParams[][];
-    streamlines = streamlineParams.map(streamline => streamline.map(p => new Vector(p.x, p.y)));
-});
+const integrator = new RK4Integrator(field, params);
+let s = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, params);
 
 function setStreamline() {
-    const data: StreamlineWorkerParams = {
-        fieldParams: field.getWorkerParams(),
-        streamlinesParams: {
-            origin: dc.origin.getWorkerParams(),
-            worldDimensions: dc.worldDimensions.getWorkerParams(),
-            params: params,
-        },
-    }
-    streamlineWorker.postMessage([MessageType.CreateMajorRoads, data]);
+    s = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, params);
+    s.createAllStreamlines();
+}
+
+function getStreamlines(): Vector[][] {
+    return s.allStreamlinesSimple;
 }
 
 const tmpObj = {
@@ -137,12 +111,10 @@ function draw(): void {
         });
     }
 
-    streamlineWorker.postMessage([MessageType.GetMajorRoads]);
-
-    // Updates at 60fps
-    // while (performance.now() - startTime < 5000/60) {
-    //     s.update();
-    // }
+    // Updates at 30fps
+    while (performance.now() - startTime < 1000/30) {
+        s.update();
+    }
 
     requestAnimationFrame(draw);
 }

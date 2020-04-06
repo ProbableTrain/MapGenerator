@@ -1,8 +1,7 @@
 import Tensor from './tensor';
 import Vector from '../vector';
-import {WorkerObject, BasisFieldParams, GridParams} from './worker/worker_params';
 
-export abstract class BasisField implements WorkerObject {
+export abstract class BasisField {
     abstract readonly FOLDER_NAME: string;
     protected static folderNameIndex: number = 0;
     protected _centre: Vector;
@@ -33,16 +32,6 @@ export abstract class BasisField implements WorkerObject {
     }
 
     abstract getTensor(point: Vector): Tensor;
-
-    getWorkerParams(): BasisFieldParams {
-        const p: BasisFieldParams = {
-            centre: this.centre,
-            size: this._size,
-            decay: this._decay,
-        };
-
-        return p;
-    }
 
     getWeightedTensor(point: Vector): Tensor {
         return this.getTensor(point).scale(this.getTensorWeight(point));
@@ -96,17 +85,6 @@ export class Grid extends BasisField {
         const cos = Math.cos(2 * this._theta);
         const sin = Math.sin(2 * this._theta);
         return new Tensor(1, [cos, sin]);
-    }
-
-    getWorkerParams(): BasisFieldParams {
-        const p: GridParams = {
-            centre: this.centre,
-            size: this._size,
-            decay: this._decay,
-            theta: this._theta,
-        };
-
-        return p;
     }
 }
 

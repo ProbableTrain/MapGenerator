@@ -3,7 +3,6 @@ import * as simplify from 'simplify-js';
 import Vector from '../vector';
 import GridStorage from './grid_storage';
 import FieldIntegrator from './integrator';
-import {VectorParams} from './worker/worker_params';
 
 interface StreamlineIntegration {
     streamline: Vector[];
@@ -37,8 +36,6 @@ export default class StreamlineGenerator {
     public streamlinesMajor: Vector[][] = [];
     public streamlinesMinor: Vector[][] = [];
     public allStreamlinesSimple: Vector[][] = [];  // Reduced vertex count
-    public allStreamlinesSimpleParams: VectorParams[][] =[];
-
 
     /**
      * Uses world-space coordinates
@@ -108,13 +105,6 @@ export default class StreamlineGenerator {
 
             const simpleStreamline = simplify(streamline, this.params.simplifyTolerance).map(point => new Vector(point.x, point.y));
             this.allStreamlinesSimple.push(simpleStreamline);
-            this.allStreamlinesSimpleParams.push(simpleStreamline.map(v => {
-                const p = {
-                    x: v.x,
-                    y: v.y
-                };
-                return p;
-            }));
 
             // Add candidate seeds
             if (!streamline[0].equals(streamline[streamline.length - 1])) {

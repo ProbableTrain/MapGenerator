@@ -2,9 +2,8 @@ import * as log from 'loglevel';
 import Tensor from './tensor';
 import Vector from '../vector';
 import {Grid, Radial, BasisField} from './basis_field';
-import {WorkerObject, BasisFieldParams} from './worker/worker_params';
 
-export default class TensorField implements WorkerObject {
+export default class TensorField {
     private basisFields: BasisField[] = [];
     private gridNameIndex = 0;
     private radialNameIndex = 0;
@@ -43,9 +42,5 @@ export default class TensorField implements WorkerObject {
         const tensorAcc = new Tensor(0, [0, 0]);
         this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point)));
         return tensorAcc;
-    }
-
-    getWorkerParams(): BasisFieldParams[] {
-        return this.basisFields.map(f => f.getWorkerParams());
     }
 }
