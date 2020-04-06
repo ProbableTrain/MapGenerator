@@ -1,5 +1,5 @@
 import TensorField from './tensor_field';
-import Vector from './vector';
+import Vector from '../vector';
 import {StreamlineParams} from './streamlines';
 
 export default abstract class FieldIntegrator {

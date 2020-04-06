@@ -1,6 +1,7 @@
 import * as log from 'loglevel';
+import {VectorParams, WorkerObject} from './impl/worker/worker_params';
 
-export default class Vector {
+export default class Vector implements WorkerObject {
     constructor(public x: number, public y: number) {}
 
     static zeroVector(): Vector {
@@ -73,6 +74,10 @@ export default class Vector {
 
     equals(v: Vector): boolean {
         return ((v.x === this.x) && (v.y === this.y));
+    }
+
+    getWorkerParams(): VectorParams {
+        return {x: this.x, y: this.y};
     }
 
     length(): number {

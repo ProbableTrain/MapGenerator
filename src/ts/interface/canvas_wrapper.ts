@@ -1,5 +1,5 @@
 import * as log from 'loglevel';
-import Vector from './vector';
+import Vector from '../vector';
 
 export default class CanvasWrapper {
     private ctx: CanvasRenderingContext2D;

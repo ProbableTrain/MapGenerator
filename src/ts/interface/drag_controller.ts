@@ -1,7 +1,7 @@
 import * as log from 'loglevel';
 import interact from 'interactjs';
-import Constants from './constants';
-import Vector from './Vector';
+import Util from '../util';
+import Vector from '../Vector';
 import DomainController from './domain_controller';
 
 interface Draggable {
@@ -24,7 +24,7 @@ export default class DragController {
     private domainController = DomainController.getInstance();
 
     constructor(private gui: dat.GUI) {
-        interact(`#${Constants.CANVAS_ID}`).draggable({
+        interact(`#${Util.CANVAS_ID}`).draggable({
             onstart: this.dragStart.bind(this),
             onmove: this.dragMove.bind(this),
             onend: this.dragEnd.bind(this),
@@ -83,19 +83,7 @@ export default class DragController {
     dragEnd(): void {
         if (this.disabled) return;
         this.currentlyDragging = null;
-        this.updateGui(this.gui);
-    }
-
-    // TODO move this elsewhere
-    updateGui(gui: dat.GUI): void {
-        if (gui.__controllers) {
-            gui.__controllers.forEach(c => c.updateDisplay());    
-        }
-        if (gui.__folders) {
-            for (let folderName in gui.__folders) {
-                this.updateGui(gui.__folders[folderName]);
-            }
-        }
+        Util.updateGui(this.gui);
     }
 
     /**

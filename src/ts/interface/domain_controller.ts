@@ -1,6 +1,5 @@
 import * as log from 'loglevel';
-import Constants from './constants';
-import Vector from './Vector';
+import Vector from '../vector';
 
 /**
  * Singleton

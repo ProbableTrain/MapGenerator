@@ -1,9 +1,9 @@
 import * as log from 'loglevel';
 import * as simplify from 'simplify-js';
-import Vector from './vector';
+import Vector from '../vector';
 import GridStorage from './grid_storage';
 import FieldIntegrator from './integrator';
-import DomainController from './domain_controller';
+import {VectorParams} from './worker/worker_params';
 
 interface StreamlineIntegration {
     streamline: Vector[];
@@ -23,11 +23,7 @@ export interface StreamlineParams {
     simplifyTolerance: number;
 }
 
-export default class Streamlines {
-
-    private domainController: DomainController = DomainController.getInstance();
-    private worldDimensions: Vector = this.domainController.worldDimensions.clone();
-    private origin: Vector = this.domainController.origin.clone();
+export default class StreamlineGenerator {
     private majorGrid: GridStorage;
     private minorGrid: GridStorage;
     private paramsSq: StreamlineParams;
@@ -41,12 +37,16 @@ export default class Streamlines {
     public streamlinesMajor: Vector[][] = [];
     public streamlinesMinor: Vector[][] = [];
     public allStreamlinesSimple: Vector[][] = [];  // Reduced vertex count
+    public allStreamlinesSimpleParams: VectorParams[][] =[];
 
 
     /**
      * Uses world-space coordinates
      */
-    constructor(private integrator: FieldIntegrator, private params: StreamlineParams) {
+    constructor(private integrator: FieldIntegrator,
+                private origin: Vector,
+                private worldDimensions: Vector,
+                private params: StreamlineParams) {
         if (params.dstep > params.dsep) {
             log.error("STREAMLINE SAMPLE DISTANCE BIGGER THAN DSEP");
         }
@@ -106,8 +106,15 @@ export default class Streamlines {
             this.grid(major).addPolyline(streamline);
             this.streamlines(major).push(streamline);
 
-            this.allStreamlinesSimple.push(
-                simplify(streamline, this.params.simplifyTolerance).map(point => new Vector(point.x, point.y)));
+            const simpleStreamline = simplify(streamline, this.params.simplifyTolerance).map(point => new Vector(point.x, point.y));
+            this.allStreamlinesSimple.push(simpleStreamline);
+            this.allStreamlinesSimpleParams.push(simpleStreamline.map(v => {
+                const p = {
+                    x: v.x,
+                    y: v.y
+                };
+                return p;
+            }));
 
             // Add candidate seeds
             if (!streamline[0].equals(streamline[streamline.length - 1])) {
