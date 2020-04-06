@@ -11,6 +11,20 @@ export default class Vector {
         return new Vector(s, s);
     }
 
+    /**
+     * -pi to pi
+     */
+    static angleBetween(v1: Vector, v2: Vector): number {
+        // -2pi to 2pi
+        let angleBetween = v1.angle() - v2.angle();
+        if (angleBetween > Math.PI) {
+            angleBetween -= 2 * Math.PI;
+        } else if (angleBetween <= -Math.PI) {
+            angleBetween += 2 * Math.PI;
+        }
+        return angleBetween;
+    }
+
     add(v: Vector): Vector {
         this.x += v.x;
         this.y += v.y;

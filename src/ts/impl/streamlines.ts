@@ -16,13 +16,17 @@ export interface StreamlineParams {
     dsep: number;  // Streamline seed separating distance
     dtest: number;  // Streamline integration separating distance
     dstep: number;  // Step size
-    dlookahead: number;  // How far to look ahead to join up
+    dcirclejoin: number;  // How far to look to join circles - (e.g. 2 x dstep)
+    dlookahead: number;  // How far to look ahead to join up dangling
+    joinangle: number;  // Angle to join roads in radians
     pathIterations: number;  // Path integration iteration limit
     seedTries: number;  // Max failed seeds
     simplifyTolerance: number;
 }
 
 export default class StreamlineGenerator {
+    private readonly SEED_AT_ENDPOINTS = false;
+
     private majorGrid: GridStorage;
     private minorGrid: GridStorage;
     private paramsSq: StreamlineParams;
@@ -57,12 +61,84 @@ export default class StreamlineGenerator {
         this.setParamsSq();
     }
 
+    /**
+     * Edits streamlines
+     */
+    joinDanglingStreamlines(): void {
+        const streamlines = this.allStreamlines;
+        if (streamlines.length === 0) return;
+
+        for (let streamline of streamlines) {
+            // Ignore circles
+            if (streamline[0].equals(streamline[streamline.length - 1])) {
+                continue;
+            }
+
+            const newStart = this.getBestNextPoint(streamline[0], streamline[4], streamline)
+            if (newStart !== null) {
+                streamline.unshift(newStart);
+            }
+
+            const newEnd = this.getBestNextPoint(streamline[streamline.length - 1], streamline[streamline.length - 4], streamline);
+            if (newEnd !== null) {
+                streamline.push(newEnd);
+            }
+        }
+
+        // Reset simplified streamlines
+        this.allStreamlinesSimple = this.allStreamlines.map(s => this.simplifyStreamline(s));
+    }
+
+
+    /**
+     * Gets next best point to join streamline
+     * returns null if there are no good candidates
+     */
+    getBestNextPoint(point: Vector, previousPoint: Vector, streamline: Vector[]): Vector {
+        const nearbyPoints = this.majorGrid.getNearbyPoints(point, this.params.dlookahead)
+            .concat(this.minorGrid.getNearbyPoints(point, this.params.dlookahead));
+        const direction = point.clone().sub(previousPoint);
+
+        let closestSample = null;
+        let closestDistance = Infinity;
+
+        for (let sample of nearbyPoints) {
+            if (!sample.equals(point) && !sample.equals(previousPoint) && !streamline.includes(sample)) {
+                const differenceVector = sample.clone().sub(point);
+                
+                // Acute angle between vectors (agnostic of CW, ACW)
+                const angleBetween = Math.abs(Vector.angleBetween(direction, differenceVector));
+                const distanceToSample = point.distanceToSquared(sample);
+
+                // Filter by angle
+                if (angleBetween < this.params.joinangle && distanceToSample < closestDistance) {
+                    closestDistance = distanceToSample;
+                    closestSample = sample;
+                }
+            }
+        }
+
+        // TODO if trying to find intersections in the simplified graph
+        // return closest.clone().add(direction length simplify tolerance));
+        // to prevent ends getting pulled away from simplified lines
+        return closestSample;
+    }
+
+
+    /**
+     * Assumes s has already generated
+     */
+    addExistingStreamlines(s: StreamlineGenerator): void {
+        this.majorGrid.addAll(s.majorGrid);
+        this.minorGrid.addAll(s.minorGrid);
+    }
+
     get allStreamlines(): Vector[][] {
         // Combine
         return this.streamlinesMajor.concat(this.streamlinesMinor);
     }
 
-    update() {
+    update(): void {
         if (!this.streamlinesDone) {
             this.lastStreamlineMajor = !this.lastStreamlineMajor;
             if (!this.createStreamline(this.lastStreamlineMajor)) {
@@ -74,18 +150,23 @@ export default class StreamlineGenerator {
     /**
      * Streamlines created each frame (animated)
      */
-    createAllStreamlinesDynamic() {
+    createAllStreamlinesDynamic(): void {
         this.streamlinesDone = false;
+        // this.joinDanglingStreamlines();
     }
 
     /**
      * All at once - will freeze if dsep small
      */
-    createAllStreamlines() {
+    createAllStreamlines(): void {
         let major = true;
         while (this.createStreamline(major)) {
             major = !major;
         }
+    }
+
+    private simplifyStreamline(streamline: Vector[]): Vector[] {
+        return simplify(streamline, this.params.simplifyTolerance).map(point => new Vector(point.x, point.y));
     }
 
     /**
@@ -103,8 +184,7 @@ export default class StreamlineGenerator {
             this.grid(major).addPolyline(streamline);
             this.streamlines(major).push(streamline);
 
-            const simpleStreamline = simplify(streamline, this.params.simplifyTolerance).map(point => new Vector(point.x, point.y));
-            this.allStreamlinesSimple.push(simpleStreamline);
+            this.allStreamlinesSimple.push(this.simplifyStreamline(streamline));
 
             // Add candidate seeds
             if (!streamline[0].equals(streamline[streamline.length - 1])) {
@@ -140,7 +220,7 @@ export default class StreamlineGenerator {
      */
     private getSeed(major: boolean): Vector {
         // Candidate seeds first
-        if (this.candidateSeeds(major).length > 0) {
+        if (this.SEED_AT_ENDPOINTS && this.candidateSeeds(major).length > 0) {
             while (this.candidateSeeds(major).length > 0) {
                 const seed = this.candidateSeeds(major).pop();
                 if (this.grid(major).isValidSample(seed, this.paramsSq.dsep)) {
@@ -243,11 +323,11 @@ export default class StreamlineGenerator {
             // Join up circles
             const sqDistanceBetweenPoints = forwardParams.previousPoint.distanceToSquared(backwardParams.previousPoint);
 
-            if (!pointsEscaped && sqDistanceBetweenPoints > this.paramsSq.dlookahead) {
+            if (!pointsEscaped && sqDistanceBetweenPoints > this.paramsSq.dcirclejoin) {
                 pointsEscaped = true;
             }
 
-            if (pointsEscaped && sqDistanceBetweenPoints <= this.paramsSq.dlookahead) {
+            if (pointsEscaped && sqDistanceBetweenPoints <= this.paramsSq.dcirclejoin) {
                 forwardParams.streamline.push(forwardParams.previousPoint);
                 forwardParams.streamline.push(backwardParams.previousPoint);
                 backwardParams.streamline.push(backwardParams.previousPoint);

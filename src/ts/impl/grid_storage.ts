@@ -23,12 +23,24 @@ export default class GridStorage {
         }
     }
 
+    /**
+     * Add all samples from another grid to this one
+     */
+    addAll(gridStorage: GridStorage): void {
+        gridStorage.grid.forEach(row => row.forEach(cell => cell.forEach(sample => {
+            if (!this.vectorOutOfBounds(sample, this.worldDimensions)) {
+                this.addSample(sample);
+            }
+        })));
+    }
+
     addPolyline(line: Vector[]): void {
         line.forEach(v => this.addSample(v));
     }
 
     /**
      * Does not enforce separation
+     * Does not clone
      */
     addSample(v: Vector, coords?: Vector): void {
         if (!coords) {
@@ -39,10 +51,14 @@ export default class GridStorage {
 
     /**
      * Tests whether v is at least d away from samples
+     * Performance very important - this is called at every integration step
      * @param dSq=this.dsepSq squared test distance
      * Could be dtest if we are integrating a streamline
      */
     isValidSample(v: Vector, dSq=this.dsepSq): boolean {
+        // Code duplication with this.getNearbyPoints but much slower when calling
+        // this.getNearbyPoints due to array creation in that method
+
         const coords = this.getSampleCoords(v);
 
         // Check samples in 9 cells in 3x3 grid
@@ -62,6 +78,7 @@ export default class GridStorage {
     
     /**
      * Test whether v is at least d away from vectors
+     * Performance very important - this is called at every integration step
      * @param {number}   dSq     squared test distance
      */
     vectorFarFromVectors(v: Vector, vectors: Vector[], dSq: number): boolean {
@@ -75,6 +92,30 @@ export default class GridStorage {
         }
 
         return true;
+    }
+
+    /**
+     * Returns points in cells surrounding v
+     * Results include v, if it exists in the grid
+     * @param {number} returns samples (kind of) closer than distance - returns all samples in 
+     * cells so approximation (square to approximate circle)
+     */
+    getNearbyPoints(v: Vector, distance: number): Vector[] {
+        const radius = Math.ceil((distance/this.dsep) - 0.5);
+        const coords = this.getSampleCoords(v);
+        const out: Vector[] = [];
+        for (let x = -1 * radius; x <= 1 * radius; x++) {
+            for (let y = -1 * radius; y <= 1 * radius; y++) {
+                const cell = coords.clone().add(new Vector(x, y));
+                if (!this.vectorOutOfBounds(cell, this.gridDimensions)) {
+                    this.grid[cell.x][cell.y].forEach(v2 => {
+                        out.push(v2);
+                    });
+                }
+            }
+        }
+
+        return out;
     }
 
     private worldToGrid(v: Vector): Vector {
@@ -92,13 +133,11 @@ export default class GridStorage {
 
     /**
      * @return {Vector}   Cell coords corresponding to vector
+     * Performance important - called at every integration step
      */
     private getSampleCoords(worldV: Vector): Vector {
         const v = this.worldToGrid(worldV);
         if (this.vectorOutOfBounds(v, this.worldDimensions)) {
-            console.log(v);
-            console.log(worldV);
-            console.log(this.origin);
             log.error("Tried to access out-of-bounds sample in grid");
             return Vector.zeroVector();
         }

@@ -24,41 +24,76 @@ field.addGrid(new Vector(0, 0), size, 20, Math.PI / 4);
 field.addGrid(new Vector(size, size), size, 20, 0);
 field.addRadial(new Vector(size/2, size/2), 300, 20);
 
-const params: StreamlineParams = {
-    dsep: 30,
-    dtest: 15,
+const minorParams: StreamlineParams = {
+    dsep: 20,
+    dtest: 10,
     dstep: 1,
-    dlookahead: 5,
+    dlookahead: 100,
+    dcirclejoin: 5,
+    joinangle: 0.1,  // approx 30deg
     pathIterations: 1000,
     seedTries: 300,
     simplifyTolerance: 0.5,
 };
 
-gui.add(params, 'dstep');
-gui.add(params, 'dsep');
-gui.add(params, 'dtest');
-gui.add(params, 'dlookahead');
-gui.add(params, 'pathIterations');
-gui.add(params, 'simplifyTolerance');
+const majorParams: StreamlineParams = {
+    dsep: 100,
+    dtest: 30,
+    dstep: 1,
+    dlookahead: 200,
+    dcirclejoin: 5,
+    joinangle: 0.1,  // approx 10deg
+    pathIterations: 1000,
+    seedTries: 300,
+    simplifyTolerance: 0.5,
+};
+
+gui.add(minorParams, 'dstep');
+gui.add(minorParams, 'dsep');
+gui.add(minorParams, 'dtest');
+gui.add(majorParams, 'dstep');
+gui.add(majorParams, 'dsep');
+gui.add(majorParams, 'dtest');
 gui.add(dc, 'zoom', 0, 5);
 
-const integrator = new RK4Integrator(field, params);
-let s = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, params);
+const integrator = new RK4Integrator(field, minorParams);
+let major = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, majorParams);
+let minor = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, minorParams);
 
 function setStreamline() {
-    s = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, params);
-    s.createAllStreamlines();
+    major = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, majorParams);
+    minor = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, minorParams);
+    major.createAllStreamlines();
+    major.joinDanglingStreamlines();
+    minor.addExistingStreamlines(major);
+    minor.createAllStreamlines();
 }
 
-function getStreamlines(): Vector[][] {
-    return s.allStreamlinesSimple;
+function joinMajor() {
+    major.joinDanglingStreamlines();
+}
+
+function joinMinor() {
+    minor.joinDanglingStreamlines();
+}
+
+function getMajorStreamlines(): Vector[][] {
+    return major.allStreamlinesSimple;
+}
+
+function getMinorStreamlines(): Vector[][] {
+    return minor.allStreamlinesSimple;
 }
 
 const tmpObj = {
-    setStreamline: setStreamline
+    setStreamline: setStreamline,
+    joinMajor: joinMajor,
+    joinMinor: joinMinor,
 };
 
 gui.add(tmpObj, 'setStreamline');
+gui.add(tmpObj, 'joinMajor');
+gui.add(tmpObj, 'joinMinor');
 
 function getTensorLine(point: Vector, v: Vector, length: number): Vector[] {
     const transformed = dc.worldToScreen(point.clone());
@@ -94,26 +129,43 @@ function draw(): void {
     canvas.setFillStyle('red');
     field.getCentrePoints().forEach(v => canvas.drawSquare(dc.worldToScreen(v), 7));
 
-    if (getStreamlines().length > 0) {
+    if (getMinorStreamlines().length > 0) {
         canvas.setFillStyle('#ECE5DB');
         canvas.clearCanvas();
 
         canvas.setStrokeStyle('#020202');
         canvas.setLineWidth(3);
-        getStreamlines().forEach(s => {
+        getMinorStreamlines().forEach(s => {
             canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
         });
 
         canvas.setStrokeStyle('#F8F8F8');
         canvas.setLineWidth(2);
-        getStreamlines().forEach(s => {
+        getMinorStreamlines().forEach(s => {
+            canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
+        });
+    }
+
+    if (getMajorStreamlines().length > 0) {
+        // this.COL_MAJ_IN = "#FAFA7A";
+        // this.COL_MAJ_OUT = "#282828";
+        canvas.setStrokeStyle('#282828');
+        canvas.setLineWidth(5);
+        getMajorStreamlines().forEach(s => {
+            canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
+        });
+
+        canvas.setStrokeStyle('#FAFA7A');
+        canvas.setLineWidth(4);
+        getMajorStreamlines().forEach(s => {
             canvas.drawPolyline(s.map(v => dc.worldToScreen(v.clone())));
         });
     }
 
     // Updates at 30fps
     while (performance.now() - startTime < 1000/30) {
-        s.update();
+        major.update();
+        minor.update();
     }
 
     requestAnimationFrame(draw);
