@@ -3,12 +3,28 @@ import Vector from '../vector';
 
 export default class CanvasWrapper {
     private ctx: CanvasRenderingContext2D;
+    private _width: number;
+    private _height: number;
     
-    constructor(canvas: HTMLCanvasElement, private _width: number, private _height: number) {
+    constructor(canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext("2d");
-        this.resizeCanvas();
+        window.addEventListener('resize', (): void => {
+            this.setDimensions();
+            this.resizeCanvas();
+        });
+        window.addEventListener('load', (): void => {
+            this.setDimensions();
+            this.resizeCanvas();
+        });
+        
+
         this.setFillStyle('black');
         this.clearCanvas();
+    }
+
+    setDimensions(): void {
+        this._width = window.innerWidth;
+        this._height = window.innerHeight;
     }
 
     get width(): number {

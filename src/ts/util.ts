@@ -1,4 +1,5 @@
 export default class Util {
+    // Must match style.css
     static readonly CANVAS_ID: string = 'map-canvas';
 
     static updateGui(gui: dat.GUI): void {

@@ -8,7 +8,7 @@ var tsify = require('tsify');
 var watchify = require('watchify');
 
 var paths = {
-    pages: ['src/html/*.html']
+    pages: ['src/html/*.html', 'src/html/*.css']
 };
 
 var files = [];

@@ -144,6 +144,16 @@ export default class Vector {
         return this;
     }
 
+    setX(x: number): Vector {
+        this.x = x;
+        return this;
+    }
+
+    setY(y: number): Vector {
+        this.y = y;
+        return this;
+    }
+
     setLength (length: number): Vector {
         return this.normalize().multiplyScalar(length);
     }

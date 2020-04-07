@@ -28,9 +28,7 @@ export default class GridStorage {
      */
     addAll(gridStorage: GridStorage): void {
         gridStorage.grid.forEach(row => row.forEach(cell => cell.forEach(sample => {
-            if (!this.vectorOutOfBounds(sample, this.worldDimensions)) {
-                this.addSample(sample);
-            }
+            this.addSample(sample);
         })));
     }
 

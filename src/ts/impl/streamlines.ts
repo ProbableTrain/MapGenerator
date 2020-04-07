@@ -64,29 +64,53 @@ export default class StreamlineGenerator {
     /**
      * Edits streamlines
      */
-    joinDanglingStreamlines(): void {
-        const streamlines = this.allStreamlines;
-        if (streamlines.length === 0) return;
+    joinDanglingStreamlines(): void { // TODO do in update method
+        for (let major of [true, false]) {
+            for (let streamline of this.streamlines(major)) {
+                // Ignore circles
+                if (streamline[0].equals(streamline[streamline.length - 1])) {
+                    continue;
+                }
 
-        for (let streamline of streamlines) {
-            // Ignore circles
-            if (streamline[0].equals(streamline[streamline.length - 1])) {
-                continue;
-            }
+                const newStart = this.getBestNextPoint(streamline[0], streamline[4], streamline)
+                if (newStart !== null) {
+                    this.pointsBetween(streamline[0], newStart, this.params.dstep).forEach(p => {
+                        streamline.unshift(p);
+                        this.grid(major).addSample(p);
+                    });
+                    streamline.unshift(newStart);
+                }
 
-            const newStart = this.getBestNextPoint(streamline[0], streamline[4], streamline)
-            if (newStart !== null) {
-                streamline.unshift(newStart);
-            }
-
-            const newEnd = this.getBestNextPoint(streamline[streamline.length - 1], streamline[streamline.length - 4], streamline);
-            if (newEnd !== null) {
-                streamline.push(newEnd);
+                const newEnd = this.getBestNextPoint(streamline[streamline.length - 1], streamline[streamline.length - 4], streamline);
+                if (newEnd !== null) {
+                    this.pointsBetween(streamline[streamline.length - 1], newEnd, this.params.dstep).forEach(p => {
+                        streamline.push(p);
+                        this.grid(major).addSample(p);
+                    });
+                    streamline.push(newEnd);
+                }
             }
         }
 
         // Reset simplified streamlines
         this.allStreamlinesSimple = this.allStreamlines.map(s => this.simplifyStreamline(s));
+    }
+
+    /**
+     * Returns array of points from v1 to v2 such that they are separated by at most dsep
+     * not including v1 or v2
+     */
+    pointsBetween(v1: Vector, v2: Vector, dstep: number): Vector[] {
+        const d = v1.distanceTo(v2);
+        const nPoints = Math.floor(d / dstep);
+        if (nPoints === 0) return [];
+
+        const stepVector = v2.clone().sub(v1).setLength(dstep);
+        const out = [v1.clone().add(stepVector)];
+        for (let i = 0; i < nPoints; i++) {
+            out.push(out[out.length - 1].clone().add(stepVector));
+        }
+        return out;
     }
 
 

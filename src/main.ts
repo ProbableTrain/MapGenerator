@@ -13,9 +13,11 @@ import {StreamlineParams} from './ts/impl/streamlines';
 import StreamlineGenerator from './ts/impl/streamlines';
 
 const size = 800;
-const dc = DomainController.getInstance(Vector.fromScalar(size));
+// const dc = DomainController.getInstance(Vector.fromScalar(size));
+const dc = DomainController.getInstance();
 const c = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
-const canvas = new CanvasWrapper(c, size, size);
+// const canvas = new CanvasWrapper(c, size, size);
+const canvas = new CanvasWrapper(c);
 const gui: dat.GUI = new dat.GUI();
 const tensorFolder = gui.addFolder('Tensor Field');
 
@@ -60,11 +62,14 @@ const integrator = new RK4Integrator(field, minorParams);
 let major = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, majorParams);
 let minor = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, minorParams);
 
-function setStreamline() {
-    major = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, majorParams);
+function setStreamlineMajor() {
     minor = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, minorParams);
+    major = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, majorParams);
     major.createAllStreamlines();
-    major.joinDanglingStreamlines();
+}
+
+function setStreamlineMinor() {
+    minor = new StreamlineGenerator(integrator, dc.origin, dc.worldDimensions, minorParams);
     minor.addExistingStreamlines(major);
     minor.createAllStreamlines();
 }
@@ -86,12 +91,14 @@ function getMinorStreamlines(): Vector[][] {
 }
 
 const tmpObj = {
-    setStreamline: setStreamline,
+    setStreamlineMajor: setStreamlineMajor,
+    setStreamlineMinor: setStreamlineMinor,
     joinMajor: joinMajor,
     joinMinor: joinMinor,
 };
 
-gui.add(tmpObj, 'setStreamline');
+gui.add(tmpObj, 'setStreamlineMajor');
+gui.add(tmpObj, 'setStreamlineMinor');
 gui.add(tmpObj, 'joinMajor');
 gui.add(tmpObj, 'joinMinor');
 

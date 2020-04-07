@@ -8,24 +8,42 @@ import Vector from '../vector';
 export default class DomainController {
     private static instance: DomainController;
 
+    private readonly ZOOM_SPEED = 0.96;
+
     // Location of screen origin in world space
     private _origin: Vector = Vector.zeroVector();
     
     // Screen-space width and height
-    private _screenDimensions: Vector;
+    private _screenDimensions = Vector.zeroVector();
 
     // Ratio of screen pixels to world pixels
     private _zoom: number = 1;
 
-    private constructor(screenDimensions?: Vector) {
-        if (screenDimensions) {
-            this._screenDimensions = screenDimensions.clone();
-        }
+    private constructor() {
+        window.addEventListener('resize', (): void => {
+            this._screenDimensions.setX(window.innerWidth);
+            this._screenDimensions.setY(window.innerHeight);
+        });
+
+        window.addEventListener('load', (): void => {
+            this._screenDimensions.setX(window.innerWidth);
+            this._screenDimensions.setY(window.innerHeight);
+        });
+        window.addEventListener('wheel', (e: any): void => {
+            const delta: number = e.deltaY;
+            // TODO scale by value of delta
+            if (delta > 0) {
+                this.zoom = this._zoom * this.ZOOM_SPEED;
+            } else {
+                this.zoom = this.zoom / this.ZOOM_SPEED;
+            }
+        });
+
     }
 
-    public static getInstance(screenDimensions?: Vector): DomainController {
+    public static getInstance(): DomainController {
         if (!DomainController.instance) {
-            DomainController.instance = new DomainController(screenDimensions);
+            DomainController.instance = new DomainController();
         }
         return DomainController.instance;
     }
