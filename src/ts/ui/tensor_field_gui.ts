@@ -3,7 +3,7 @@ import DragController from './drag_controller';
 import TensorField from '../impl/tensor_field';
 import {Grid, Radial, BasisField} from '../impl/basis_field';
 
-export default class TensorFieldInterface extends TensorField {
+export default class TensorFieldGUI extends TensorField {
     constructor(private guiFolder: dat.GUI, private dragController: DragController) {
         super();
     }
@@ -22,7 +22,7 @@ export default class TensorFieldInterface extends TensorField {
         field.setGui(folder);
     }
 
-    removeFieldGUI(field: BasisField, folder: dat.GUI, deregisterDrag: (() => void)): void {
+    private removeFieldGUI(field: BasisField, folder: dat.GUI, deregisterDrag: (() => void)): void {
         super.removeField(field);
         this.guiFolder.removeFolder(folder);
         // Deregister from drag controller

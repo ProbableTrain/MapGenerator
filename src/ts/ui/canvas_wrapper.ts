@@ -8,15 +8,13 @@ export default class CanvasWrapper {
     
     constructor(canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext("2d");
+        this.setDimensions();
+        this.resizeCanvas();
+
         window.addEventListener('resize', (): void => {
             this.setDimensions();
             this.resizeCanvas();
         });
-        window.addEventListener('load', (): void => {
-            this.setDimensions();
-            this.resizeCanvas();
-        });
-        
 
         this.setFillStyle('black');
         this.clearCanvas();

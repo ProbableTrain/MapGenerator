@@ -61,6 +61,12 @@ export default class StreamlineGenerator {
         this.setParamsSq();
     }
 
+    clearStreamlines(): void {
+        this.allStreamlinesSimple = [];
+        this.streamlinesMajor = [];
+        this.streamlinesMinor = [];
+    }
+
     /**
      * Edits streamlines
      */
@@ -290,7 +296,7 @@ export default class StreamlineGenerator {
     /**
      * One step of the streamline integration process
      */
-    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean): void {
+    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean, extraSamples: Vector[] =[]): void {
         if (params.valid) {
             params.streamline.push(params.previousPoint);
             const nextDirection = this.integrator.integrate(params.previousPoint, major);

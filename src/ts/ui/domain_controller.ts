@@ -1,5 +1,6 @@
 import * as log from 'loglevel';
 import Vector from '../vector';
+import Util from '../util.js';
 
 /**
  * Singleton
@@ -20,15 +21,10 @@ export default class DomainController {
     private _zoom: number = 1;
 
     private constructor() {
-        window.addEventListener('resize', (): void => {
-            this._screenDimensions.setX(window.innerWidth);
-            this._screenDimensions.setY(window.innerHeight);
-        });
+        this.setScreenDimensions();
 
-        window.addEventListener('load', (): void => {
-            this._screenDimensions.setX(window.innerWidth);
-            this._screenDimensions.setY(window.innerHeight);
-        });
+        window.addEventListener('resize', (): void => this.setScreenDimensions());
+
         window.addEventListener('wheel', (e: any): void => {
             const delta: number = e.deltaY;
             // TODO scale by value of delta
@@ -39,6 +35,11 @@ export default class DomainController {
             }
         });
 
+    }
+
+    private setScreenDimensions(): void {
+        this._screenDimensions.setX(window.innerWidth);
+        this._screenDimensions.setY(window.innerHeight);
     }
 
     public static getInstance(): DomainController {
@@ -84,6 +85,7 @@ export default class DomainController {
             this._zoom = z;
             const newWorldSpaceMidpoint = this.origin.add(this.worldDimensions.divideScalar(2));
             this.pan(newWorldSpaceMidpoint.sub(oldWorldSpaceMidpoint));
+            // TODO update gui
         }
     }
 
