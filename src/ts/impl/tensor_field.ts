@@ -5,8 +5,6 @@ import {Grid, Radial, BasisField} from './basis_field';
 
 export default class TensorField {
     private basisFields: BasisField[] = [];
-    private gridNameIndex = 0;
-    private radialNameIndex = 0;
 
     addGrid(centre: Vector, size: number, decay: number, theta: number): void {
         const grid = new Grid(centre, size, decay, theta);
@@ -27,6 +25,10 @@ export default class TensorField {
         if (index > -1) {
             this.basisFields.splice(index, 1);
         }
+    }
+
+    reset(): void {
+        this.basisFields = [];
     }
 
     getCentrePoints(): Vector[] {

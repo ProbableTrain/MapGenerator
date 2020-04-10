@@ -7,6 +7,7 @@ import {Grid, Radial} from './ts/impl/basis_field';
 import Vector from './ts/vector';
 import CanvasWrapper from './ts/ui/canvas_wrapper';
 import Util from './ts/util';
+import {RandomRange} from './ts/util';
 import DragController from './ts/ui/drag_controller';
 import DomainController from './ts/ui/domain_controller';
 import {RK4Integrator} from './ts/impl/integrator';
@@ -17,7 +18,7 @@ import StreamlineGenerator from './ts/impl/streamlines';
 class Main {
     private domainController = DomainController.getInstance();
     private canvas: CanvasWrapper;
-    private gui: dat.GUI = new dat.GUI();
+    private gui: dat.GUI = new dat.GUI({width: 300});
     private tensorField: TensorField;
     private integrator: FieldIntegrator;
     private majorRoads: StreamlineGenerator;
@@ -31,8 +32,10 @@ class Main {
     // Draw
     private TENSOR_LINE_DIAMETER = 20;
 
+    // Tensor spawn
+    private TENSOR_SPAWN_SCALE = 0.7;  // How much to shrink worldDimensions to find spawn point
+ 
     // Params
-
     private minorParams: StreamlineParams = {
         dsep: 20,
         dtest: 10,
@@ -60,9 +63,14 @@ class Main {
     constructor() {
         const c = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
         this.canvas = new CanvasWrapper(c);
+        const zoomController = this.gui.add(this.domainController, 'zoom');
+        this.domainController.setZoomUpdate(() => zoomController.updateDisplay());
         this.tensorFolder = this.gui.addFolder('Tensor Field');
         this.tensorField = new TensorFieldGUI(this.tensorFolder, this.dragController);
 
+        const tensorFieldResetObj = {reset: (): void => this.tensorField.reset()};
+        this.tensorFolder.add(tensorFieldResetObj, 'reset');
+        this.tensorFolder.add(this, 'setRecommended');
         this.tensorFolder.add(this, 'addRadial');
         this.tensorFolder.add(this, 'addGrid');
         this.tensorFolder.open();
@@ -107,6 +115,7 @@ class Main {
         this.setPathIterations();
         window.addEventListener('resize', (): void => this.setPathIterations());
 
+        this.setRecommended();
 
         requestAnimationFrame(this.draw.bind(this));
     }
@@ -121,7 +130,7 @@ class Main {
     generateMajorRoads(): void {
         this.majorRoads = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
-            this.domainController.worldDimensions, this.majorParams);
+            this.domainController.worldDimensions, Object.assign({},this.majorParams));
         this.minorRoads.clearStreamlines();
         this.majorRoads.createAllStreamlines();
         this.tensorFolder.close();
@@ -130,7 +139,7 @@ class Main {
     generateMinorRoads(): void {
         this.minorRoads = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
-            this.domainController.worldDimensions, this.minorParams);
+            this.domainController.worldDimensions, Object.assign({},this.minorParams));
         this.minorRoads.addExistingStreamlines(this.majorRoads);
         this.minorRoads.createAllStreamlines();
         this.tensorFolder.close();
@@ -152,14 +161,50 @@ class Main {
         folder.add(params, 'simplifyTolerance');
     }
 
+    /**
+     * World-space random location for tensor field spawn
+     * Sampled from middle of screen (shrunk rectangle)
+     */
+    private randomLocation() {
+        const size = this.domainController.worldDimensions.multiplyScalar(this.TENSOR_SPAWN_SCALE);
+        const location = new Vector(Math.random(), Math.random()).multiply(size);
+        const newOrigin = this.domainController.worldDimensions.multiplyScalar((1 - this.TENSOR_SPAWN_SCALE) / 2);
+        return location.add(this.domainController.origin).add(newOrigin);
+    }
+
     addRadial(): void {
-        // TODO random
-        this.tensorField.addRadial(new Vector(0, 0), 300, 20);
+        const width = this.domainController.worldDimensions.x;
+        this.tensorField.addRadial(this.randomLocation(),
+            Util.randomRange(width/10, width/5),  // Size
+            Util.randomRange(50));  // Decay
     }
 
     addGrid(): void {
-        // TODO random
-        this.tensorField.addGrid(new Vector(0, 0), 800, 20, Math.PI / 4);
+        this.addGridAtLocation(this.randomLocation());
+    }
+
+    private addGridAtLocation(location: Vector) {
+        const width = this.domainController.worldDimensions.x;
+        this.tensorField.addGrid(location,
+            Util.randomRange(width/4, width),  // Size
+            Util.randomRange(50),  // Decay
+            Util.randomRange(Math.PI/2));
+    }
+
+    /**
+     * 4 Grids, one radial
+     */
+    setRecommended(): void {
+        this.tensorField.reset();
+        const size = this.domainController.worldDimensions.multiplyScalar(this.TENSOR_SPAWN_SCALE);
+        const newOrigin = this.domainController.worldDimensions
+            .multiplyScalar((1 - this.TENSOR_SPAWN_SCALE) / 2)
+            .add(this.domainController.origin);
+        this.addGridAtLocation(newOrigin);
+        this.addGridAtLocation(newOrigin.clone().add(size));
+        this.addGridAtLocation(newOrigin.clone().add(new Vector(size.x, 0)));
+        this.addGridAtLocation(newOrigin.clone().add(new Vector(0, size.y)));
+        this.addRadial();
     }
 
 

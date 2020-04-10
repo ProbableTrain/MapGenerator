@@ -25,6 +25,18 @@ export default class Vector {
         return angleBetween;
     }
 
+    /**
+     * Tests whether a point lies to the left of a line
+     * @param  {Vector} linePoint     Point on the line
+     * @param  {Vector} lineDirection 
+     * @param  {Vector} point
+     * @return {Vector}               true if left, false otherwise
+     */
+    static isLeft(linePoint: Vector, lineDirection: Vector, point: Vector): boolean {
+        const perpendicularVector = new Vector(lineDirection.y, -lineDirection.x);
+        return point.clone().sub(linePoint).dot(perpendicularVector) < 0;
+    }
+
     add(v: Vector): Vector {
         this.x += v.x;
         this.y += v.y;
@@ -97,7 +109,7 @@ export default class Vector {
         return this.x * this.x + this.y * this.y;
     }
 
-    mulitply(v: Vector): Vector {
+    multiply(v: Vector): Vector {
         this.x *= v.x;
         this.y *= v.y;
         return this;

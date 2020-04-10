@@ -5,6 +5,8 @@ import GridStorage from './grid_storage';
 import FieldIntegrator from './integrator';
 
 interface StreamlineIntegration {
+    seed: Vector,
+    originalDir: Vector,
     streamline: Vector[];
     previousDirection: Vector;
     previousPoint: Vector;
@@ -26,10 +28,17 @@ export interface StreamlineParams {
 
 export default class StreamlineGenerator {
     private readonly SEED_AT_ENDPOINTS = false;
+    private readonly NEAR_EDGE = 3;  // Sample near edge
 
     private majorGrid: GridStorage;
     private minorGrid: GridStorage;
     private paramsSq: StreamlineParams;
+
+    // How many samples to skip when checking streamline collision with itself
+    private nStreamlineStep: number;
+    // How many samples to ignore backwards when checking streamline collision with itself
+    private nStreamlineLookBack: number;
+    private dcollideselfSq: number;
 
     private candidateSeedsMajor: Vector[] = [];
     private candidateSeedsMinor: Vector[] = [];
@@ -55,6 +64,11 @@ export default class StreamlineGenerator {
         // Enforce test < sep
         params.dtest = Math.min(params.dtest, params.dsep);
 
+        // Needs to be less than circlejoin
+        this.dcollideselfSq = (params.dcirclejoin / 2) ** 2;
+        this.nStreamlineStep = Math.floor(params.dcirclejoin / params.dstep);
+        this.nStreamlineLookBack = 2 * this.nStreamlineStep;
+
         this.majorGrid = new GridStorage(this.worldDimensions, this.origin, params.dsep);
         this.minorGrid = new GridStorage(this.worldDimensions, this.origin, params.dsep);
 
@@ -70,7 +84,8 @@ export default class StreamlineGenerator {
     /**
      * Edits streamlines
      */
-    joinDanglingStreamlines(): void { // TODO do in update method
+    joinDanglingStreamlines(): void {
+        // TODO do in update method
         for (let major of [true, false]) {
             for (let streamline of this.streamlines(major)) {
                 // Ignore circles
@@ -125,6 +140,15 @@ export default class StreamlineGenerator {
      * returns null if there are no good candidates
      */
     getBestNextPoint(point: Vector, previousPoint: Vector, streamline: Vector[]): Vector {
+        // Only consider points not on the edge
+        if (point.x < this.NEAR_EDGE || point.x > this.worldDimensions.x - this.NEAR_EDGE) {
+            return null;
+        }
+
+        if (point.y < this.NEAR_EDGE || point.y > this.worldDimensions.y - this.NEAR_EDGE) {
+            return null;
+        }
+
         const nearbyPoints = this.majorGrid.getNearbyPoints(point, this.params.dlookahead)
             .concat(this.minorGrid.getNearbyPoints(point, this.params.dlookahead));
         const direction = point.clone().sub(previousPoint);
@@ -294,9 +318,53 @@ export default class StreamlineGenerator {
     }
 
     /**
+     * Didn't end up using - bit expensive, used streamlineTurned instead
+     * Stops spirals from forming
+     * uses 0.5 dcirclejoin so that circles are still joined up
+     * testSample is candidate to pushed on end of streamlineForwards
+     * returns true if streamline collides with itself
+     */
+    private doesStreamlineCollideSelf(testSample: Vector, streamlineForwards: Vector[], streamlineBackwards: Vector[]): boolean {
+        // Streamline long enough
+        if (streamlineForwards.length > this.nStreamlineLookBack) {
+            // Forwards check
+            for (let i = 0; i < streamlineForwards.length - this.nStreamlineLookBack; i += this.nStreamlineStep) {
+                if (testSample.distanceToSquared(streamlineForwards[i]) < this.dcollideselfSq) {
+                    return true;
+                }
+            }
+
+            // Backwards check
+            for (let i = 0; i < streamlineBackwards.length; i += this.nStreamlineStep) {
+                if (testSample.distanceToSquared(streamlineBackwards[i]) < this.dcollideselfSq) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Tests whether streamline has turned through greater than 180 degrees
+     */
+    private streamlineTurned(seed: Vector, originalDir: Vector, point: Vector, direction: Vector): boolean {
+        if (originalDir.dot(direction) < 0) {
+            // TODO optimise
+            const perpendicularVector = new Vector(originalDir.y, -originalDir.x);
+            const isLeft = point.clone().sub(seed).dot(perpendicularVector) < 0;
+            const directionUp = direction.dot(perpendicularVector) > 0;
+            return isLeft === directionUp;
+        }
+
+        return false;
+    }
+
+    /**
+     * // TODO this doesn't work well - consider something disallowing one direction (F/B) to turn more than 180 deg
      * One step of the streamline integration process
      */
-    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean, extraSamples: Vector[] =[]): void {
+    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean): void {
         if (params.valid) {
             params.streamline.push(params.previousPoint);
             const nextDirection = this.integrator.integrate(params.previousPoint, major);
@@ -308,8 +376,15 @@ export default class StreamlineGenerator {
 
             const nextPoint = params.previousPoint.clone().add(nextDirection);
 
+            // Visualise stopping points
+            // if (this.streamlineTurned(params.seed, params.originalDir, nextPoint, nextDirection)) {
+            //     params.valid = false;
+            //     params.streamline.push(Vector.zeroVector());
+            // }
+
             if (this.pointInBounds(nextPoint)
-                && this.grid(major).isValidSample(nextPoint, this.paramsSq.dtest)) {
+                && this.grid(major).isValidSample(nextPoint, this.paramsSq.dtest)
+                && !this.streamlineTurned(params.seed, params.originalDir, nextPoint, nextDirection)) {
                 params.previousPoint = nextPoint;
                 params.previousDirection = nextDirection;
             } else {
@@ -329,6 +404,8 @@ export default class StreamlineGenerator {
         const d = this.integrator.integrate(seed, major);
 
         const forwardParams: StreamlineIntegration = {
+            seed: seed,
+            originalDir: d,
             streamline: [seed],
             previousDirection: d,
             previousPoint: seed.clone().add(d),
@@ -337,10 +414,13 @@ export default class StreamlineGenerator {
 
         forwardParams.valid = this.pointInBounds(forwardParams.previousPoint);
 
+        const negD = d.clone().negate();
         const backwardParams: StreamlineIntegration = {
+            seed: seed,
+            originalDir: negD,
             streamline: [],
-            previousDirection: d.clone().negate(),
-            previousPoint: seed.clone().add(d.clone().negate()),
+            previousDirection: negD,
+            previousPoint: seed.clone().add(negD),
             valid: true,
         }
 

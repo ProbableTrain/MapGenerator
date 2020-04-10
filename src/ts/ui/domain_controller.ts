@@ -19,6 +19,7 @@ export default class DomainController {
 
     // Ratio of screen pixels to world pixels
     private _zoom: number = 1;
+    private zoomCallback: () => any = () => {};
 
     private constructor() {
         this.setScreenDimensions();
@@ -31,7 +32,7 @@ export default class DomainController {
             if (delta > 0) {
                 this.zoom = this._zoom * this.ZOOM_SPEED;
             } else {
-                this.zoom = this.zoom / this.ZOOM_SPEED;
+                this.zoom = this._zoom / this.ZOOM_SPEED;
             }
         });
 
@@ -85,8 +86,12 @@ export default class DomainController {
             this._zoom = z;
             const newWorldSpaceMidpoint = this.origin.add(this.worldDimensions.divideScalar(2));
             this.pan(newWorldSpaceMidpoint.sub(oldWorldSpaceMidpoint));
-            // TODO update gui
+            this.zoomCallback();
         }
+    }
+
+    setZoomUpdate(callback: () => any): void {
+        this.zoomCallback = callback;
     }
 
     /**
