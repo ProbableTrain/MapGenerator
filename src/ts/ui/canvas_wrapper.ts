@@ -6,23 +6,25 @@ export default class CanvasWrapper {
     private _width: number;
     private _height: number;
     
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, private _scale=1, resizeToWindow=true) {
         this.ctx = canvas.getContext("2d");
         this.setDimensions();
         this.resizeCanvas();
 
-        window.addEventListener('resize', (): void => {
-            this.setDimensions();
-            this.resizeCanvas();
-        });
+        if (resizeToWindow) {
+            window.addEventListener('resize', (): void => {
+                this.setDimensions();
+                this.resizeCanvas();
+            });
+        }
 
         this.setFillStyle('black');
         this.clearCanvas();
     }
 
     setDimensions(): void {
-        this._width = window.innerWidth;
-        this._height = window.innerHeight;
+        this._width = window.innerWidth * this._scale;
+        this._height = window.innerHeight * this._scale;
     }
 
     get width(): number {
@@ -33,15 +35,31 @@ export default class CanvasWrapper {
         return this._height;
     }
 
+    get canvasScale(): number {
+        return this._scale;
+    }
+
+    set canvasScale(s: number) {
+        this._scale = s;
+        this.setDimensions();
+        this.resizeCanvas();
+    } 
+
     setFillStyle(colour: string): void {
         this.ctx.fillStyle = colour;
     }
 
     clearCanvas(): void {
-        this.drawRectangle(0, 0, this._width, this._height);
+        this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
     }
 
     drawRectangle(x: number, y: number, width: number, height: number): void {
+        if (this._scale !== 1) {
+            x *= this._scale;
+            y *= this._scale;
+            width *= this._scale;
+            height *= this._scale;
+        }
         this.ctx.fillRect(x, y, width, height);
     }
 
@@ -50,6 +68,9 @@ export default class CanvasWrapper {
     }
 
     setLineWidth(width: number): void {
+        if (this._scale !== 1) {
+            width *= this._scale;
+        }
         this.ctx.lineWidth = width;
     }
 
@@ -61,6 +82,10 @@ export default class CanvasWrapper {
         if (line.length < 2) {
             log.warn("Tried to draw path of length < 2");
             return;
+        }
+
+        if (this._scale !== 1) {
+            line = line.map(v => v.clone().multiplyScalar(this._scale));
         }
 
         this.ctx.beginPath();

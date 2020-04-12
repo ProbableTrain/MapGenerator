@@ -25,6 +25,10 @@ class Main {
     private minorRoads: StreamlineGenerator;
     private dragController = new DragController(this.gui);
 
+    // Options
+    private drawCenter = true;
+    private imageScale = 5;
+
     // Folders
     private tensorFolder: dat.GUI;
     private roadsFolder: dat.GUI;
@@ -111,13 +115,29 @@ class Main {
         const minorDevParams = minorRoadsParams.addFolder('Dev');
         this.addDevParamsToFolder(this.minorParams, minorDevParams);
 
+        const optionsFolder = this.gui.addFolder('Options');
+        optionsFolder.add(this, 'drawCenter');
+        optionsFolder.add(this.canvas, 'canvasScale');
+        optionsFolder.add(this, 'imageScale', 1, 5);
+        optionsFolder.add(this, 'download');
+
         // Update path iterations based on window size
         this.setPathIterations();
         window.addEventListener('resize', (): void => this.setPathIterations());
 
         this.setRecommended();
 
-        requestAnimationFrame(this.draw.bind(this));
+        requestAnimationFrame(this.update.bind(this));
+    }
+
+    download(): void {
+        const c = document.getElementById(Util.IMG_CANVAS_ID) as HTMLCanvasElement;
+        const imgCanvas = new CanvasWrapper(c, this.imageScale, false);
+        this.draw(imgCanvas);
+        const link = document.createElement('a');
+        link.download = 'map.png';
+        link.href = (document.getElementById(Util.IMG_CANVAS_ID) as any).toDataURL();
+        link.click();
     }
 
     private setPathIterations() {
@@ -246,62 +266,69 @@ class Main {
             && this.minorRoads.allStreamlinesSimple.length === 0);
     }
 
-    draw(): void {
-        this.canvas.setFillStyle('black');
-        this.canvas.clearCanvas();
+    draw(canvas: CanvasWrapper): void {
+        canvas.setFillStyle('black');
+        canvas.clearCanvas();
         if (this.drawTensorField()) {
             // Draw tensor field
-            this.canvas.setStrokeStyle('white');
-            this.canvas.setLineWidth(1);
+            canvas.setStrokeStyle('white');
+            canvas.setLineWidth(1);
             const tensorPoints = this.getCrossLocations();
             tensorPoints.forEach(p => {
                 const t = this.tensorField.samplePoint(p);
-                this.canvas.drawPolyline(this.getTensorLine(p, t.getMajor()));
-                this.canvas.drawPolyline(this.getTensorLine(p, t.getMinor()));
+                canvas.drawPolyline(this.getTensorLine(p, t.getMajor()));
+                canvas.drawPolyline(this.getTensorLine(p, t.getMinor()));
             });
 
             // Draw centre points of fields
             this.dragController.setDragDisabled(false);
-            this.canvas.setFillStyle('red');
-            this.tensorField.getCentrePoints().forEach(v =>
-                this.canvas.drawSquare(this.domainController.worldToScreen(v), 7));
+
+            if (this.drawCenter) {
+                canvas.setFillStyle('red');
+                this.tensorField.getCentrePoints().forEach(v =>
+                    canvas.drawSquare(this.domainController.worldToScreen(v), 7));
+            }
         } else {
             // Draw Roads
-            this.canvas.setFillStyle('#ECE5DB');
-            this.canvas.clearCanvas();
+            canvas.setFillStyle('#ECE5DB');
+            canvas.clearCanvas();
+            this.dragController.setDragDisabled(true);
             
             // Minor
             if (this.minorRoads.allStreamlinesSimple.length > 0) {
-                this.canvas.setStrokeStyle('#020202');
-                this.canvas.setLineWidth(3);
+                canvas.setStrokeStyle('#020202');
+                canvas.setLineWidth(3);
                 this.minorRoads.allStreamlinesSimple.forEach(s => {
-                    this.canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
+                    canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
                 });
 
-                this.canvas.setStrokeStyle('#F8F8F8');
-                this.canvas.setLineWidth(2);
+                canvas.setStrokeStyle('#F8F8F8');
+                canvas.setLineWidth(2);
                 this.minorRoads.allStreamlinesSimple.forEach(s => {
-                    this.canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
+                    canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
                 });
             }
 
             // Major
             if (this.majorRoads.allStreamlinesSimple.length > 0) {
-                this.canvas.setStrokeStyle('#282828');
-                this.canvas.setLineWidth(5);
+                canvas.setStrokeStyle('#282828');
+                canvas.setLineWidth(5);
                 this.majorRoads.allStreamlinesSimple.forEach(s => {
-                    this.canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
+                    canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
                 });
 
-                this.canvas.setStrokeStyle('#FAFA7A');
-                this.canvas.setLineWidth(4);
+                canvas.setStrokeStyle('#FAFA7A');
+                canvas.setLineWidth(4);
                 this.majorRoads.allStreamlinesSimple.forEach(s => {
-                    this.canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
+                    canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
                 });
             }
         }
-        
-        requestAnimationFrame(this.draw.bind(this));
+    }
+
+    update(): void {
+        this.draw(this.canvas);
+        requestAnimationFrame(this.update.bind(this));
     }
 }
 

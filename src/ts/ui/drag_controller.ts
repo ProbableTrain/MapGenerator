@@ -37,14 +37,11 @@ export default class DragController {
     }
 
     getCursor(action: any, interactable: any, element: any, interacting: boolean) {
-        if (this.disabled) return 'default';
         if (interacting) return 'grabbing';
         return 'grab';
     }
 
     dragStart(event: any): void {
-        if (this.disabled) return;
-
         // Transform screen space to world space
         const origin = this.domainController.screenToWorld(new Vector(event.x0, event.y0));
         
@@ -66,12 +63,10 @@ export default class DragController {
     }
 
     dragMove(event: any): void {
-        if (this.disabled) return;
-
         const delta = new Vector(event.delta.x, event.delta.y);
         this.domainController.zoomToWorld(delta);
 
-        if (this.currentlyDragging !== null) {
+        if (!this.disabled && this.currentlyDragging !== null) {
             // Drag field
             this.currentlyDragging.callbackFn(delta);
         } else {
@@ -81,7 +76,6 @@ export default class DragController {
     }
 
     dragEnd(): void {
-        if (this.disabled) return;
         this.currentlyDragging = null;
         Util.updateGui(this.gui);
     }

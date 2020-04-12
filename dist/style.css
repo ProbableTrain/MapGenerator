@@ -12,6 +12,10 @@ html, body {
     height:100%;
 }
 
+#img-canvas {
+    display: none;
+}
+
 .ac .dg li.cr, .ac .dg li.folder {
     margin-left: 10px;
 }

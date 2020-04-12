@@ -5,7 +5,8 @@ export interface RandomRange {
 
 export default class Util {
     // Must match style.css
-    static readonly CANVAS_ID: string = 'map-canvas';
+    static readonly CANVAS_ID = 'map-canvas';
+    static readonly IMG_CANVAS_ID = 'img-canvas';
 
     static updateGui(gui: dat.GUI): void {
         if (gui.__controllers) {
