@@ -72,10 +72,12 @@ export default class RoadsGUI {
             this.polygons = new PolygonFinder(g.nodes).polygons;
 
             // Three parks
-            const i = Math.floor(Math.random() * this.polygons.length - 3);
-            this.parks.push(this.polygons[i]);
-            this.parks.push(this.polygons[i + 1]);
-            this.parks.push(this.polygons[i + 2]);
+            if (this.polygons.length > 3) {
+                const i = Math.floor(Math.random() * (this.polygons.length - 3));
+                this.parks.push(this.polygons[i]);
+                this.parks.push(this.polygons[i + 1]);
+                this.parks.push(this.polygons[i + 2]);
+            }
         });
     }
 
