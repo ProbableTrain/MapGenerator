@@ -53,25 +53,29 @@ export default class RoadsGUI {
         this.minorRoads.setExistingStreamlines([this.mainRoads, this.majorRoads]);
         this.majorRoads.setExistingStreamlines([this.mainRoads]);
 
-        this.mainRoads.setGenerateCallback(() => {
+        this.mainRoads.setPreGenerateCallback(() => {
             this.majorRoads.clearStreamlines();
             this.minorRoads.clearStreamlines();
+            this.parks = [];
+            tensorField.setPolygons([]);
         });
 
-        this.majorRoads.setGenerateCallback(() => {
+        this.majorRoads.setPreGenerateCallback(() => {
             this.minorRoads.clearStreamlines();
+            this.parks = [];
+            tensorField.setPolygons(this.parks);
+        });
+
+        this.majorRoads.setPostGenerateCallback(() => {
             const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
             this.intersections = g.intersections; 
             this.polygons = new PolygonFinder(g.nodes).polygons;
 
-            // Two parks
-            this.parks = [];
+            // Three parks
             const i = Math.floor(Math.random() * this.polygons.length - 3);
             this.parks.push(this.polygons[i]);
             this.parks.push(this.polygons[i + 1]);
             this.parks.push(this.polygons[i + 2]);
-
-            tensorField.setPolygons(this.parks);
         });
     }
 

@@ -34,6 +34,26 @@ export default class Tensor {
         return this;
     }
 
+    // Radians
+    rotate(theta: number): Tensor {
+        if (theta === 0) {
+            return this;
+        }
+        let newTheta = this.theta + theta;
+        if (newTheta < Math.PI) {
+            newTheta += Math.PI;
+        }
+
+        if (newTheta >= Math.PI) {
+            newTheta -= Math.PI;
+        }
+
+        this.matrix[0] = Math.cos(2 * newTheta) * this.r;
+        this.matrix[1] = Math.sin(2 * newTheta) * this.r;
+        this._theta = newTheta;
+        return this;
+    }
+
     getMajor(): Vector {
         // Degenerate case
         if (this.r === 0) {

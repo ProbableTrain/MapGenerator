@@ -1,4 +1,6 @@
 import * as log from 'loglevel';
+// import * as noise from 'noisejs';
+import * as SimplexNoise from 'simplex-noise';
 import Tensor from './tensor';
 import Vector from '../vector';
 import {Grid, Radial, BasisField} from './basis_field';
@@ -6,10 +8,15 @@ import {Grid, Radial, BasisField} from './basis_field';
 export default class TensorField {
     private basisFields: BasisField[] = [];
     private polygons: Vector[][] = [];
+    private noise: SimplexNoise;
+
+    constructor() {
+        this.noise = new SimplexNoise();
+    }
 
     addGrid(centre: Vector, size: number, decay: number, theta: number): void {
         const grid = new Grid(centre, size, decay, theta);
-        this.addField(grid);
+        this.addField(grid);        
     }
 
     addRadial(centre: Vector, size: number, decay: number): void {
@@ -41,9 +48,13 @@ export default class TensorField {
     }
 
     samplePoint(point: Vector): Tensor {
-        // Degenerate inside polygons
+        // Inside polygons
+        let noise = 0;
         if (this.polygons.some(p => this.insidePolygon(point, p))) {
-            return new Tensor(0, [0, 0]);
+            // Rotation noise - range -pi/2 to pi/2
+            noise = this.noise.noise2D(point.x / 20, point.y / 20) * Math.PI/2;
+            // For degenerate point
+            // return new Tensor(0, [0,0]);
         }
 
         // Default field is a grid
@@ -53,7 +64,8 @@ export default class TensorField {
 
         const tensorAcc = new Tensor(0, [0, 0]);
         this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point)));
-        return tensorAcc;
+
+        return tensorAcc.rotate(noise);
     }
 
     insidePolygon(point: Vector, polygon: Vector[]) {

@@ -26,6 +26,7 @@
     "interactjs": "^1.9.8",
     "isect": "^3.0.0",
     "loglevel": "^1.6.7",
+    "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4"
   },
   "devDependencies": {

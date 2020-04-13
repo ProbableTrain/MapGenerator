@@ -11,7 +11,8 @@ export default class RoadGUI {
     private streamlines: StreamlineGenerator;
     private existingStreamlines: RoadGUI[] = [];
     private domainController = DomainController.getInstance();
-    private generateCallback: () => any = () => {};
+    private preGenerateCallback: () => any = () => {};
+    private postGenerateCallback: () => any = () => {};
 
     constructor(private params: StreamlineParams,
                 private integrator: FieldIntegrator,
@@ -62,8 +63,12 @@ export default class RoadGUI {
         this.existingStreamlines = existingStreamlines;
     }
 
-    setGenerateCallback(callback: () => any) {
-        this.generateCallback = callback;
+    setPreGenerateCallback(callback: () => any) {
+        this.preGenerateCallback = callback;
+    }
+
+    setPostGenerateCallback(callback: () => any) {
+        this.postGenerateCallback = callback;
     }
 
     clearStreamlines(): void {
@@ -71,13 +76,14 @@ export default class RoadGUI {
     }
 
     generateRoads(): void {
+        this.preGenerateCallback();
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions, Object.assign({},this.params));
         this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));        
         this.streamlines.createAllStreamlines();
         this.closeTensorFolder();
-        this.generateCallback();
+        this.postGenerateCallback();
     }
 
     private addDevParamsToFolder(params: StreamlineParams, folder: dat.GUI): void {
