@@ -12,8 +12,8 @@ import PolygonFinder from '../impl/polygon_finder';
 export default class RoadsGUI {
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
-    private polygons: Vector[][] = [];
     private parks: Vector[][] = [];
+    private lots: Vector[][] = [];
 
     private mainRoads: RoadGUI;
     private majorRoads: RoadGUI;
@@ -57,33 +57,56 @@ export default class RoadsGUI {
             this.majorRoads.clearStreamlines();
             this.minorRoads.clearStreamlines();
             this.parks = [];
+            this.lots = [];
             tensorField.setPolygons([]);
         });
 
         this.majorRoads.setPreGenerateCallback(() => {
             this.minorRoads.clearStreamlines();
             this.parks = [];
+            this.lots = [];
             tensorField.setPolygons(this.parks);
         });
 
         this.majorRoads.setPostGenerateCallback(() => {
             const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
             this.intersections = g.intersections; 
-            this.polygons = new PolygonFinder(g.nodes).polygons;
+            const polygons = new PolygonFinder(g.nodes).polygons;
 
             // Three parks
-            if (this.polygons.length > 3) {
-                const i = Math.floor(Math.random() * (this.polygons.length - 3));
-                this.parks.push(this.polygons[i]);
-                this.parks.push(this.polygons[i + 1]);
-                this.parks.push(this.polygons[i + 2]);
+            if (polygons.length > 3) {
+                const i = Math.floor(Math.random() * (polygons.length - 3));
+                this.parks.push(polygons[i]);
+                this.parks.push(polygons[i + 1]);
+                this.parks.push(polygons[i + 2]);
             }
         });
+
+        this.minorRoads.setPreGenerateCallback(() => {
+            this.lots = [];
+        });
+
+        guiFolder.add(this, 'addBuildings');
+    }
+
+    addBuildings() {
+        const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines).concat(this.minorRoads.allStreamlines), this.minorParams.dstep);
+        const p = new PolygonFinder(g.nodes);
+        this.lots = p.shrink();
+        this.lots = p.divide();
     }
 
     draw(canvas: CanvasWrapper): void {
         canvas.setFillStyle('#ECE5DB');
         canvas.clearCanvas();
+
+        // Buildings
+        canvas.setFillStyle('#ECE5DB');
+        canvas.setStrokeStyle('#282828');
+        canvas.setLineWidth(0.5);
+        this.lots.forEach(p => {
+            canvas.drawPolygon(p.map(v => this.domainController.worldToScreen(v.clone())));
+        });
 
         // Parks
         canvas.setFillStyle('#c5e8c5');
@@ -96,7 +119,6 @@ export default class RoadsGUI {
         canvas.setStrokeStyle('#020202');
         canvas.setLineWidth(3);
         this.minorRoads.draw(canvas);
-
 
         canvas.setStrokeStyle('#020202');
         canvas.setLineWidth(5);

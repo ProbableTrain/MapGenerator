@@ -1,15 +1,30 @@
 import * as log from 'loglevel';
+import * as PolyK from 'polyk';
 import Vector from '../vector';
 import {Node} from './graph';
 
 export default class PolygonFinder {
     public polygons: Vector[][] = [];
 
-    constructor(private nodes: Node[], private maxLength=20, private minArea=1) {
+    constructor(private nodes: Node[], private maxLength=20, private minArea=80, private shrinkAmount=0.75) {
         this.polygons = this.findPolygons(this.nodes);
     }
 
-    findPolygons(nodes: Node[]): Vector[][] {
+    shrink(): Vector[][] {
+        this.polygons = this.polygons.map(p => this.shrinkPolygon(p, this.shrinkAmount));
+        return this.polygons;
+    }
+
+    divide(): Vector[][] {
+        let divided: Vector[][] = [];
+        this.polygons.forEach(p => {
+            divided = divided.concat(this.subdividePolygon(p));
+        });
+        this.polygons = divided;
+        return divided;
+    }
+
+    private findPolygons(nodes: Node[]): Vector[][] {
         // Node
         // x, y, value (Vector2), adj (list of node refs)
         // Gonna edit adj for now
@@ -34,7 +49,7 @@ export default class PolygonFinder {
         return polygons;
     }
 
-    removePolygonAdjacencies(polygon: Node[]): void {
+    private removePolygonAdjacencies(polygon: Node[]): void {
         for (let i = 0; i < polygon.length; i++) {
             const current = polygon[i];
             const next = polygon[(i + 1) % polygon.length];
@@ -91,6 +106,79 @@ export default class PolygonFinder {
         }
 
         return rightmostNode;
+    }
+
+    private shrinkPolygon(polygon: Vector[], amount: number) {
+        // Returns clone
+        if (polygon.length < 3) {
+            return;
+        }
+
+        const averagePoint = polygon[0].clone();
+        for (let i = 1; i < polygon.length; i++) {
+            averagePoint.add(polygon[i]);
+        }
+
+        averagePoint.multiplyScalar(1 / polygon.length);
+
+        return polygon.map(v => v.clone().sub(averagePoint).multiplyScalar(amount).add(averagePoint));
+    }
+
+    private subdividePolygon(p: Vector[]): Vector[][] {
+        if (this.calcPolygonArea(p) < this.minArea) {
+            return [p];
+        }
+
+        let divided: Vector[][] = [];  // Array of polygons
+
+        let longestSideLength = 0;
+        let longestSide = [p[0], p[1]];
+
+        for (let i = 0; i < p.length; i++) {
+            const sideLength = p[i].clone().sub(p[(i+1) % p.length]).length();
+            if (sideLength > longestSideLength) {
+                longestSideLength = sideLength;
+                longestSide = [p[i], p[(i+1) % p.length]];
+            }
+        }
+
+        // Between 0.4 and 0.6
+        const deviation = (Math.random() * 0.2) + 0.4;
+
+        const averagePoint = longestSide[0].clone().add(longestSide[1]).multiplyScalar(deviation);
+        const differenceVector = longestSide[0].clone().sub(longestSide[1]);
+        const perpVector = (new Vector(differenceVector.y, -1 * differenceVector.x))
+            .normalize()
+            .multiplyScalar(100);
+
+        const bisect = [averagePoint.clone().add(perpVector), averagePoint.clone().sub(perpVector)];
+
+        // Array of polygons
+        const sliced = PolyK.Slice(this.polygonToPolygonArray(p), bisect[0].x, bisect[0].y, bisect[1].x, bisect[1].y);
+
+        // TODO recursive call
+        sliced.forEach(s => {
+            divided = divided.concat(this.subdividePolygon(this.polygonArrayToPolygon(s)));
+        });
+
+        return divided;
+    }
+
+    private polygonToPolygonArray(p: Vector[]): number[] {
+        const outP: number[] = [];
+        p.forEach(v => {
+            outP.push(v.x);
+            outP.push(v.y);
+        });
+        return outP;
+    }
+
+    private polygonArrayToPolygon(p: number[]): Vector[] {
+        const outP = [];
+        for (let i = 0; i < p.length / 2; i++) {
+            outP.push(new Vector(p[2*i], p[2*i + 1]));
+        }
+        return outP;
     }
 
     private isValidPolygon(p: Vector[]): boolean {

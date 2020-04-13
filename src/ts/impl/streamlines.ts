@@ -181,6 +181,10 @@ export default class StreamlineGenerator {
         // TODO if trying to find intersections in the simplified graph
         // return closest.clone().add(direction length simplify tolerance));
         // to prevent ends getting pulled away from simplified lines
+        if (closestSample !== null) {
+            closestSample = closestSample.clone().add(direction.setLength(this.params.simplifyTolerance * 3));
+        }
+
         return closestSample;
     }
 
