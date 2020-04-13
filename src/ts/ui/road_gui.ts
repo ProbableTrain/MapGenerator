@@ -5,11 +5,13 @@ import Util from '../util';
 import FieldIntegrator from '../impl/integrator';
 import {StreamlineParams} from '../impl/streamlines';
 import StreamlineGenerator from '../impl/streamlines';
+import Vector from '../vector';
 
 export default class RoadGUI {
     private streamlines: StreamlineGenerator;
     private existingStreamlines: RoadGUI[] = [];
     private domainController = DomainController.getInstance();
+    private generateCallback: () => any = () => {};
 
     constructor(private params: StreamlineParams,
                 private integrator: FieldIntegrator,
@@ -42,6 +44,10 @@ export default class RoadGUI {
         window.addEventListener('resize', (): void => this.setPathIterations());
     }
 
+    get allStreamlines(): Vector[][] {
+        return this.streamlines.allStreamlinesSimple;
+    }
+
     draw(canvas: CanvasWrapper): void {
         this.streamlines.allStreamlinesSimple.forEach(s => {
             canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
@@ -56,6 +62,14 @@ export default class RoadGUI {
         this.existingStreamlines = existingStreamlines;
     }
 
+    setGenerateCallback(callback: () => any) {
+        this.generateCallback = callback;
+    }
+
+    clearStreamlines(): void {
+        this.streamlines.clearStreamlines();
+    }
+
     generateRoads(): void {
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
@@ -63,6 +77,7 @@ export default class RoadGUI {
         this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));        
         this.streamlines.createAllStreamlines();
         this.closeTensorFolder();
+        this.generateCallback();
     }
 
     private addDevParamsToFolder(params: StreamlineParams, folder: dat.GUI): void {

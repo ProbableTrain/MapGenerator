@@ -3,7 +3,8 @@
         "noImplicitAny": true,
         "target": "es5",
         "skipLibCheck": true,
-        "lib": ["es6", "DOM", "ScriptHost"]
+        "lib": ["es6", "DOM", "ScriptHost"],
+        "downlevelIteration": true
     },
     "include": [
         "src/**/*.ts"

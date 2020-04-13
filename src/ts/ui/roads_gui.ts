@@ -4,10 +4,13 @@ import DomainController from './domain_controller';
 import TensorField from '../impl/tensor_field';
 import {RK4Integrator} from '../impl/integrator';
 import {StreamlineParams} from '../impl/streamlines';
+import Graph from '../impl/graph';
 import RoadGUI from './road_gui';
+import Vector from '../vector';
 
 export default class RoadsGUI {
     private domainController = DomainController.getInstance();
+    private intersections: Vector[] = [];
 
     private mainRoads: RoadGUI;
     private majorRoads: RoadGUI;
@@ -46,6 +49,22 @@ export default class RoadsGUI {
 
         this.minorRoads.setExistingStreamlines([this.mainRoads, this.majorRoads]);
         this.majorRoads.setExistingStreamlines([this.mainRoads]);
+
+        this.mainRoads.setGenerateCallback(() => {
+            this.majorRoads.clearStreamlines();
+            this.minorRoads.clearStreamlines();
+        });
+
+        this.majorRoads.setGenerateCallback(() => {
+            this.minorRoads.clearStreamlines();
+            const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
+            this.intersections = g.intersections; 
+        });
+
+        // this.minorRoads.setGenerateCallback(() => {
+        //     const g = new Graph(this.minorRoads.allStreamlines, this.minorParams.dstep);
+        //     this.intersections = g.intersections; 
+        // });
     }
 
     draw(canvas: CanvasWrapper): void {
@@ -79,6 +98,10 @@ export default class RoadsGUI {
         canvas.setStrokeStyle('#FAFA7A');
         canvas.setLineWidth(5);
         this.mainRoads.draw(canvas);
+
+        canvas.setFillStyle('red');
+        this.intersections.forEach(v =>
+            canvas.drawSquare(this.domainController.worldToScreen(v.clone()), 2));
     }
 
     roadsEmpty(): boolean {
