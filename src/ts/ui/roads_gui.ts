@@ -7,10 +7,13 @@ import {StreamlineParams} from '../impl/streamlines';
 import Graph from '../impl/graph';
 import RoadGUI from './road_gui';
 import Vector from '../vector';
+import PolygonFinder from '../impl/polygon_finder';
 
 export default class RoadsGUI {
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
+    private polygons: Vector[][] = [];
+    private parks: Vector[][] = [];
 
     private mainRoads: RoadGUI;
     private majorRoads: RoadGUI;
@@ -59,23 +62,35 @@ export default class RoadsGUI {
             this.minorRoads.clearStreamlines();
             const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
             this.intersections = g.intersections; 
-        });
+            this.polygons = new PolygonFinder(g.nodes).polygons;
 
-        // this.minorRoads.setGenerateCallback(() => {
-        //     const g = new Graph(this.minorRoads.allStreamlines, this.minorParams.dstep);
-        //     this.intersections = g.intersections; 
-        // });
+            // Two parks
+            this.parks = [];
+            const i = Math.floor(Math.random() * this.polygons.length - 3);
+            this.parks.push(this.polygons[i]);
+            this.parks.push(this.polygons[i + 1]);
+            this.parks.push(this.polygons[i + 2]);
+
+            tensorField.setPolygons(this.parks);
+        });
     }
 
     draw(canvas: CanvasWrapper): void {
-        // Draw Roads
         canvas.setFillStyle('#ECE5DB');
         canvas.clearCanvas();
 
+        // Parks
+        canvas.setFillStyle('#c5e8c5');
+        this.parks.forEach(p => {
+            canvas.drawPolygon(p.map(v => this.domainController.worldToScreen(v.clone())));
+        });
+
+        // Draw Roads
         // Minor
         canvas.setStrokeStyle('#020202');
         canvas.setLineWidth(3);
         this.minorRoads.draw(canvas);
+
 
         canvas.setStrokeStyle('#020202');
         canvas.setLineWidth(5);
@@ -94,14 +109,14 @@ export default class RoadsGUI {
         canvas.setLineWidth(4);
         this.majorRoads.draw(canvas);
 
-        // Major Major
+        // Main
         canvas.setStrokeStyle('#FAFA7A');
         canvas.setLineWidth(5);
         this.mainRoads.draw(canvas);
 
-        canvas.setFillStyle('red');
-        this.intersections.forEach(v =>
-            canvas.drawSquare(this.domainController.worldToScreen(v.clone()), 2));
+        // canvas.setFillStyle('red');
+        // this.intersections.forEach(v =>
+        //     canvas.drawSquare(this.domainController.worldToScreen(v.clone()), 2));
     }
 
     roadsEmpty(): boolean {

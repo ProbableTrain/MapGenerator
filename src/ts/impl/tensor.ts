@@ -35,10 +35,18 @@ export default class Tensor {
     }
 
     getMajor(): Vector {
+        // Degenerate case
+        if (this.r === 0) {
+            return Vector.zeroVector();
+        }
         return new Vector(Math.cos(this.theta), Math.sin(this.theta));
     }
 
     getMinor(): Vector {
+        // Degenerate case
+        if (this.r === 0) {
+            return Vector.zeroVector();
+        }
         const angle = this.theta + Math.PI / 2;
         return new Vector(Math.cos(angle), Math.sin(angle));
     }

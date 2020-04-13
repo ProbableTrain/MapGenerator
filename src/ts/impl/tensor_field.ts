@@ -5,6 +5,7 @@ import {Grid, Radial, BasisField} from './basis_field';
 
 export default class TensorField {
     private basisFields: BasisField[] = [];
+    private polygons: Vector[][] = [];
 
     addGrid(centre: Vector, size: number, decay: number, theta: number): void {
         const grid = new Grid(centre, size, decay, theta);
@@ -35,7 +36,16 @@ export default class TensorField {
         return this.basisFields.map(field => field.centre);
     }
 
+    setPolygons(p: Vector[][]): void {
+        this.polygons = p;
+    }
+
     samplePoint(point: Vector): Tensor {
+        // Degenerate inside polygons
+        if (this.polygons.some(p => this.insidePolygon(point, p))) {
+            return new Tensor(0, [0, 0]);
+        }
+
         // Default field is a grid
         if (this.basisFields.length === 0) {
             return new Tensor(1, [0, 0]);
@@ -45,4 +55,20 @@ export default class TensorField {
         this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point)));
         return tensorAcc;
     }
+
+    insidePolygon(point: Vector, polygon: Vector[]) {
+        // ray-casting algorithm based on
+        // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            var xi = polygon[i].x, yi = polygon[i].y;
+            var xj = polygon[j].x, yj = polygon[j].y;
+
+            var intersect = ((yi > point.y) != (yj > point.y))
+                && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+
+        return inside;
+    };
 }

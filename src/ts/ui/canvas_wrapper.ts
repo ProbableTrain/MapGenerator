@@ -63,6 +63,27 @@ export default class CanvasWrapper {
         this.ctx.fillRect(x, y, width, height);
     }
 
+    drawPolygon(polygon: Vector[]) {
+        if (polygon.length === 0) {
+            return;
+        }
+
+        if (this._scale !== 1) {
+            polygon = polygon.map(v => v.clone().multiplyScalar(this._scale));
+        }
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(polygon[0].x, polygon[0].y);
+
+        for (let i = 1; i < polygon.length; i++) {
+            this.ctx.lineTo(polygon[i].x, polygon[i].y);
+        }
+        this.ctx.lineTo(polygon[0].x, polygon[0].y);
+
+        this.ctx.fill();
+        this.ctx.stroke();
+    }
+
     drawSquare(centre: Vector, radius: number) {
         this.drawRectangle(centre.x - radius, centre.y - radius, 2 * radius, 2 * radius);
     }

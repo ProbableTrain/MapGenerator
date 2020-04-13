@@ -21,8 +21,10 @@ interface Intersection {
     segments: Segment[];
 }
 
-class Node {
+export class Node {
     public segments = new Set<Segment>();
+    public adj: Node[];
+
     constructor(public value: Vector, public neighbors=new Set<Node>()) {}
 
     addSegment(segment: Segment): void {
@@ -86,6 +88,7 @@ export default class Graph {
         });
 
         this.nodes = quadtree.data();
+        this.nodes.forEach(n => n.adj = Array.from(n.neighbors));
         this.intersections = intersections.map(i => new Vector(i.point.x, i.point.y));
     }
 

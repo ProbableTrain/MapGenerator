@@ -99,7 +99,6 @@ export default class StreamlineGenerator {
                         streamline.unshift(p);
                         this.grid(major).addSample(p);
                     });
-                    streamline.unshift(newStart);
                 }
 
                 const newEnd = this.getBestNextPoint(streamline[streamline.length - 1], streamline[streamline.length - 4], streamline);
@@ -108,7 +107,6 @@ export default class StreamlineGenerator {
                         streamline.push(p);
                         this.grid(major).addSample(p);
                     });
-                    streamline.push(newEnd);
                 }
             }
         }
@@ -119,17 +117,25 @@ export default class StreamlineGenerator {
 
     /**
      * Returns array of points from v1 to v2 such that they are separated by at most dsep
-     * not including v1 or v2
+     * not including v1
      */
     pointsBetween(v1: Vector, v2: Vector, dstep: number): Vector[] {
         const d = v1.distanceTo(v2);
         const nPoints = Math.floor(d / dstep);
         if (nPoints === 0) return [];
 
-        const stepVector = v2.clone().sub(v1).setLength(dstep);
-        const out = [v1.clone().add(stepVector)];
-        for (let i = 0; i < nPoints; i++) {
-            out.push(out[out.length - 1].clone().add(stepVector));
+        const stepVector = v2.clone().sub(v1);
+
+        const out = [];
+        let i = 1;
+        let next = v1.clone().add(stepVector.clone().multiplyScalar(i / nPoints));
+        for (i = 1; i <= nPoints; i++) {
+            if (this.integrator.integrate(next, true).lengthSq() > 0.001) {  // Test for degenerate point
+                out.push(next);
+            } else {
+                return out;
+            }
+            next = v1.clone().add(stepVector.clone().multiplyScalar(i / nPoints));
         }
         return out;
     }
@@ -368,6 +374,12 @@ export default class StreamlineGenerator {
         if (params.valid) {
             params.streamline.push(params.previousPoint);
             const nextDirection = this.integrator.integrate(params.previousPoint, major);
+
+            // Stop at degenerate point
+            if (nextDirection.lengthSq() < 0.01) {
+                params.valid = false;
+                return;
+            }
 
             // Make sure we travel in the same direction
             if (nextDirection.dot(params.previousDirection) < 0) {
