@@ -3,6 +3,7 @@ import CanvasWrapper from './canvas_wrapper';
 import DomainController from './domain_controller';
 import DragController from './drag_controller';
 import TensorField from '../impl/tensor_field';
+import {NoiseParams} from '../impl/tensor_field';
 import {BasisField} from '../impl/basis_field';
 import Util from '../util';
 import Vector from '../vector';
@@ -12,8 +13,9 @@ export default class TensorFieldGUI extends TensorField {
     private TENSOR_SPAWN_SCALE = 0.7;  // How much to shrink worldDimensions to find spawn point
     private domainController = DomainController.getInstance();
 
-    constructor(private guiFolder: dat.GUI, private dragController: DragController, public drawCentre: boolean) {
-        super();
+    constructor(private guiFolder: dat.GUI, private dragController: DragController,
+        public drawCentre: boolean, noiseParams: NoiseParams) {
+        super(noiseParams);
         // For custom naming of gui buttons
         const tensorFieldGuiObj = {
             reset: (): void => this.reset(),
@@ -102,7 +104,7 @@ export default class TensorFieldGUI extends TensorField {
         return [start, end];
     }
 
-    draw(canvas: CanvasWrapper): void {
+    draw(canvas: CanvasWrapper, forceDraw=false): void {
         // Draw tensor field
             canvas.setStrokeStyle('white');
             canvas.setLineWidth(1);

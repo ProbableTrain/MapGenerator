@@ -8,28 +8,37 @@ import StreamlineGenerator from '../impl/streamlines';
 import Vector from '../vector';
 
 export default class RoadGUI {
-    private streamlines: StreamlineGenerator;
+    protected streamlines: StreamlineGenerator;
     private existingStreamlines: RoadGUI[] = [];
-    private domainController = DomainController.getInstance();
-    private preGenerateCallback: () => any = () => {};
-    private postGenerateCallback: () => any = () => {};
+    protected domainController = DomainController.getInstance();
+    protected preGenerateCallback: () => any = () => {};
+    protected postGenerateCallback: () => any = () => {};
 
-    constructor(private params: StreamlineParams,
-                private integrator: FieldIntegrator,
-                private guiFolder: dat.GUI,
-                private closeTensorFolder: () => void,
-                private folderName: string) {
+    constructor(protected params: StreamlineParams,
+                protected integrator: FieldIntegrator,
+                protected guiFolder: dat.GUI,
+                protected closeTensorFolder: () => void,
+                protected folderName: string,
+                protected redraw: () => void) {
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions, this.params);
 
+        // Update path iterations based on window size
+        this.setPathIterations();
+        window.addEventListener('resize', (): void => this.setPathIterations());
+    }
+
+    initFolder(): RoadGUI {
         const roadGUI = {
             Generate: this.generateRoads.bind(this),
-            JoinDangling: (): void => this.streamlines.joinDanglingStreamlines(),
+            JoinDangling: (): void => {
+                this.streamlines.joinDanglingStreamlines();
+                this.redraw();
+            },
         };
 
         const folder = this.guiFolder.addFolder(this.folderName);
-        folder.open();
         folder.add(roadGUI, 'Generate');
         folder.add(roadGUI, 'JoinDangling');
         
@@ -39,10 +48,7 @@ export default class RoadGUI {
 
         const devParamsFolder = paramsFolder.addFolder('Dev');
         this.addDevParamsToFolder(this.params, devParamsFolder);
-
-        // Update path iterations based on window size
-        this.setPathIterations();
-        window.addEventListener('resize', (): void => this.setPathIterations());
+        return this;
     }
 
     get allStreamlines(): Vector[][] {
@@ -77,16 +83,22 @@ export default class RoadGUI {
 
     generateRoads(): void {
         this.preGenerateCallback();
+
+        this.domainController.zoom = this.domainController.zoom / 1.1;
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions, Object.assign({},this.params));
+        this.domainController.zoom = this.domainController.zoom * 1.1;
+
         this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));        
         this.streamlines.createAllStreamlines();
+        this.streamlines.joinDanglingStreamlines();
         this.closeTensorFolder();
+        this.redraw();
         this.postGenerateCallback();
     }
 
-    private addDevParamsToFolder(params: StreamlineParams, folder: dat.GUI): void {
+    protected addDevParamsToFolder(params: StreamlineParams, folder: dat.GUI): void {
         folder.add(params, 'pathIterations');
         folder.add(params, 'seedTries');
         folder.add(params, 'dstep');

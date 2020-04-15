@@ -21,6 +21,9 @@ export default class DomainController {
     private _zoom: number = 1;
     private zoomCallback: () => any = () => {};
 
+    // Set after pan or zoom
+    public moved = false;
+
     private constructor() {
         this.setScreenDimensions();
 
@@ -39,6 +42,7 @@ export default class DomainController {
     }
 
     private setScreenDimensions(): void {
+        this.moved = true;
         this._screenDimensions.setX(window.innerWidth);
         this._screenDimensions.setY(window.innerHeight);
     }
@@ -54,6 +58,7 @@ export default class DomainController {
      * @param {Vector} delta in world space
      */
     pan(delta: Vector) {
+        this.moved = true;
         this._origin.sub(delta);
     }
 
@@ -77,11 +82,13 @@ export default class DomainController {
     }
 
     set screenDimensions(v: Vector) {
+        this.moved = true;
         this._screenDimensions.copy(v);
     }
 
     set zoom(z: number) {
         if (z > 0) {
+            this.moved = true;
             const oldWorldSpaceMidpoint = this.origin.add(this.worldDimensions.divideScalar(2));
             this._zoom = z;
             const newWorldSpaceMidpoint = this.origin.add(this.worldDimensions.divideScalar(2));

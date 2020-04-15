@@ -2,29 +2,58 @@ import * as log from 'loglevel';
 import * as PolyK from 'polyk';
 import Vector from '../vector';
 import {Node} from './graph';
+import * as jsts from 'jsts';
 
 export default class PolygonFinder {
-    public polygons: Vector[][] = [];
+    private _polygons: Vector[][] = [];
+    private _shrunkPolygons: Vector[][] = [];
+    private _dividedPolygons: Vector[][] = [];
 
-    constructor(private nodes: Node[], private maxLength=20, private minArea=80, private shrinkAmount=0.75) {
-        this.polygons = this.findPolygons(this.nodes);
+    private jstsPolygons: jsts.geom.Polygon[] = [];
+    private geometryFactory = new jsts.geom.GeometryFactory();
+
+    constructor(private nodes: Node[], private maxLength=20) {}
+
+    get polygons(): Vector[][] {
+        if (this._dividedPolygons.length > 0) {
+            return this._dividedPolygons;
+        }
+
+        if (this._shrunkPolygons.length > 0) {
+            return this._shrunkPolygons;
+        }
+
+        return this._polygons;
     }
 
-    shrink(): Vector[][] {
-        this.polygons = this.polygons.map(p => this.shrinkPolygon(p, this.shrinkAmount));
-        return this.polygons;
+    shrink(spacing = 2): void {
+        // this.polygons = this.polygons.map(p => this.shrinkPolygon(p, this.shrinkAmount))
+        if (this._polygons.length === 0) {
+            this.findPolygons();
+        }
+        
+        this._shrunkPolygons = this.jstsPolygons.map(p => this.resizePolygon(p, -spacing))
+            .filter(p => p.length > 0);
     }
 
-    divide(): Vector[][] {
+    divide(minArea = 20): void {
+        if (this._polygons.length === 0) {
+            this.findPolygons();
+        }
+
+        let polygons = this._polygons;
+        if (this._shrunkPolygons.length > 0) {
+            polygons = this._shrunkPolygons;
+        }
+
         let divided: Vector[][] = [];
-        this.polygons.forEach(p => {
-            divided = divided.concat(this.subdividePolygon(p));
+        polygons.forEach(p => {
+            divided = divided.concat(this.subdividePolygon(p, minArea));
         });
-        this.polygons = divided;
-        return divided;
+        this._dividedPolygons = divided.filter(p => PolygonFinder.calcPolygonArea(p) > minArea * 0.4);
     }
 
-    private findPolygons(nodes: Node[]): Vector[][] {
+    findPolygons(): void {
         // Node
         // x, y, value (Vector2), adj (list of node refs)
         // Gonna edit adj for now
@@ -33,9 +62,11 @@ export default class PolygonFinder {
         // When we find a polygon, mark all edges as traversed (in particular direction)
         // Each edge separates two polygons
         // If edge already traversed in this direction, this polygon has already been found
+        this._shrunkPolygons = [];
+        this._dividedPolygons = [];
         const polygons = [];
 
-        for (let node of nodes) {
+        for (let node of this.nodes) {
             if (node.adj.length === 0) continue;
             for (let nextNode of node.adj) {
                 const polygon = this.recursiveWalk([node, nextNode]);
@@ -46,7 +77,8 @@ export default class PolygonFinder {
             }
         }
 
-        return polygons;
+        this._polygons = polygons;
+        this.jstsPolygons = polygons.map(p => this.polygonToJts(p));
     }
 
     private removePolygonAdjacencies(polygon: Node[]): void {
@@ -108,7 +140,7 @@ export default class PolygonFinder {
         return rightmostNode;
     }
 
-    private shrinkPolygon(polygon: Vector[], amount: number) {
+    private shrinkPolygon(polygon: Vector[], amount: number): Vector[] {
         // Returns clone
         if (polygon.length < 3) {
             return;
@@ -124,8 +156,27 @@ export default class PolygonFinder {
         return polygon.map(v => v.clone().sub(averagePoint).multiplyScalar(amount).add(averagePoint));
     }
 
-    private subdividePolygon(p: Vector[]): Vector[][] {
-        if (this.calcPolygonArea(p) < this.minArea) {
+    private polygonToJts(polygon: Vector[]): jsts.geom.Polygon {
+        const geoInput = polygon.map(v => new jsts.geom.Coordinate(v.x, v.y));
+        geoInput.push(geoInput[0]);
+        return this.geometryFactory.createPolygon(this.geometryFactory.createLinearRing(geoInput), []);
+    }
+
+    private resizePolygon(polygon: jsts.geom.Polygon, spacing: number): Vector[] {
+        try {
+            const resized = polygon.buffer(spacing, undefined, undefined);
+            if (!resized.isSimple()) {
+                return [];
+            }
+            return resized.getCoordinates().map(c => new Vector(c.x, c.y));
+        } catch (error) {
+            log.error(error);
+            return [];
+        }
+    }
+
+    private subdividePolygon(p: Vector[], minArea: number): Vector[][] {
+        if (PolygonFinder.calcPolygonArea(p) < minArea) {
             return [p];
         }
 
@@ -154,17 +205,40 @@ export default class PolygonFinder {
         const bisect = [averagePoint.clone().add(perpVector), averagePoint.clone().sub(perpVector)];
 
         // Array of polygons
-        const sliced = PolyK.Slice(this.polygonToPolygonArray(p), bisect[0].x, bisect[0].y, bisect[1].x, bisect[1].y);
+        try {
+            const sliced = PolyK.Slice(PolygonFinder.polygonToPolygonArray(p), bisect[0].x, bisect[0].y, bisect[1].x, bisect[1].y);
+            // Recursive call
+            sliced.forEach(s => {
+                divided = divided.concat(this.subdividePolygon(PolygonFinder.polygonArrayToPolygon(s), minArea));
+            });
 
-        // TODO recursive call
-        sliced.forEach(s => {
-            divided = divided.concat(this.subdividePolygon(this.polygonArrayToPolygon(s)));
-        });
-
-        return divided;
+            return divided;
+        } catch (error) {
+            log.error(error);
+            return []
+        }
     }
 
-    private polygonToPolygonArray(p: Vector[]): number[] {
+    /**
+     * Used to create sea polygon
+     * Returns largest polygon
+     */
+    public static sliceRectangle(origin: Vector, worldDimensions: Vector, p1: Vector, p2: Vector): Vector[] {
+        const rectangle = [
+            origin.x, origin.y,
+            origin.x + worldDimensions.x, origin.y,
+            origin.x + worldDimensions.x, origin.y + worldDimensions.y,
+            origin.x, origin.y + worldDimensions.y,
+        ];
+        const sliced = PolyK.Slice(rectangle, p1.x, p1.y, p2.x, p2.y).map(p => this.polygonArrayToPolygon(p));
+        const minArea = PolygonFinder.calcPolygonArea(sliced[0]);
+        if (sliced.length > 1 && PolygonFinder.calcPolygonArea(sliced[1]) < minArea) {
+            return sliced[1];
+        } 
+        return sliced[0];
+    }
+
+    private static polygonToPolygonArray(p: Vector[]): number[] {
         const outP: number[] = [];
         p.forEach(v => {
             outP.push(v.x);
@@ -173,7 +247,7 @@ export default class PolygonFinder {
         return outP;
     }
 
-    private polygonArrayToPolygon(p: number[]): Vector[] {
+    private static polygonArrayToPolygon(p: number[]): Vector[] {
         const outP = [];
         for (let i = 0; i < p.length / 2; i++) {
             outP.push(new Vector(p[2*i], p[2*i + 1]));
@@ -181,14 +255,14 @@ export default class PolygonFinder {
         return outP;
     }
 
-    private isValidPolygon(p: Vector[]): boolean {
-        if (p.length > this.maxLength) return false;
-        const area = this.calcPolygonArea(p);
-        if (area < this.minArea || area > 10000) return false;
-        return true;
-    }
+    // private isValidPolygon(p: Vector[]): boolean {
+    //     if (p.length > this.maxLength) return false;
+    //     const area = PolygonFinder.calcPolygonArea(p);
+    //     if (area < this.minArea || area > 10000) return false;
+    //     return true;
+    // }
 
-    private calcPolygonArea(vertices: Vector[]): number {
+    private static calcPolygonArea(vertices: Vector[]): number {
         let total = 0;
 
         for (let i = 0; i < vertices.length; i++) {

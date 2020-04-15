@@ -167,8 +167,12 @@ export default class StreamlineGenerator {
                 const differenceVector = sample.clone().sub(point);
                 
                 // Acute angle between vectors (agnostic of CW, ACW)
-                const angleBetween = Math.abs(Vector.angleBetween(direction, differenceVector));
                 const distanceToSample = point.distanceToSquared(sample);
+                if (distanceToSample < 2 * this.paramsSq.dstep) {
+                    closestSample = sample;
+                    break;
+                }
+                const angleBetween = Math.abs(Vector.angleBetween(direction, differenceVector));
 
                 // Filter by angle
                 if (angleBetween < this.params.joinangle && distanceToSample < closestDistance) {
@@ -178,9 +182,10 @@ export default class StreamlineGenerator {
             }
         }
 
-        // TODO if trying to find intersections in the simplified graph
-        // return closest.clone().add(direction length simplify tolerance));
-        // to prevent ends getting pulled away from simplified lines
+        // TODO is reimplement simplify-js to preserve intersection points
+        //  - this is the primary reason polygons aren't found
+        // If trying to find intersections in the simplified graph
+        // prevent ends getting pulled away from simplified lines
         if (closestSample !== null) {
             closestSample = closestSample.clone().add(direction.setLength(this.params.simplifyTolerance * 3));
         }
@@ -227,6 +232,62 @@ export default class StreamlineGenerator {
         while (this.createStreamline(major)) {
             major = !major;
         }
+    }
+
+    createCoastStreamline(): Vector[] {
+        let streamline;
+        let seed;
+        let major;
+        for (let i = 0; i < 500; i++) {
+            major = Math.random() < 0.5;
+            seed = this.getSeed(major);
+            streamline = this.integrateStreamline(seed, major);
+            streamline.unshift(streamline[0].clone().add(
+                streamline[0].clone().sub(streamline[1]).setLength(this.params.dlookahead)));
+            streamline.push(streamline[streamline.length - 1].clone().add(
+                streamline[streamline.length - 1].clone().sub(streamline[streamline.length - 2]).setLength(this.params.dstep * 5)));
+
+            if (this.vectorOffScreen(streamline[0]) && this.vectorOffScreen(streamline[streamline.length - 1])) {
+                break;
+            }
+        }
+
+        // Streamline is coastal = noisy
+        const road = this.simplifyStreamline(streamline);
+        this.allStreamlinesSimple.push(road);
+
+        // Create intermediate samples
+        const complex = this.complexifyStreamline(road);
+        this.grid(major).addPolyline(complex);
+        this.streamlines(major).push(complex);
+
+        return streamline;
+    }
+
+    /**
+     * Insert samples in streamline until separated by dstep
+     */
+    private complexifyStreamline(s: Vector[]): Vector[] {
+        let out: Vector[] = [];
+        for (let i = 0; i < s.length - 1; i++) {
+            out = out.concat(this.complexifyStreamlineRecursive(s[i], s[i+1]));
+        }
+        return out;
+    }
+
+    private complexifyStreamlineRecursive(v1: Vector, v2: Vector): Vector[] {
+        if (v1.distanceToSquared(v2) <= this.paramsSq.dstep) {
+            return [v1, v2];
+        }
+        const d = v2.clone().sub(v1);
+        const halfway = v1.clone().add(d.multiplyScalar(0.5));
+        return this.complexifyStreamlineRecursive(v1, halfway).concat(this.complexifyStreamlineRecursive(halfway, v2));
+    }
+
+    vectorOffScreen(v: Vector): boolean {
+        const toOrigin = v.clone().sub(this.origin);
+        return toOrigin.x <= 0 || toOrigin.y <= 0 ||
+            toOrigin.x >= this.worldDimensions.x || toOrigin.y >= this.worldDimensions.y;
     }
 
     private simplifyStreamline(streamline: Vector[]): Vector[] {
@@ -287,7 +348,7 @@ export default class StreamlineGenerator {
         if (this.SEED_AT_ENDPOINTS && this.candidateSeeds(major).length > 0) {
             while (this.candidateSeeds(major).length > 0) {
                 const seed = this.candidateSeeds(major).pop();
-                if (this.grid(major).isValidSample(seed, this.paramsSq.dsep)) {
+                if (this.isValidSample(major, seed, this.paramsSq.dsep)) {
                     return seed;
                 }
             }
@@ -295,7 +356,7 @@ export default class StreamlineGenerator {
 
         let seed = this.samplePoint();
         let i = 0;
-        while (!this.grid(major).isValidSample(seed, this.paramsSq.dsep)) {
+        while (!this.isValidSample(major, seed, this.paramsSq.dsep)) {
             if (i >= this.params.seedTries) {
                 return null;
             }
@@ -304,6 +365,10 @@ export default class StreamlineGenerator {
         }
 
         return seed;
+    }
+
+    private isValidSample(major: boolean, point: Vector, dSq: number) {
+        return this.integrator.onLand(point) && this.grid(major).isValidSample(point, dSq);
     }
 
     // TODO enum to remove these functions
@@ -399,11 +464,13 @@ export default class StreamlineGenerator {
             // }
 
             if (this.pointInBounds(nextPoint)
-                && this.grid(major).isValidSample(nextPoint, this.paramsSq.dtest)
+                && this.isValidSample(major, nextPoint, this.paramsSq.dtest)
                 && !this.streamlineTurned(params.seed, params.originalDir, nextPoint, nextDirection)) {
                 params.previousPoint = nextPoint;
                 params.previousDirection = nextDirection;
             } else {
+                // One more step
+                params.streamline.push(nextPoint);
                 params.valid = false;
             }
         }

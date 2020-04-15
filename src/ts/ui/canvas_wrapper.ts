@@ -3,8 +3,8 @@ import Vector from '../vector';
 
 export default class CanvasWrapper {
     private ctx: CanvasRenderingContext2D;
-    private _width: number;
-    private _height: number;
+    protected _width: number;
+    protected _height: number;
     
     constructor(canvas: HTMLCanvasElement, private _scale=1, resizeToWindow=true) {
         this.ctx = canvas.getContext("2d");
@@ -101,7 +101,6 @@ export default class CanvasWrapper {
 
     drawPolyline(line: Vector[]): void {
         if (line.length < 2) {
-            log.warn("Tried to draw path of length < 2");
             return;
         }
 
@@ -119,7 +118,7 @@ export default class CanvasWrapper {
         this.ctx.stroke();
     }
 
-    private resizeCanvas(): void {
+    protected resizeCanvas(): void {
         this.ctx.canvas.width = this._width;
         this.ctx.canvas.height = this._height;
     }

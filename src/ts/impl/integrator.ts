@@ -12,6 +12,10 @@ export default abstract class FieldIntegrator {
         if (major) return tensor.getMajor();
         return tensor.getMinor();
     }
+
+    onLand(point: Vector) {
+        return this.field.onLand(point);
+    }
 }
 
 export class EulerIntegrator extends FieldIntegrator {
