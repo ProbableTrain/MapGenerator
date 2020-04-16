@@ -46,18 +46,14 @@ export default class CoastlineGUI extends RoadGUI {
         return this;
     }
 
-    get seaPolygon(): Vector[] {
-        return this._seaPolygon;
-    }
-
     generateRoads(): void {
         this.preGenerateCallback();
 
-        this.domainController.zoom = this.domainController.zoom / 1.1;
+        this.domainController.zoom = this.domainController.zoom / 1.2;
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions, Object.assign({},this.params));
-        this.domainController.zoom = this.domainController.zoom * 1.1;
+        this.domainController.zoom = this.domainController.zoom * 1.2;
 
         if (this.noise) {
             this.noiseParams.globalNoise = true;
@@ -71,22 +67,22 @@ export default class CoastlineGUI extends RoadGUI {
         this.postGenerateCallback();
     }
 
-    drawCoastline(canvas: CanvasWrapper): void {
-        canvas.drawPolyline(this._noisyRoad.map(v => this.domainController.worldToScreen(v.clone())));
+    get coastline(): Vector[] {
+        return this._noisyRoad.map(v => this.domainController.worldToScreen(v.clone()));
     }
 
-    drawSea(canvas: CanvasWrapper): void {
-        canvas.drawPolygon(this._seaPolygon.map(v => this.domainController.worldToScreen(v.clone())));
+    get seaPolygon(): Vector[] {
+        return this._seaPolygon.map(v => this.domainController.worldToScreen(v.clone()));
     }
 
     /**
      * Might reverse input array
      */
     private getSeaPolygon(polyline: Vector[]): Vector[] {
-        this.domainController.zoom = this.domainController.zoom / 1.1;
+        this.domainController.zoom = this.domainController.zoom / 1.2;
         const seaPolygon = PolygonFinder.sliceRectangle(this.domainController.origin, this.domainController.worldDimensions,
             polyline[0], polyline[polyline.length - 1]);
-        this.domainController.zoom = this.domainController.zoom * 1.1;
+        this.domainController.zoom = this.domainController.zoom * 1.2;
 
         // Replace the longest side with coastline
         let longestIndex = 0;
@@ -105,7 +101,7 @@ export default class CoastlineGUI extends RoadGUI {
             polyline.reverse();
         }
 
-        seaPolygon.splice(longestIndex, 0, ...polyline);
+        seaPolygon.splice((longestIndex + 1) % seaPolygon.length, 0, ...polyline);
         return seaPolygon;
     }
 

@@ -1,5 +1,5 @@
 import * as log from 'loglevel';
-import CanvasWrapper from './canvas_wrapper';
+import {DefaultCanvasWrapper} from './canvas_wrapper';
 import DomainController from './domain_controller';
 import DragController from './drag_controller';
 import TensorField from '../impl/tensor_field';
@@ -104,23 +104,26 @@ export default class TensorFieldGUI extends TensorField {
         return [start, end];
     }
 
-    draw(canvas: CanvasWrapper, forceDraw=false): void {
+    draw(canvas: DefaultCanvasWrapper): void {
         // Draw tensor field
-            canvas.setStrokeStyle('white');
-            canvas.setLineWidth(1);
-            const tensorPoints = this.getCrossLocations();
-            tensorPoints.forEach(p => {
-                const t = this.samplePoint(p);
-                canvas.drawPolyline(this.getTensorLine(p, t.getMajor()));
-                canvas.drawPolyline(this.getTensorLine(p, t.getMinor()));
-            });
+        canvas.setFillStyle('black');
+        canvas.clearCanvas();
 
-            // Draw centre points of fields
-            if (this.drawCentre) {
-                canvas.setFillStyle('red');
-                this.getCentrePoints().forEach(v =>
-                    canvas.drawSquare(this.domainController.worldToScreen(v), 7));
-            }
+        canvas.setStrokeStyle('white');
+        canvas.setLineWidth(1);
+        const tensorPoints = this.getCrossLocations();
+        tensorPoints.forEach(p => {
+            const t = this.samplePoint(p);
+            canvas.drawPolyline(this.getTensorLine(p, t.getMajor()));
+            canvas.drawPolyline(this.getTensorLine(p, t.getMinor()));
+        });
+
+        // Draw centre points of fields
+        if (this.drawCentre) {
+            canvas.setFillStyle('red');
+            this.getCentrePoints().forEach(v =>
+                canvas.drawSquare(this.domainController.worldToScreen(v), 7));
+        }
     }
 
     protected addField(field: BasisField): void {

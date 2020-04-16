@@ -4,7 +4,8 @@
         "target": "es5",
         "skipLibCheck": true,
         "lib": ["es6", "DOM", "ScriptHost"],
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "resolveJsonModule": true
     },
     "include": [
         "src/**/*.ts"

@@ -4,17 +4,29 @@ import TensorFieldGUI from './ts/ui/tensor_field_gui';
 import {NoiseParams} from './ts/impl/tensor_field';
 import RoadsGUI from './ts/ui/roads_gui';
 import CanvasWrapper from './ts/ui/canvas_wrapper';
+import {DefaultCanvasWrapper, RoughCanvasWrapper} from './ts/ui/canvas_wrapper';
 import Util from './ts/util';
 import DragController from './ts/ui/drag_controller';
 import DomainController from './ts/ui/domain_controller';
+import Style from './ts/ui/style';
+import {ColourScheme, DefaultStyle, RoughStyle} from './ts/ui/style';
+import * as ColourSchemes from './colour_schemes.json';
 
-export interface Drawable {
-    draw(): void;
-}
+// enum StyleChoice {
+//     DEFAULT = "Default",
+//     APPLE = "Apple",
+//     APPLE_NIGHT = "AppleNight",
+//     ASSASSIN = "Assassin",
+//     DRAWN = "Drawn",
+//     GOOGLE = "Google",
+//     PAPER = "Paper",
+//     SUBTLEGRAYSCALE = "SubtleGrayscale",
+//     ULTRALIGHT = "UltraLight",
+//     WY = "Wy",
+// }
 
 class Main {
     private domainController = DomainController.getInstance();
-    private canvas: CanvasWrapper;
     private gui: dat.GUI = new dat.GUI({width: 300});
     private tensorField: TensorFieldGUI;
     private roadsGUI: RoadsGUI;
@@ -30,9 +42,16 @@ class Main {
     // To force draw if needed
     private previousFrameDrawTensor = true;
 
+    private canvas: HTMLCanvasElement;
+    private tensorCanvas: DefaultCanvasWrapper;
+    private _style: Style;
+    private colourScheme: string = "Default";
+    public highDPI = false;
+
     constructor() {
-        const c = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
-        this.canvas = new CanvasWrapper(c);
+        this.canvas = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
+        this.tensorCanvas = new DefaultCanvasWrapper(this.canvas);
+
         const zoomController = this.gui.add(this.domainController, 'zoom');
         this.domainController.setZoomUpdate(() => zoomController.updateDisplay());
         
@@ -47,21 +66,37 @@ class Main {
         this.tensorFolder = this.gui.addFolder('Tensor Field');
         this.tensorField = new TensorFieldGUI(this.tensorFolder, this.dragController, true, noiseParams);
         this.tensorFolder.open();
-
         this.roadsFolder = this.gui.addFolder('Roads');
         this.roadsFolder.open();
-
         this.roadsGUI = new RoadsGUI(this.roadsFolder, this.tensorField, () => this.tensorFolder.close());
 
         const optionsFolder = this.gui.addFolder('Options');
         optionsFolder.add(this.tensorField, 'drawCentre');
-        optionsFolder.add(this.canvas, 'canvasScale');
-        optionsFolder.add(this, 'imageScale', 1, 5);
+        const canvasScaleController = optionsFolder.add(this, 'highDPI');
+        canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
+        optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'download');
+        
+        // Style
+        const styleFolder = this.gui.addFolder('Style');
+        const styleController = styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes));
+        styleController.onChange((val: string) => this.changeColourScheme(val));
+        this.changeColourScheme(this.colourScheme);
 
         this.tensorField.setRecommended();
 
         requestAnimationFrame(this.update.bind(this));
+    }
+
+    changeColourScheme(scheme: string) {
+        this._style = new DefaultStyle(this.canvas, (ColourSchemes as any)[scheme]);
+        this.changeCanvasScale(this.highDPI);
+    }
+
+    changeCanvasScale(high: boolean): void {
+        const value = high ? 2 : 1;
+        this._style.canvasScale = value;
+        this.tensorCanvas.canvasScale = value;
     }
 
     /**
@@ -70,39 +105,47 @@ class Main {
      */
     download(): void {
         const c = document.getElementById(Util.IMG_CANVAS_ID) as HTMLCanvasElement;
-        const imgCanvas = new CanvasWrapper(c, this.imageScale, false);
-        this.draw(imgCanvas, true);
+
+        // Draw
+        if (this.showTensorField()) {
+            this.tensorField.draw(new DefaultCanvasWrapper(c, this.imageScale, false));
+        } else {            
+            const imgCanvas = this._style.createCanvasWrapper(c, this.imageScale, false);
+            this.roadsGUI.draw(this._style, true, imgCanvas);
+        }
+
         const link = document.createElement('a');
         link.download = 'map.png';
         link.href = (document.getElementById(Util.IMG_CANVAS_ID) as any).toDataURL();
         link.click();
     }
 
-    private drawTensorField(): boolean {
+    private showTensorField(): boolean {
         return !this.tensorFolder.closed || this.roadsGUI.roadsEmpty();
     }
 
-    draw(canvas: CanvasWrapper, forceDraw=false): void {
-        if (this.drawTensorField()) {
+    draw(): void {
+        if (this.showTensorField()) {
             this.previousFrameDrawTensor = true;
-            canvas.setFillStyle('black');
-            canvas.clearCanvas();
             this.dragController.setDragDisabled(false);
-            this.tensorField.draw(canvas, forceDraw);
+            this.tensorField.draw(this.tensorCanvas);
         } else {
+            // Disable field drag and drop
             this.dragController.setDragDisabled(true);
+            
             if (this.previousFrameDrawTensor === true) {
-                // Force redraw
-                this.roadsGUI.draw(canvas, true);
                 this.previousFrameDrawTensor = false;
+
+                // Force redraw if switching from tensor field
+                this.roadsGUI.draw(this._style, true);
             } else {
-                this.roadsGUI.draw(canvas, forceDraw);
+                this.roadsGUI.draw(this._style);
             }
         }
     }
 
     update(): void {
-        this.draw(this.canvas);
+        this.draw();
         requestAnimationFrame(this.update.bind(this));
     }
 }

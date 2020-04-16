@@ -55,10 +55,11 @@ export default class RoadGUI {
         return this.streamlines.allStreamlinesSimple;
     }
 
-    draw(canvas: CanvasWrapper): void {
-        this.streamlines.allStreamlinesSimple.forEach(s => {
-            canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
-        });
+    get roads(): Vector[][] {
+        return this.streamlines.allStreamlinesSimple.map(s =>
+            // canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
+            s.map(v => this.domainController.worldToScreen(v.clone()))
+        );
     }
 
     roadsEmpty(): boolean {
@@ -84,11 +85,11 @@ export default class RoadGUI {
     generateRoads(): void {
         this.preGenerateCallback();
 
-        this.domainController.zoom = this.domainController.zoom / 1.1;
+        this.domainController.zoom = this.domainController.zoom / 1.2;
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions, Object.assign({},this.params));
-        this.domainController.zoom = this.domainController.zoom * 1.1;
+        this.domainController.zoom = this.domainController.zoom * 1.2;
 
         this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));        
         this.streamlines.createAllStreamlines();

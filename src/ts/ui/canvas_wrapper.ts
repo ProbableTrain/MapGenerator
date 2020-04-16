@@ -1,25 +1,36 @@
 import * as log from 'loglevel';
 import Vector from '../vector';
 
-export default class CanvasWrapper {
-    private ctx: CanvasRenderingContext2D;
+export interface RoughOptions {
+    roughness?: number;
+    bowing?: number;
+    seed?: number;
+    stroke?: string;
+    strokeWidth?: number;
+    fill?: string;
+    fillStyle?: string;
+    fillWeight?: number;
+    hachureAngle?: number;
+    hachureGap?: number;
+    dashOffset?: number;
+    dashGap?: number;
+    zigzagOffset?: number;
+}
+
+export default abstract class CanvasWrapper {
     protected _width: number;
     protected _height: number;
-    
-    constructor(canvas: HTMLCanvasElement, private _scale=1, resizeToWindow=true) {
-        this.ctx = canvas.getContext("2d");
+    public needsUpdate: boolean = false;
+
+    constructor(private canvas: HTMLCanvasElement, protected _scale=1, resizeToWindow=true) {
         this.setDimensions();
         this.resizeCanvas();
-
         if (resizeToWindow) {
             window.addEventListener('resize', (): void => {
                 this.setDimensions();
                 this.resizeCanvas();
             });
         }
-
-        this.setFillStyle('black');
-        this.clearCanvas();
     }
 
     setDimensions(): void {
@@ -43,7 +54,24 @@ export default class CanvasWrapper {
         this._scale = s;
         this.setDimensions();
         this.resizeCanvas();
-    } 
+    }
+
+    protected resizeCanvas(): void {
+        this.canvas.width = this._width;
+        this.canvas.height = this._height;
+        this.needsUpdate = true;
+    }
+}
+
+export class DefaultCanvasWrapper extends CanvasWrapper {
+    private ctx: CanvasRenderingContext2D;
+
+    constructor(canvas: HTMLCanvasElement, scale=1, resizeToWindow=true) {
+        super(canvas, scale, resizeToWindow);
+        this.ctx = canvas.getContext("2d");
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    }
 
     setFillStyle(colour: string): void {
         this.ctx.fillStyle = colour;
@@ -117,9 +145,74 @@ export default class CanvasWrapper {
 
         this.ctx.stroke();
     }
+}
 
-    protected resizeCanvas(): void {
-        this.ctx.canvas.width = this._width;
-        this.ctx.canvas.height = this._height;
+export class RoughCanvasWrapper extends CanvasWrapper {
+    private rc: any;
+    private options: RoughOptions = {
+        roughness: 1,
+        bowing: 1,
+        stroke: '#000000',
+        strokeWidth: 1,
+        fill: '#000000',
+        fillStyle: 'solid',
+    };
+
+    constructor(canvas: HTMLCanvasElement, scale=1, resizeToWindow=true) {
+        super(canvas, scale, resizeToWindow);
+        let r = require('roughjs/bundled/rough.cjs');
+        this.rc = r.canvas(canvas);
+    }
+
+    setOptions(options: RoughOptions): void {
+        if (options.strokeWidth) {
+            options.strokeWidth *= this._scale;
+        }
+        Object.assign(this.options, options);
+    }
+
+    clearCanvas(): void {
+        this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
+    }
+
+    drawRectangle(x: number, y: number, width: number, height: number): void {
+        if (this._scale !== 1) {
+            x *= this._scale;
+            y *= this._scale;
+            width *= this._scale;
+            height *= this._scale;
+        }
+        this.rc.rectangle(x, y, width, height, this.options);
+    }
+
+    drawPolygon(polygon: Vector[]) {
+        if (polygon.length === 0) {
+            return;
+        }
+
+        if (this._scale !== 1) {
+            polygon = polygon.map(v => v.clone().multiplyScalar(this._scale));
+        }
+
+        this.rc.polygon(polygon.map(v => [v.x, v.y]), this.options);
+    }
+
+    drawSquare(centre: Vector, radius: number) {
+        const prevStroke = this.options.stroke;
+        this.options.stroke = 'none';
+        this.drawRectangle(centre.x - radius, centre.y - radius, 2 * radius, 2 * radius);
+        this.options.stroke = prevStroke;
+    }
+
+    drawPolyline(line: Vector[]): void {
+        if (line.length < 2) {
+            return;
+        }
+
+        if (this._scale !== 1) {
+            line = line.map(v => v.clone().multiplyScalar(this._scale));
+        }
+
+        this.rc.linearPath(line.map(v => [v.x, v.y]), this.options);
     }
 }

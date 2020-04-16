@@ -1,5 +1,4 @@
 import * as log from 'loglevel';
-import CanvasWrapper from './canvas_wrapper';
 import DomainController from './domain_controller';
 import TensorField from '../impl/tensor_field';
 import {RK4Integrator} from '../impl/integrator';
@@ -11,6 +10,8 @@ import CoastlineGUI from './coastline_gui';
 import Vector from '../vector';
 import PolygonFinder from '../impl/polygon_finder';
 import StreamlineGenerator from '../impl/streamlines';
+import Style from './style';
+import CanvasWrapper from './canvas_wrapper';
 
 export default class RoadsGUI {
     private domainController = DomainController.getInstance();
@@ -46,6 +47,7 @@ export default class RoadsGUI {
     private redraw: boolean = true;
 
     constructor(private guiFolder: dat.GUI, tensorField: TensorField, private closeTensorFolder: () => void) {
+        guiFolder.add(this, 'generateEverything');
         const roadsParams = guiFolder.addFolder('Params');
         roadsParams.add(this, 'numParks');
 
@@ -133,6 +135,14 @@ export default class RoadsGUI {
         buildingsFolder.add(this, 'buildingMargin');
     }
 
+    generateEverything() {
+        this.coastline.generateRoads();
+        this.mainRoads.generateRoads();
+        this.majorRoads.generateRoads();
+        this.minorRoads.generateRoads();
+        this.addBuildings();
+    }
+
     addBuildings() {
         const g = new Graph(
             this.majorRoads.allStreamlines
@@ -146,78 +156,24 @@ export default class RoadsGUI {
         this.redraw = true;
     }
 
-    draw(canvas: CanvasWrapper, forceDraw=false): void {
-        if (!forceDraw && !this.redraw && !this.domainController.moved) {
+    draw(style: Style, forceDraw=false, customCanvas?: CanvasWrapper): void {
+        if (!style.needsUpdate && !forceDraw && !this.redraw && !this.domainController.moved) {
             return;
         }
 
+        style.needsUpdate = false;
         this.domainController.moved = false;
         this.redraw = false;
 
-        canvas.setFillStyle('#ECE5DB');
-        canvas.clearCanvas();
-
-        // Sea
-        canvas.setFillStyle('#a9d9fe');
-        canvas.setStrokeStyle('#a9d9fe');
-        canvas.setLineWidth(0.1);
-        canvas.drawPolygon(this.coastline.seaPolygon.map(v => this.domainController.worldToScreen(v.clone())));
-
-        canvas.setStrokeStyle('#ECE5DB');
-        canvas.setLineWidth(30 * this.domainController.zoom);
-        this.coastline.drawCoastline(canvas);
-
-        // Buildings
-        canvas.setFillStyle('#ECE5DB');
-        // canvas.setFillStyle('#ebae34');
-        canvas.setStrokeStyle('#282828');
-        canvas.setLineWidth(0.5);
-        this.lots.forEach(p => {
-            canvas.drawPolygon(p.map(v => this.domainController.worldToScreen(v.clone())));
-        });
-
-        // Parks
-        canvas.setFillStyle('#c5e8c5');
-        this.parks.forEach(p => {
-            canvas.drawPolygon(p.map(v => this.domainController.worldToScreen(v.clone())));
-        });
-
-        // Road outline
-        canvas.setStrokeStyle('#020202');
-        canvas.setLineWidth(3 * this.domainController.zoom);
-        this.minorRoads.draw(canvas);
-
-        canvas.setStrokeStyle('#020202');
-        canvas.setLineWidth(5 * this.domainController.zoom);
-        this.majorRoads.draw(canvas);
-
-        canvas.setStrokeStyle('#282828');
-        canvas.setLineWidth(6 * this.domainController.zoom);
-        this.mainRoads.draw(canvas);
-        this.coastline.draw(canvas);
-
-        // Road inline
-        canvas.setStrokeStyle('#F8F8F8');
-        canvas.setLineWidth(2 * this.domainController.zoom);
-        this.minorRoads.draw(canvas);
-
-        canvas.setStrokeStyle('#F8F8F8');
-        canvas.setLineWidth(4 * this.domainController.zoom);
-        this.majorRoads.draw(canvas);
-
-        canvas.setStrokeStyle('#FAFA7A');
-        canvas.setLineWidth(5 * this.domainController.zoom);
-        this.mainRoads.draw(canvas);
-        this.coastline.draw(canvas);
-
-        // Coast
-        // canvas.setStrokeStyle('#020202');
-        // canvas.setLineWidth(1);
-        // canvas.drawPolyline(this.coast.map(v => this.domainController.worldToScreen(v.clone())));
-
-        // canvas.setFillStyle('red');
-        // this.intersections.forEach(v =>
-        //     canvas.drawSquare(this.domainController.worldToScreen(v.clone()), 2));
+        style.seaPolygon = this.coastline.seaPolygon;
+        style.coastline = this.coastline.coastline;
+        style.buildings = this.lots.map(l => l.map(v => this.domainController.worldToScreen(v.clone())));
+        style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
+        style.minorRoads = this.minorRoads.roads;
+        style.majorRoads = this.majorRoads.roads;
+        style.mainRoads = this.mainRoads.roads;
+        style.coastlineRoads = this.coastline.roads;
+        style.draw(customCanvas);
     }
 
     roadsEmpty(): boolean {

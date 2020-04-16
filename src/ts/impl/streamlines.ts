@@ -243,7 +243,7 @@ export default class StreamlineGenerator {
             seed = this.getSeed(major);
             streamline = this.integrateStreamline(seed, major);
             streamline.unshift(streamline[0].clone().add(
-                streamline[0].clone().sub(streamline[1]).setLength(this.params.dlookahead)));
+                streamline[0].clone().sub(streamline[1]).setLength(this.params.dstep * 5)));
             streamline.push(streamline[streamline.length - 1].clone().add(
                 streamline[streamline.length - 1].clone().sub(streamline[streamline.length - 2]).setLength(this.params.dstep * 5)));
 
