@@ -58,6 +58,14 @@ export default abstract class CanvasWrapper {
         this.resizeCanvas();
     }
 
+    protected zoomVectors(vs: Vector[]): void {
+        if (this._scale !== 1) {
+            for (let i = 0, len = vs.length; i < len; i++) {
+                vs[i] = vs[i].clone().multiplyScalar(this._scale);
+            }
+        }
+    }
+
     protected resizeCanvas(): void {
         this.canvas.width = this._width;
         this.canvas.height = this._height;
@@ -111,10 +119,7 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         if (polygon.length === 0) {
             return;
         }
-
-        if (this._scale !== 1) {
-            polygon = polygon.map(v => v.clone().multiplyScalar(this._scale));
-        }
+        this.zoomVectors(polygon);
 
         this.ctx.beginPath();
         this.ctx.moveTo(polygon[0].x, polygon[0].y);
@@ -148,9 +153,7 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
             return;
         }
 
-        if (this._scale !== 1) {
-            line = line.map(v => v.clone().multiplyScalar(this._scale));
-        }
+        this.zoomVectors(line);
 
         this.ctx.beginPath();
         this.ctx.moveTo(line[0].x, line[0].y);

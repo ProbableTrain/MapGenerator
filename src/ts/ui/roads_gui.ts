@@ -169,11 +169,13 @@ export default class RoadsGUI {
     }
 
     async addBuildings(animate=true): Promise<void> {
-        const g = new Graph(
-            this.majorRoads.allStreamlines
-            .concat(this.mainRoads.allStreamlines)
-            .concat(this.minorRoads.allStreamlines)
-            .concat(this.coastline.allStreamlines), this.minorParams.dstep, true);
+        const allStreamlines = [];
+        allStreamlines.push(...this.mainRoads.allStreamlines);
+        allStreamlines.push(...this.majorRoads.allStreamlines);
+        allStreamlines.push(...this.minorRoads.allStreamlines);
+        allStreamlines.push(...this.coastline.allStreamlines);
+
+        const g = new Graph(allStreamlines, this.minorParams.dstep, true);
 
         this.buildings = new PolygonFinder(g.nodes, this.buildingParams);
         this.buildings.findPolygons();
