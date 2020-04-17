@@ -56,6 +56,7 @@ export default class RoadsGUI {
 
     constructor(private guiFolder: dat.GUI, tensorField: TensorField, private closeTensorFolder: () => void) {
         guiFolder.add(this, 'generateEverything');
+        guiFolder.add(this, 'simpleBenchMark');
         const animateController = guiFolder.add(this, 'animate');
         guiFolder.add(this, 'animationSpeed');
 
@@ -159,6 +160,22 @@ export default class RoadsGUI {
         buildingsFolder.add(this.buildingParams, 'shrinkSpacing');
     }
 
+    async simpleBenchMark() {
+        log.info(`Starting Benchmark...`);
+        const tries = 10;
+        let sum = 0;
+        for (let i = 0; i < tries; i++) {
+            const start = performance.now();
+            await this.mainRoads.generateRoads();
+            await this.majorRoads.generateRoads();
+            await this.minorRoads.generateRoads();
+            await this.addBuildings();
+            sum += performance.now() - start;
+        }
+
+        log.info(`Generated ${tries} cities with average ${sum/tries}ms`);
+    }
+
     async generateEverything() {
         this.coastline.generateRoads();
         await this.mainRoads.generateRoads();
@@ -168,7 +185,7 @@ export default class RoadsGUI {
         await this.addBuildings(this.animate);
     }
 
-    async addBuildings(animate=true): Promise<void> {
+    async addBuildings(animate=false): Promise<void> {
         const allStreamlines = [];
         allStreamlines.push(...this.mainRoads.allStreamlines);
         allStreamlines.push(...this.majorRoads.allStreamlines);
