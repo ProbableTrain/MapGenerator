@@ -21,7 +21,8 @@ export default class RoadGUI {
                 protected guiFolder: dat.GUI,
                 protected closeTensorFolder: () => void,
                 protected folderName: string,
-                protected redraw: () => void) {
+                protected redraw: () => void,
+                protected _animate=false) {
         this.streamlines = new StreamlineGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions, this.params);
@@ -33,7 +34,7 @@ export default class RoadGUI {
 
     initFolder(): RoadGUI {
         const roadGUI = {
-            Generate: () => this.generateRoads(),
+            Generate: () => this.generateRoads(this._animate).then(() => this.redraw()),
             JoinDangling: (): void => {
                 this.streamlines.joinDanglingStreamlines();
                 this.redraw();
@@ -51,6 +52,10 @@ export default class RoadGUI {
         const devParamsFolder = paramsFolder.addFolder('Dev');
         this.addDevParamsToFolder(this.params, devParamsFolder);
         return this;
+    }
+
+    set animate(b: boolean) {
+        this._animate = b;
     }
 
     get allStreamlines(): Vector[][] {
@@ -83,7 +88,7 @@ export default class RoadGUI {
         this.streamlines.clearStreamlines();
     }
 
-    generateRoads(animate=false): Promise<unknown> {
+    async generateRoads(animate=false): Promise<unknown> {
         this.preGenerateCallback();
 
         this.domainController.zoom = this.domainController.zoom / 1.2;
@@ -96,33 +101,15 @@ export default class RoadGUI {
 
         this.closeTensorFolder();
         this.redraw();
-        // if (animate) {
-        //     this.streamlinesInProgress = true;
-        //     return(this.streamlines.createAllStreamlinesDynamic());
-        // } else {
-        //     this.streamlinesInProgress = false;
-        //     this.streamlines.createAllStreamlines();
-        //     this.postGenerateCallback();
-        // }
-        this.streamlinesInProgress = true;
-        return(this.streamlines.createAllStreamlinesDynamic());
+        
+        return this.streamlines.createAllStreamlines(animate).then(() => this.postGenerateCallback());
     }
 
     /**
      * Returns true if streamlines changes
      */
     update(): boolean {
-        if (this.streamlinesInProgress) {
-            const changed = this.streamlines.update();    
-            if (!changed) {
-                this.streamlinesInProgress = false;
-                this.postGenerateCallback();
-            }
-
-            return changed;
-        }
-
-        return false;
+        return this.streamlines.update();
     }
 
     protected addDevParamsToFolder(params: StreamlineParams, folder: dat.GUI): void {

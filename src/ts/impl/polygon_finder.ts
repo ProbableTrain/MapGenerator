@@ -4,6 +4,13 @@ import Vector from '../vector';
 import {Node} from './graph';
 import * as jsts from 'jsts';
 
+export interface PolygonParams {
+    maxLength: number;
+    minArea: number;
+    maxAspectRatio: number;
+    shrinkSpacing: number;
+}
+
 export default class PolygonFinder {
     private _polygons: Vector[][] = [];
     private _shrunkPolygons: Vector[][] = [];
@@ -12,7 +19,12 @@ export default class PolygonFinder {
     private jstsPolygons: jsts.geom.Polygon[] = [];
     private geometryFactory = new jsts.geom.GeometryFactory();
 
-    constructor(private nodes: Node[], private maxLength=20) {}
+    private toShrink: jsts.geom.Polygon[] = [];
+    private resolveShrink: () => void;
+    private toDivide: Vector[][] = [];
+    private resolveDivide: () => void;
+
+    constructor(private nodes: Node[], private params: PolygonParams) {}
 
     get polygons(): Vector[][] {
         if (this._dividedPolygons.length > 0) {
@@ -26,31 +38,90 @@ export default class PolygonFinder {
         return this._polygons;
     }
 
-    shrink(spacing = 2): void {
-        // this.polygons = this.polygons.map(p => this.shrinkPolygon(p, this.shrinkAmount))
-        if (this._polygons.length === 0) {
-            this.findPolygons();
-        }
-        
-        this._shrunkPolygons = this.jstsPolygons.map(p => this.resizePolygon(p, -spacing))
-            .filter(p => p.length > 0);
+    reset() {
+        this.toShrink = [];
+        this.toDivide = [];
+        this.jstsPolygons = [];
+        this._polygons = [];
+        this._shrunkPolygons = []
+        this._dividedPolygons = [];
     }
 
-    divide(minArea=20, maxAspectRatio=4): void {
-        if (this._polygons.length === 0) {
-            this.findPolygons();
+    update(): boolean {
+        let change = false;
+        if (this.toShrink.length > 0) {
+            let resolve = this.toShrink.length === 1;
+            const shrunk = this.resizePolygon(this.toShrink.pop(), -this.params.shrinkSpacing);
+            if (shrunk.length > 0) {
+                this._shrunkPolygons.push(shrunk)
+                change = true;
+            };
+            if (resolve) this.resolveShrink();
         }
 
-        let polygons = this._polygons;
-        if (this._shrunkPolygons.length > 0) {
-            polygons = this._shrunkPolygons;
+        if (this.toDivide.length > 0) {
+            let resolve = this.toDivide.length === 1;
+            const divided = this.subdividePolygon(this.toDivide.pop(), this.params.minArea, this.params.minArea)
+                .filter(p => PolygonFinder.calcPolygonArea(p) > this.params.minArea * 0.4);
+            if (divided.length > 0) {
+                this._dividedPolygons = this._dividedPolygons.concat(divided);
+                change = true;    
+            }
+            if (resolve) this.resolveDivide();
         }
+        return change;
+    }
 
-        let divided: Vector[][] = [];
-        polygons.forEach(p => {
-            divided = divided.concat(this.subdividePolygon(p, minArea, maxAspectRatio));
+    async shrink(animate=false): Promise<void> {
+        return new Promise<void>(resolve => {
+            if (this._polygons.length === 0) {
+                this.findPolygons();
+            }
+            
+            if (animate) {
+                if (this.jstsPolygons.length === 0) {
+                    resolve();
+                    return;
+                }
+
+                this.toShrink = this.jstsPolygons.slice();
+                this.resolveShrink = resolve;
+            } else {
+                this._shrunkPolygons = this.jstsPolygons.map(p => this.resizePolygon(p, -this.params.shrinkSpacing))
+                    .filter(p => p.length > 0);    
+                resolve();
+            }
         });
-        this._dividedPolygons = divided.filter(p => PolygonFinder.calcPolygonArea(p) > minArea * 0.4);
+    }
+
+    async divide(animate=false): Promise<void> {
+        return new Promise<void>(resolve => {
+            if (this._polygons.length === 0) {
+                this.findPolygons();
+            }
+
+            let polygons = this._polygons;
+            if (this._shrunkPolygons.length > 0) {
+                polygons = this._shrunkPolygons;
+            }
+
+            if (animate) {
+                if (polygons.length === 0) {
+                    resolve();
+                    return;
+                }
+
+                this.toDivide = polygons.slice();
+                this.resolveDivide = resolve;
+            } else {
+                let divided: Vector[][] = [];
+                polygons.forEach(p => {
+                    divided = divided.concat(this.subdividePolygon(p, this.params.minArea, this.params.minArea));
+                });
+                this._dividedPolygons = divided.filter(p => PolygonFinder.calcPolygonArea(p) > this.params.minArea * 0.4);
+                resolve();
+            }
+        });
     }
 
     findPolygons(): void {
@@ -70,7 +141,7 @@ export default class PolygonFinder {
             if (node.adj.length === 0) continue;
             for (let nextNode of node.adj) {
                 const polygon = this.recursiveWalk([node, nextNode]);
-                if (polygon !== null && polygon.length < this.maxLength) {
+                if (polygon !== null && polygon.length < this.params.maxLength) {
                     this.removePolygonAdjacencies(polygon);
                     polygons.push(polygon.map(n => n.value.clone()));
                 }
@@ -96,7 +167,7 @@ export default class PolygonFinder {
     }
 
     private recursiveWalk(visited: Node[], count=0): Node[] {
-        if (count >= this.maxLength) return null;
+        if (count >= this.params.maxLength) return null;
         // TODO backtracking to find polygons with dead end roads inside them
         const nextNode = this.getRightmostNode(visited[visited.length - 2], visited[visited.length - 1]);
         if (nextNode === null) {

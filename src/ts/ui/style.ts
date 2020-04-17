@@ -84,6 +84,10 @@ export class DefaultStyle extends Style {
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
 
+    set zoomBuildings(b: boolean) {
+        this.colourScheme.zoomBuildings = b;
+    }
+
     public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
         return new DefaultCanvasWrapper(c, scale, resizeToWindow);
     }

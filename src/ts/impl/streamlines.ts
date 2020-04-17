@@ -213,7 +213,6 @@ export default class StreamlineGenerator {
             this.lastStreamlineMajor = !this.lastStreamlineMajor;
             if (!this.createStreamline(this.lastStreamlineMajor)) {
                 this.streamlinesDone = true;
-                this.joinDanglingStreamlines();
                 this.resolve();
             }
             return true;
@@ -223,27 +222,26 @@ export default class StreamlineGenerator {
     }
 
     /**
-     * Streamlines created each frame (animated)
-     */
-    createAllStreamlinesDynamic(): Promise<unknown> {
-        this.streamlinesDone = false;
-        let testPromise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-        });
-        return testPromise;
-        // this.joinDanglingStreamlines();
-    }
-
-    /**
      * All at once - will freeze if dsep small
      */
-    createAllStreamlines(): void {
-        let major = true;
-        while (this.createStreamline(major)) {
-            major = !major;
+    async createAllStreamlines(animate=false): Promise<void> {
+        let promise: Promise<void>;
+        if (animate) {
+            promise = new Promise<void>(resolve => {
+                this.resolve = resolve
+                this.streamlinesDone = false;
+            });
+        } else {
+            promise = new Promise<void>(resolve => {
+                let major = true;
+                while (this.createStreamline(major)) {
+                    major = !major;
+                }
+                this.streamlinesDone = true;
+                resolve();  
+            });
         }
-        this.streamlinesDone = true;
-        this.joinDanglingStreamlines();
+        return promise.then(() => this.joinDanglingStreamlines());
     }
 
     createCoastStreamline(): Vector[] {

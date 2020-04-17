@@ -12,19 +12,6 @@ import Style from './ts/ui/style';
 import {ColourScheme, DefaultStyle, RoughStyle} from './ts/ui/style';
 import * as ColourSchemes from './colour_schemes.json';
 
-// enum StyleChoice {
-//     DEFAULT = "Default",
-//     APPLE = "Apple",
-//     APPLE_NIGHT = "AppleNight",
-//     ASSASSIN = "Assassin",
-//     DRAWN = "Drawn",
-//     GOOGLE = "Google",
-//     PAPER = "Paper",
-//     SUBTLEGRAYSCALE = "SubtleGrayscale",
-//     ULTRALIGHT = "UltraLight",
-//     WY = "Wy",
-// }
-
 class Main {
     private domainController = DomainController.getInstance();
     private gui: dat.GUI = new dat.GUI({width: 300});
@@ -45,7 +32,9 @@ class Main {
     private canvas: HTMLCanvasElement;
     private tensorCanvas: DefaultCanvasWrapper;
     private _style: Style;
+    private styleFolder: dat.GUI;
     private colourScheme: string = "Default";
+    private zoomBuildings: boolean = false;
     public highDPI = false;
 
     constructor() {
@@ -78,8 +67,10 @@ class Main {
         optionsFolder.add(this, 'download');
         
         // Style
-        const styleFolder = this.gui.addFolder('Style');
-        const styleController = styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes));
+        this.styleFolder = this.gui.addFolder('Style');
+        const styleController = this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes));
+        const zoomBuildingsController = this.styleFolder.add(this, 'zoomBuildings');
+        zoomBuildingsController.onChange((val: boolean) => this.setZoomBuildings(val));
         styleController.onChange((val: string) => this.changeColourScheme(val));
         this.changeColourScheme(this.colourScheme);
 
@@ -88,11 +79,22 @@ class Main {
         requestAnimationFrame(this.update.bind(this));
     }
 
+    setZoomBuildings(b: boolean) {
+        if (this._style instanceof DefaultStyle) {
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.zoomBuildings = b;
+        }
+    }
+
     changeColourScheme(scheme: string) {
         if (scheme === "Drawn") {
             this._style = new RoughStyle(this.canvas);
         } else {
-            this._style = new DefaultStyle(this.canvas, (ColourSchemes as any)[scheme]);    
+            const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
+            this.zoomBuildings = colourScheme.zoomBuildings;
+            Util.updateGui(this.styleFolder);
+            this._style = new DefaultStyle(this.canvas, Object.assign({}, colourScheme));
         }
         this.changeCanvasScale(this.highDPI);
     }
