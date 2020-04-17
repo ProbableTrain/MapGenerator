@@ -156,8 +156,12 @@ export default class StreamlineGenerator {
         let closestDistance = Infinity;
 
         for (let sample of nearbyPoints) {
-            if (!sample.equals(point) && !sample.equals(previousPoint) && !streamline.includes(sample)) {
+            if (!sample.equals(point) && !sample.equals(previousPoint)) {// && !streamline.includes(sample)) {
                 const differenceVector = sample.clone().sub(point);
+                if (differenceVector.dot(direction) < 0) {
+                    // Backwards
+                    continue;
+                }
                 
                 // Acute angle between vectors (agnostic of CW, ACW)
                 const distanceToSample = point.distanceToSquared(sample);

@@ -36,7 +36,7 @@ export default class RoadsGUI {
         dsep: 20,
         dtest: 15,
         dstep: 1,
-        dlookahead: 100,
+        dlookahead: 40,
         dcirclejoin: 5,
         joinangle: 0.1,  // approx 30deg
         pathIterations: 1000,
@@ -75,7 +75,7 @@ export default class RoadsGUI {
         this.mainParams = Object.assign({}, this.minorParams);
         this.mainParams.dsep = 400;
         this.mainParams.dtest = 200;
-        this.mainParams.dlookahead = 300;
+        this.mainParams.dlookahead = 500;
         this.mainParams.collideEarly = 0;
 
         const integrator = new RK4Integrator(tensorField, this.minorParams);
