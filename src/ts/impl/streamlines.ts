@@ -5,8 +5,8 @@ import GridStorage from './grid_storage';
 import FieldIntegrator from './integrator';
 
 interface StreamlineIntegration {
-    seed: Vector,
-    originalDir: Vector,
+    seed: Vector;
+    originalDir: Vector;
     streamline: Vector[];
     previousDirection: Vector;
     previousPoint: Vector;
@@ -14,7 +14,7 @@ interface StreamlineIntegration {
 }
 
 export interface StreamlineParams {
-    [prop: string]: number,
+    [prop: string]: number;
     dsep: number;  // Streamline seed separating distance
     dtest: number;  // Streamline integration separating distance
     dstep: number;  // Step size
@@ -44,10 +44,11 @@ export default class StreamlineGenerator {
     private candidateSeedsMajor: Vector[] = [];
     private candidateSeedsMinor: Vector[] = [];
 
-    private streamlinesDone: boolean = true;
+    private streamlinesDone = true;
     private resolve: () => void;
-    private lastStreamlineMajor: boolean = true;
+    private lastStreamlineMajor = true;
 
+    public allStreamlines: Vector[][] = [];
     public streamlinesMajor: Vector[][] = [];
     public streamlinesMinor: Vector[][] = [];
     public allStreamlinesSimple: Vector[][] = [];  // Reduced vertex count
@@ -81,6 +82,7 @@ export default class StreamlineGenerator {
         this.allStreamlinesSimple = [];
         this.streamlinesMajor = [];
         this.streamlinesMinor = [];
+        this.allStreamlines = [];
     }
 
     /**
@@ -88,8 +90,8 @@ export default class StreamlineGenerator {
      */
     joinDanglingStreamlines(): void {
         // TODO do in update method
-        for (let major of [true, false]) {
-            for (let streamline of this.streamlines(major)) {
+        for (const major of [true, false]) {
+            for (const streamline of this.streamlines(major)) {
                 // Ignore circles
                 if (streamline[0].equals(streamline[streamline.length - 1])) {
                     continue;
@@ -97,24 +99,27 @@ export default class StreamlineGenerator {
 
                 const newStart = this.getBestNextPoint(streamline[0], streamline[4], streamline)
                 if (newStart !== null) {
-                    this.pointsBetween(streamline[0], newStart, this.params.dstep).forEach(p => {
+                    for (const p of this.pointsBetween(streamline[0], newStart, this.params.dstep)) {
                         streamline.unshift(p);
                         this.grid(major).addSample(p);
-                    });
+                    }
                 }
 
                 const newEnd = this.getBestNextPoint(streamline[streamline.length - 1], streamline[streamline.length - 4], streamline);
                 if (newEnd !== null) {
-                    this.pointsBetween(streamline[streamline.length - 1], newEnd, this.params.dstep).forEach(p => {
+                    for (const p of this.pointsBetween(streamline[streamline.length - 1], newEnd, this.params.dstep)) {
                         streamline.push(p);
                         this.grid(major).addSample(p);
-                    });
+                    }
                 }
             }
         }
 
         // Reset simplified streamlines
-        this.allStreamlinesSimple = this.allStreamlines.map(s => this.simplifyStreamline(s));
+        this.allStreamlinesSimple = [];
+        for (const s of this.allStreamlines) {
+            this.allStreamlinesSimple.push(this.simplifyStreamline(s));
+        }
     }
 
     /**
@@ -148,14 +153,14 @@ export default class StreamlineGenerator {
      * returns null if there are no good candidates
      */
     getBestNextPoint(point: Vector, previousPoint: Vector, streamline: Vector[]): Vector {
-        const nearbyPoints = this.majorGrid.getNearbyPoints(point, this.params.dlookahead)
-            .concat(this.minorGrid.getNearbyPoints(point, this.params.dlookahead));
+        const nearbyPoints = this.majorGrid.getNearbyPoints(point, this.params.dlookahead);
+        nearbyPoints.push(...this.minorGrid.getNearbyPoints(point, this.params.dlookahead));
         const direction = point.clone().sub(previousPoint);
 
         let closestSample = null;
         let closestDistance = Infinity;
 
-        for (let sample of nearbyPoints) {
+        for (const sample of nearbyPoints) {
             if (!sample.equals(point) && !sample.equals(previousPoint)) {// && !streamline.includes(sample)) {
                 const differenceVector = sample.clone().sub(point);
                 if (differenceVector.dot(direction) < 0) {
@@ -202,11 +207,6 @@ export default class StreamlineGenerator {
     setGrid(s: StreamlineGenerator): void {
         this.majorGrid = s.majorGrid;
         this.minorGrid = s.minorGrid;
-    }
-
-    get allStreamlines(): Vector[][] {
-        // Combine
-        return this.streamlinesMajor.concat(this.streamlinesMinor);
     }
 
     /**
@@ -268,6 +268,7 @@ export default class StreamlineGenerator {
         const complex = this.complexifyStreamline(road);
         this.grid(major).addPolyline(complex);
         this.streamlines(major).push(complex);
+        this.allStreamlines.push(complex);
 
         return streamline;
     }
@@ -278,7 +279,7 @@ export default class StreamlineGenerator {
     private complexifyStreamline(s: Vector[]): Vector[] {
         let out: Vector[] = [];
         for (let i = 0; i < s.length - 1; i++) {
-            out = out.concat(this.complexifyStreamlineRecursive(s[i], s[i+1]));
+            out.push(...this.complexifyStreamlineRecursive(s[i], s[i+1]));
         }
         return out;
     }
@@ -289,7 +290,10 @@ export default class StreamlineGenerator {
         }
         const d = v2.clone().sub(v1);
         const halfway = v1.clone().add(d.multiplyScalar(0.5));
-        return this.complexifyStreamlineRecursive(v1, halfway).concat(this.complexifyStreamlineRecursive(halfway, v2));
+        
+        const complex = this.complexifyStreamlineRecursive(v1, halfway);
+        complex.push(...this.complexifyStreamlineRecursive(halfway, v2));
+        return complex;
     }
 
     vectorOffScreen(v: Vector): boolean {
@@ -299,7 +303,11 @@ export default class StreamlineGenerator {
     }
 
     private simplifyStreamline(streamline: Vector[]): Vector[] {
-        return simplify(streamline, this.params.simplifyTolerance).map(point => new Vector(point.x, point.y));
+        const simplified = [];
+        for (const point of simplify(streamline, this.params.simplifyTolerance)) {
+            simplified.push(new Vector(point.x, point.y));
+        }
+        return simplified;
     }
 
     /**
@@ -316,6 +324,7 @@ export default class StreamlineGenerator {
         if (this.validStreamline(streamline)) {
             this.grid(major).addPolyline(streamline);
             this.streamlines(major).push(streamline);
+            this.allStreamlines.push(streamline);
 
             this.allStreamlinesSimple.push(this.simplifyStreamline(streamline));
 
@@ -335,7 +344,7 @@ export default class StreamlineGenerator {
 
     private setParamsSq(): void {
         this.paramsSq = Object.assign({}, this.params);
-        for (let p in this.paramsSq) {
+        for (const p in this.paramsSq) {
             this.paramsSq[p] *= this.paramsSq[p];
         }
     }
@@ -375,7 +384,7 @@ export default class StreamlineGenerator {
         return seed;
     }
 
-    private isValidSample(major: boolean, point: Vector, dSq: number, bothGrids=false) {
+    private isValidSample(major: boolean, point: Vector, dSq: number, bothGrids=false): boolean {
         // dSq = dSq * point.distanceToSquared(Vector.zeroVector());
         let gridValid = this.grid(major).isValidSample(point, dSq);
         if (bothGrids) {
@@ -546,6 +555,7 @@ export default class StreamlineGenerator {
             count++;
         }
 
-        return backwardParams.streamline.reverse().concat(forwardParams.streamline);
+        backwardParams.streamline.reverse().push(...forwardParams.streamline);
+        return backwardParams.streamline;
     }
 }

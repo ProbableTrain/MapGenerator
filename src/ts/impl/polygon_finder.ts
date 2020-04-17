@@ -62,10 +62,13 @@ export default class PolygonFinder {
 
         if (this.toDivide.length > 0) {
             let resolve = this.toDivide.length === 1;
-            const divided = this.subdividePolygon(this.toDivide.pop(), this.params.minArea, this.params.minArea)
-                .filter(p => PolygonFinder.calcPolygonArea(p) > this.params.minArea * 0.4);
+            const divided = [];
+            for (const p of this.subdividePolygon(this.toDivide.pop(), this.params.minArea, this.params.minArea)) {
+                if (PolygonFinder.calcPolygonArea(p) > this.params.minArea * 0.4) divided.push(p);
+            }
+
             if (divided.length > 0) {
-                this._dividedPolygons = this._dividedPolygons.concat(divided);
+                this._dividedPolygons.push(...divided);
                 change = true;    
             }
             if (resolve) this.resolveDivide();
@@ -88,8 +91,13 @@ export default class PolygonFinder {
                 this.toShrink = this.jstsPolygons.slice();
                 this.resolveShrink = resolve;
             } else {
-                this._shrunkPolygons = this.jstsPolygons.map(p => this.resizePolygon(p, -this.params.shrinkSpacing))
-                    .filter(p => p.length > 0);    
+                this._shrunkPolygons = [];
+                for (const p of this.jstsPolygons) {
+                    const shrunk = this.resizePolygon(p, -this.params.shrinkSpacing);
+                    if (shrunk.length > 0) {
+                        this._shrunkPolygons.push(shrunk);
+                    }
+                }
                 resolve();
             }
         });
@@ -116,10 +124,15 @@ export default class PolygonFinder {
                 this.resolveDivide = resolve;
             } else {
                 let divided: Vector[][] = [];
-                polygons.forEach(p => {
-                    divided = divided.concat(this.subdividePolygon(p, this.params.minArea, this.params.minArea));
-                });
-                this._dividedPolygons = divided.filter(p => PolygonFinder.calcPolygonArea(p) > this.params.minArea * 0.4);
+                for (const p of polygons) {
+                    divided.push(...this.subdividePolygon(p, this.params.minArea, this.params.minArea));
+                }
+                this._dividedPolygons = [];
+                for (const p of divided) {
+                    if (PolygonFinder.calcPolygonArea(p) > this.params.minArea * 0.4) {
+                        this._dividedPolygons.push(p);
+                    }
+                }
                 resolve();
             }
         });
@@ -150,7 +163,10 @@ export default class PolygonFinder {
         }
 
         this._polygons = polygons;
-        this.jstsPolygons = this._polygons.map(p => this.polygonToJts(p));
+        this.jstsPolygons = [];
+        for (const p of polygons) {
+            this.jstsPolygons.push(this.polygonToJts(p));
+        }
     }
 
     private removePolygonAdjacencies(polygon: Node[]): void {
@@ -289,9 +305,9 @@ export default class PolygonFinder {
         try {
             const sliced = PolyK.Slice(PolygonFinder.polygonToPolygonArray(p), bisect[0].x, bisect[0].y, bisect[1].x, bisect[1].y);
             // Recursive call
-            sliced.forEach(s => {
-                divided = divided.concat(this.subdividePolygon(PolygonFinder.polygonArrayToPolygon(s), minArea, maxAspectRatio));
-            });
+            for (const s of sliced) {
+                divided.push(...this.subdividePolygon(PolygonFinder.polygonArrayToPolygon(s), minArea, maxAspectRatio));
+            }
 
             return divided;
         } catch (error) {
@@ -322,10 +338,10 @@ export default class PolygonFinder {
 
     private static polygonToPolygonArray(p: Vector[]): number[] {
         const outP: number[] = [];
-        p.forEach(v => {
+        for (const v of p) {
             outP.push(v.x);
             outP.push(v.y);
-        });
+        }
         return outP;
     }
 
