@@ -27,13 +27,19 @@ export default class GridStorage {
      * Add all samples from another grid to this one
      */
     addAll(gridStorage: GridStorage): void {
-        gridStorage.grid.forEach(row => row.forEach(cell => cell.forEach(sample => {
-            this.addSample(sample);
-        })));
+        for (const row of gridStorage.grid) {
+            for (const cell of row) {
+                for (const sample of cell) {
+                    this.addSample(sample);        
+                }
+            }
+        }
     }
 
     addPolyline(line: Vector[]): void {
-        line.forEach(v => this.addSample(v));
+        for (const v of line) {
+            this.addSample(v)
+        }
     }
 
     /**
@@ -106,9 +112,9 @@ export default class GridStorage {
             for (let y = -1 * radius; y <= 1 * radius; y++) {
                 const cell = coords.clone().add(new Vector(x, y));
                 if (!this.vectorOutOfBounds(cell, this.gridDimensions)) {
-                    this.grid[cell.x][cell.y].forEach(v2 => {
+                    for (const v2 of this.grid[cell.x][cell.y]) {
                         out.push(v2);
-                    });
+                    }
                 }
             }
         }

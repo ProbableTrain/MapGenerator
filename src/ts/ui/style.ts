@@ -125,40 +125,40 @@ export class DefaultStyle extends Style {
         if (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2) {
             canvas.setFillStyle(this.colourScheme.buildingColour);
             canvas.setStrokeStyle(this.colourScheme.buildingStroke);
-            this.buildings.forEach(b => canvas.drawPolygon(b));
+            for (const b of this.buildings) canvas.drawPolygon(b);
         }
 
         // Parks
         canvas.setFillStyle(this.colourScheme.grassColour);
-        this.parks.forEach(p => canvas.drawPolygon(p));
+        for (const p of this.parks) canvas.drawPolygon(p);
 
         // Road outline
         canvas.setStrokeStyle(this.colourScheme.minorRoadOutline);
         canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.minorWidth * this.domainController.zoom);
-        this.minorRoads.forEach(s => canvas.drawPolyline(s));
+        for (const s of this.minorRoads) canvas.drawPolyline(s);
 
         canvas.setStrokeStyle(this.colourScheme.majorRoadOutline);
         canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.majorWidth * this.domainController.zoom);
-        this.majorRoads.forEach(s => canvas.drawPolyline(s));
+        for (const s of this.majorRoads) canvas.drawPolyline(s);
 
         canvas.setStrokeStyle(this.colourScheme.mainRoadOutline);
         canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.mainWidth * this.domainController.zoom);
-        this.mainRoads.forEach(s => canvas.drawPolyline(s));
-        this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
+        for (const s of this.mainRoads) canvas.drawPolyline(s);
+        for (const s of this.coastlineRoads) canvas.drawPolyline(s);
 
         // Road inline
         canvas.setStrokeStyle(this.colourScheme.minorRoadColour);
         canvas.setLineWidth(this.colourScheme.minorWidth * this.domainController.zoom);
-        this.minorRoads.forEach(s => canvas.drawPolyline(s));
+        for (const s of this.minorRoads) canvas.drawPolyline(s);
 
         canvas.setStrokeStyle(this.colourScheme.majorRoadColour);
         canvas.setLineWidth(this.colourScheme.majorWidth * this.domainController.zoom);
-        this.majorRoads.forEach(s => canvas.drawPolyline(s));
+        for (const s of this.majorRoads) canvas.drawPolyline(s);
 
         canvas.setStrokeStyle(this.colourScheme.mainRoadColour);
         canvas.setLineWidth(this.colourScheme.mainWidth * this.domainController.zoom);
-        this.mainRoads.forEach(s => canvas.drawPolyline(s));
-        this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
+        for (const s of this.mainRoads) canvas.drawPolyline(s);
+        for (const s of this.coastlineRoads) canvas.drawPolyline(s);
 
         if (this.showFrame) {
             canvas.setFillStyle(this.colourScheme.frameColour);

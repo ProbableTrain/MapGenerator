@@ -163,6 +163,7 @@ class Main {
     }
 }
 
+(window as any).log = log;
 window.addEventListener('load', (): void => {
     new Main();
 });

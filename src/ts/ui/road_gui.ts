@@ -63,6 +63,7 @@ export default class RoadGUI {
     }
 
     get roads(): Vector[][] {
+        // For drawing not generation, probably fine to leave map
         return this.streamlines.allStreamlinesSimple.map(s =>
             s.map(v => this.domainController.worldToScreen(v.clone()))
         );
@@ -97,7 +98,9 @@ export default class RoadGUI {
             this.domainController.worldDimensions, Object.assign({},this.params));
         this.domainController.zoom = this.domainController.zoom * 1.2;
 
-        this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));
+        for (const s of this.existingStreamlines) {
+            this.streamlines.addExistingStreamlines(s.streamlines)   
+        }
 
         this.closeTensorFolder();
         this.redraw();

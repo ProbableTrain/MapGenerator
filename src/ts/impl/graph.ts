@@ -49,7 +49,7 @@ export default class Graph {
         const nodeAddRadius = 0.001;
 
         // Add all segment start and endpoints
-        streamlines.forEach(streamline => {
+        for (const streamline of streamlines) {
             for (let i = 0; i < streamline.length; i++) {
                 const node = new Node(streamline[i]);
                 if (i > 0) {
@@ -62,17 +62,17 @@ export default class Graph {
 
                 this.fuzzyAddToQuadtree(quadtree, node, nodeAddRadius);
             }
-        });
+        }
 
         // Add all intersections
-        intersections.forEach(intersection => {
+        for (const intersection of intersections) {
             const node = new Node(new Vector(intersection.point.x, intersection.point.y));
-            intersection.segments.forEach(s => node.addSegment(s));
+            for (const s of intersection.segments) node.addSegment(s);
             this.fuzzyAddToQuadtree(quadtree, node, nodeAddRadius);
-        });
+        }
 
         // For each simplified streamline, build list of nodes in order along streamline
-        streamlines.forEach(streamline => {
+        for (const streamline of streamlines) {
             for (let i = 0; i < streamline.length - 1; i++) {
                 const nodesAlongSegment =
                     this.getNodesAlongSegment(this.vectorsToSegment(streamline[i], streamline[i + 1]), quadtree, nodeAddRadius, dstep);
@@ -85,15 +85,19 @@ export default class Graph {
                     log.error("Error Graph.js: segment with less than 2 nodes");
                 }
             }
-        });
+        }
 
-        if (deleteDangling) {
-            quadtree.data().forEach(n => this.deleteDanglingNodes(n, quadtree));    
+        
+        for (const n of quadtree.data()) {
+            if (deleteDangling) {
+                this.deleteDanglingNodes(n, quadtree);
+            }
+                n.adj = Array.from(n.neighbors);
         }
 
         this.nodes = quadtree.data();
-        this.nodes.forEach(n => n.adj = Array.from(n.neighbors));
-        this.intersections = intersections.map(i => new Vector(i.point.x, i.point.y));
+        this.intersections = [];
+        for (const i of intersections) this.intersections.push(new Vector(i.point.x, i.point.y));
     }
 
     private deleteDanglingNodes(n: Node, quadtree: d3.Quadtree<Node>) {
@@ -150,7 +154,7 @@ export default class Graph {
 
             nodesToAdd.sort((first: Node, second: Node) =>
                 this.dotProductToSegment(first, start, differenceVector) - this.dotProductToSegment(second, start, differenceVector));
-            nodesToAdd.forEach(n => nodesAlongSegment.push(n));
+            nodesAlongSegment.push(...nodesToAdd);
         }
 
         quadtree.addAll(foundNodes);
@@ -192,8 +196,8 @@ export default class Graph {
         if (existingNode === undefined) {
             quadtree.add(node);
         } else {
-            node.neighbors.forEach(neighbor => existingNode.addNeighbor(neighbor));
-            node.segments.forEach(segment => existingNode.addSegment(segment));
+            for (const neighbor of node.neighbors) existingNode.addNeighbor(neighbor);
+            for (const segment of node.segments) existingNode.addSegment(segment);
         }
     }
 
