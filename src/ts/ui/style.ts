@@ -28,6 +28,8 @@ export interface ColourScheme {
     majorWidth?: number;
     mainWidth?: number;
     zoomBuildings?: boolean;
+    frameColour?: string;
+    frameTextColour?: string;
 }
 
 export default abstract class Style {
@@ -47,6 +49,7 @@ export default abstract class Style {
     public majorRoads: Vector[][];
     public mainRoads: Vector[][];
     public coastlineRoads: Vector[][];
+    public showFrame: boolean;
 
     public set canvasScale(scale: number) {
         this.canvas.canvasScale = scale;
@@ -80,6 +83,9 @@ export class DefaultStyle extends Style {
         if (!colourScheme.minorWidth) colourScheme.minorWidth = 2;
         if (!colourScheme.majorWidth) colourScheme.majorWidth = 4;
         if (!colourScheme.mainWidth) colourScheme.mainWidth = 5;
+        if (!colourScheme.mainWidth) colourScheme.mainWidth = 5;
+        if (!colourScheme.frameColour) colourScheme.frameColour = colourScheme.bgColour;
+        if (!colourScheme.frameTextColour) colourScheme.frameTextColour = colourScheme.minorRoadOutline;
 
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
@@ -153,6 +159,15 @@ export class DefaultStyle extends Style {
         canvas.setLineWidth(this.colourScheme.mainWidth * this.domainController.zoom);
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
         this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
+
+        if (this.showFrame) {
+            canvas.setFillStyle(this.colourScheme.frameColour);
+            canvas.setStrokeStyle(this.colourScheme.frameColour);
+            canvas.drawFrame(30, 30, 30, 80);
+
+            canvas.setFillStyle(this.colourScheme.frameTextColour);
+            canvas.drawCityName();
+        }
     }
 }
 

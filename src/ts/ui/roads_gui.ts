@@ -153,7 +153,7 @@ export default class RoadsGUI {
         });
 
         const buildingsFolder = guiFolder.addFolder('Buildings');
-        buildingsFolder.add(this, 'addBuildings');
+        buildingsFolder.add({'AddBuildings': () => this.addBuildings(this.animate)}, 'AddBuildings');
         buildingsFolder.add(this.buildingParams, 'minArea');
         buildingsFolder.add(this.buildingParams, 'maxAspectRatio');
         buildingsFolder.add(this.buildingParams, 'shrinkSpacing');
@@ -174,10 +174,13 @@ export default class RoadsGUI {
             .concat(this.mainRoads.allStreamlines)
             .concat(this.minorRoads.allStreamlines)
             .concat(this.coastline.allStreamlines), this.minorParams.dstep, true);
+
         this.buildings = new PolygonFinder(g.nodes, this.buildingParams);
-       
+        this.buildings.findPolygons();
         await this.buildings.shrink(animate);
         await this.buildings.divide(animate);
+
+
         this.redraw = true;
     }
 

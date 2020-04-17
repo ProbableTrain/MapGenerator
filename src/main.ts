@@ -11,6 +11,7 @@ import DomainController from './ts/ui/domain_controller';
 import Style from './ts/ui/style';
 import {ColourScheme, DefaultStyle, RoughStyle} from './ts/ui/style';
 import * as ColourSchemes from './colour_schemes.json';
+import Vector from './ts/vector';
 
 class Main {
     private domainController = DomainController.getInstance();
@@ -35,6 +36,7 @@ class Main {
     private styleFolder: dat.GUI;
     private colourScheme: string = "Default";
     private zoomBuildings: boolean = false;
+    private showFrame: boolean = false;
     public highDPI = false;
 
     constructor() {
@@ -69,22 +71,25 @@ class Main {
         // Style
         this.styleFolder = this.gui.addFolder('Style');
         const styleController = this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes));
-        const zoomBuildingsController = this.styleFolder.add(this, 'zoomBuildings');
-        zoomBuildingsController.onChange((val: boolean) => this.setZoomBuildings(val));
+        this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
+            if (this._style instanceof DefaultStyle) {
+                // Force redraw
+                this.previousFrameDrawTensor = true;
+                this._style.zoomBuildings = val;
+            }
+        });
+        
+        this.styleFolder.add(this, 'showFrame').onChange((val: boolean) => {
+            this.previousFrameDrawTensor = true;
+            this._style.showFrame = val;
+        });
+
         styleController.onChange((val: string) => this.changeColourScheme(val));
         this.changeColourScheme(this.colourScheme);
 
         this.tensorField.setRecommended();
 
         requestAnimationFrame(this.update.bind(this));
-    }
-
-    setZoomBuildings(b: boolean) {
-        if (this._style instanceof DefaultStyle) {
-            // Force redraw
-            this.previousFrameDrawTensor = true;
-            this._style.zoomBuildings = b;
-        }
     }
 
     changeColourScheme(scheme: string) {
@@ -96,6 +101,7 @@ class Main {
             Util.updateGui(this.styleFolder);
             this._style = new DefaultStyle(this.canvas, Object.assign({}, colourScheme));
         }
+        this._style.showFrame = this.showFrame;
         this.changeCanvasScale(this.highDPI);
     }
 

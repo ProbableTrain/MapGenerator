@@ -33,6 +33,8 @@ export default abstract class CanvasWrapper {
         }
     }
 
+    abstract drawFrame(left: number, right: number, up: number, down: number): void;
+
     setDimensions(): void {
         this._width = window.innerWidth * this._scale;
         this._height = window.innerHeight * this._scale;
@@ -79,6 +81,20 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
 
     clearCanvas(): void {
         this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
+    }
+
+    drawFrame(left: number, right: number, up: number, down: number): void {
+        this.drawRectangle(0, 0, this._width/this._scale, up);
+        this.drawRectangle(0, 0, left, this._height/this._scale);
+        this.drawRectangle(this._width/this._scale - right, 0, right, this._height/this._scale);
+        this.drawRectangle(0, this._height/this._scale - down, this._width/this._scale, down);
+    }
+
+    drawCityName() {
+        const fontSize = 50 * this._scale;
+        this.ctx.font = `small-caps ${fontSize}px Verdana`;
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("san francisco", this._width/2, this._height - (80 * this._scale - fontSize));
     }
 
     drawRectangle(x: number, y: number, width: number, height: number): void {
@@ -162,6 +178,10 @@ export class RoughCanvasWrapper extends CanvasWrapper {
         super(canvas, scale, resizeToWindow);
         let r = require('roughjs/bundled/rough.cjs');
         this.rc = r.canvas(canvas);
+    }
+
+    drawFrame(left: number, right: number, up: number, down: number): void {
+
     }
 
     setOptions(options: RoughOptions): void {

@@ -229,23 +229,17 @@ export default class StreamlineGenerator {
      * All at once - will freeze if dsep small
      */
     async createAllStreamlines(animate=false): Promise<void> {
-        let promise: Promise<void>;
-        if (animate) {
-            promise = new Promise<void>(resolve => {
-                this.resolve = resolve
-                this.streamlinesDone = false;
-            });
-        } else {
-            promise = new Promise<void>(resolve => {
+        return new Promise<void>(resolve => {
+            this.resolve = resolve
+            this.streamlinesDone = false;
+
+            if (!animate) {
                 let major = true;
                 while (this.createStreamline(major)) {
                     major = !major;
                 }
-                this.streamlinesDone = true;
-                resolve();  
-            });
-        }
-        return promise.then(() => this.joinDanglingStreamlines());
+            }
+        }).then(() => this.joinDanglingStreamlines());
     }
 
     createCoastStreamline(): Vector[] {
@@ -382,6 +376,7 @@ export default class StreamlineGenerator {
     }
 
     private isValidSample(major: boolean, point: Vector, dSq: number, bothGrids=false) {
+        // dSq = dSq * point.distanceToSquared(Vector.zeroVector());
         let gridValid = this.grid(major).isValidSample(point, dSq);
         if (bothGrids) {
             gridValid = gridValid && this.grid(!major).isValidSample(point, dSq);

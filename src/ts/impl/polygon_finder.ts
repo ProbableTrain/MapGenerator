@@ -52,6 +52,7 @@ export default class PolygonFinder {
         if (this.toShrink.length > 0) {
             let resolve = this.toShrink.length === 1;
             const shrunk = this.resizePolygon(this.toShrink.pop(), -this.params.shrinkSpacing);
+            // const shrunk = this.shrinkPolygon(this.toShrink.pop(), 0.8);
             if (shrunk.length > 0) {
                 this._shrunkPolygons.push(shrunk)
                 change = true;
@@ -138,7 +139,7 @@ export default class PolygonFinder {
         const polygons = [];
 
         for (let node of this.nodes) {
-            if (node.adj.length === 0) continue;
+            if (node.adj.length < 2) continue;
             for (let nextNode of node.adj) {
                 const polygon = this.recursiveWalk([node, nextNode]);
                 if (polygon !== null && polygon.length < this.params.maxLength) {
@@ -295,7 +296,7 @@ export default class PolygonFinder {
             return divided;
         } catch (error) {
             log.error(error);
-            return []
+            return [];
         }
     }
 

@@ -95,6 +95,7 @@
         "minorRoadColour": "rgb(212,212,212)",
         "mainRoadOutline": "rgb(208,208,208)",
         "mainRoadColour": "rgb(208,208,208)",
+        "frameTextColour": "rgb(162,162,157)",
     },
     "UltraLight": {
         "bgColour": "rgb(247,247,247)",
