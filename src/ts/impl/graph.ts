@@ -43,7 +43,7 @@ export default class Graph {
     public nodes: Node[];
     public intersections: Vector[];
 
-    constructor(streamlines: Vector[][], dstep: number) {
+    constructor(streamlines: Vector[][], dstep: number, deleteDangling=false) {
         const intersections = isect.bush(this.streamlinesToSegment(streamlines)).run();
         const quadtree = (d3.quadtree() as d3.Quadtree<Node>).x(n => n.value.x).y(n => n.value.y);
         const nodeAddRadius = 0.001;
@@ -87,9 +87,23 @@ export default class Graph {
             }
         });
 
+        if (deleteDangling) {
+            quadtree.data().forEach(n => this.deleteDanglingNodes(n, quadtree));    
+        }
+
         this.nodes = quadtree.data();
         this.nodes.forEach(n => n.adj = Array.from(n.neighbors));
         this.intersections = intersections.map(i => new Vector(i.point.x, i.point.y));
+    }
+
+    private deleteDanglingNodes(n: Node, quadtree: d3.Quadtree<Node>) {
+        if (n.neighbors.size === 1) {
+            quadtree.remove(n);
+            for (let neighbor of n.neighbors) {
+                neighbor.neighbors.delete(n);
+                this.deleteDanglingNodes(neighbor, quadtree);
+            }
+        }
     }
 
     private getNodesAlongSegment(segment: Segment, quadtree: d3.Quadtree<Node>, radius: number, step: number): Node[] {

@@ -46,7 +46,7 @@ export default class CoastlineGUI extends RoadGUI {
         return this;
     }
 
-    generateRoads(): void {
+    generateRoads(): Promise<unknown> {
         this.preGenerateCallback();
 
         this.domainController.zoom = this.domainController.zoom / 1.2;
@@ -65,6 +65,7 @@ export default class CoastlineGUI extends RoadGUI {
         this.closeTensorFolder();
         this.redraw();
         this.postGenerateCallback();
+        return null;
     }
 
     get coastline(): Vector[] {

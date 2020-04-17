@@ -14,6 +14,8 @@ export default class RoadGUI {
     protected preGenerateCallback: () => any = () => {};
     protected postGenerateCallback: () => any = () => {};
 
+    private streamlinesInProgress: boolean = false;
+
     constructor(protected params: StreamlineParams,
                 protected integrator: FieldIntegrator,
                 protected guiFolder: dat.GUI,
@@ -31,7 +33,7 @@ export default class RoadGUI {
 
     initFolder(): RoadGUI {
         const roadGUI = {
-            Generate: this.generateRoads.bind(this),
+            Generate: () => this.generateRoads(),
             JoinDangling: (): void => {
                 this.streamlines.joinDanglingStreamlines();
                 this.redraw();
@@ -57,7 +59,6 @@ export default class RoadGUI {
 
     get roads(): Vector[][] {
         return this.streamlines.allStreamlinesSimple.map(s =>
-            // canvas.drawPolyline(s.map(v => this.domainController.worldToScreen(v.clone())));
             s.map(v => this.domainController.worldToScreen(v.clone()))
         );
     }
@@ -82,7 +83,7 @@ export default class RoadGUI {
         this.streamlines.clearStreamlines();
     }
 
-    generateRoads(): void {
+    generateRoads(animate=false): Promise<unknown> {
         this.preGenerateCallback();
 
         this.domainController.zoom = this.domainController.zoom / 1.2;
@@ -91,12 +92,37 @@ export default class RoadGUI {
             this.domainController.worldDimensions, Object.assign({},this.params));
         this.domainController.zoom = this.domainController.zoom * 1.2;
 
-        this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));        
-        this.streamlines.createAllStreamlines();
-        this.streamlines.joinDanglingStreamlines();
+        this.existingStreamlines.forEach(s => this.streamlines.addExistingStreamlines(s.streamlines));
+
         this.closeTensorFolder();
         this.redraw();
-        this.postGenerateCallback();
+        // if (animate) {
+        //     this.streamlinesInProgress = true;
+        //     return(this.streamlines.createAllStreamlinesDynamic());
+        // } else {
+        //     this.streamlinesInProgress = false;
+        //     this.streamlines.createAllStreamlines();
+        //     this.postGenerateCallback();
+        // }
+        this.streamlinesInProgress = true;
+        return(this.streamlines.createAllStreamlinesDynamic());
+    }
+
+    /**
+     * Returns true if streamlines changes
+     */
+    update(): boolean {
+        if (this.streamlinesInProgress) {
+            const changed = this.streamlines.update();    
+            if (!changed) {
+                this.streamlinesInProgress = false;
+                this.postGenerateCallback();
+            }
+
+            return changed;
+        }
+
+        return false;
     }
 
     protected addDevParamsToFolder(params: StreamlineParams, folder: dat.GUI): void {
@@ -107,6 +133,7 @@ export default class RoadGUI {
         folder.add(params, 'dcirclejoin');
         folder.add(params, 'joinangle');
         folder.add(params, 'simplifyTolerance');
+        folder.add(params, 'collideEarly');
     }
 
     /**

@@ -36,7 +36,7 @@ export default class PolygonFinder {
             .filter(p => p.length > 0);
     }
 
-    divide(minArea = 20): void {
+    divide(minArea=20, maxAspectRatio=4): void {
         if (this._polygons.length === 0) {
             this.findPolygons();
         }
@@ -48,7 +48,7 @@ export default class PolygonFinder {
 
         let divided: Vector[][] = [];
         polygons.forEach(p => {
-            divided = divided.concat(this.subdividePolygon(p, minArea));
+            divided = divided.concat(this.subdividePolygon(p, minArea, maxAspectRatio));
         });
         this._dividedPolygons = divided.filter(p => PolygonFinder.calcPolygonArea(p) > minArea * 0.4);
     }
@@ -70,7 +70,7 @@ export default class PolygonFinder {
             if (node.adj.length === 0) continue;
             for (let nextNode of node.adj) {
                 const polygon = this.recursiveWalk([node, nextNode]);
-                if (polygon !== null) {
+                if (polygon !== null && polygon.length < this.maxLength) {
                     this.removePolygonAdjacencies(polygon);
                     polygons.push(polygon.map(n => n.value.clone()));
                 }
@@ -78,7 +78,7 @@ export default class PolygonFinder {
         }
 
         this._polygons = polygons;
-        this.jstsPolygons = polygons.map(p => this.polygonToJts(p));
+        this.jstsPolygons = this._polygons.map(p => this.polygonToJts(p));
     }
 
     private removePolygonAdjacencies(polygon: Node[]): void {
@@ -175,23 +175,32 @@ export default class PolygonFinder {
         }
     }
 
-    private subdividePolygon(p: Vector[], minArea: number): Vector[][] {
-        if (PolygonFinder.calcPolygonArea(p) < minArea) {
+    private subdividePolygon(p: Vector[], minArea: number, maxAspectRatio: number): Vector[][] {
+        const area = PolygonFinder.calcPolygonArea(p);
+        if (area < minArea) {
             return [p];
         }
 
+
+
         let divided: Vector[][] = [];  // Array of polygons
 
-        let longestSideLength = 0;
+        let longestSideLengthSq = 0;
         let longestSide = [p[0], p[1]];
 
         for (let i = 0; i < p.length; i++) {
-            const sideLength = p[i].clone().sub(p[(i+1) % p.length]).length();
-            if (sideLength > longestSideLength) {
-                longestSideLength = sideLength;
+            const sideLength = p[i].clone().sub(p[(i+1) % p.length]).lengthSq();  // TODO squared
+            if (sideLength > longestSideLengthSq) {
+                longestSideLengthSq = sideLength;
                 longestSide = [p[i], p[(i+1) % p.length]];
             }
         }
+
+        // Aspect ratio approximation
+        // if (longestSideLengthSq / area >= maxAspectRatio) {  // Approximation
+        //     return [];
+        // }
+
 
         // Between 0.4 and 0.6
         const deviation = (Math.random() * 0.2) + 0.4;
@@ -209,7 +218,7 @@ export default class PolygonFinder {
             const sliced = PolyK.Slice(PolygonFinder.polygonToPolygonArray(p), bisect[0].x, bisect[0].y, bisect[1].x, bisect[1].y);
             // Recursive call
             sliced.forEach(s => {
-                divided = divided.concat(this.subdividePolygon(PolygonFinder.polygonArrayToPolygon(s), minArea));
+                divided = divided.concat(this.subdividePolygon(PolygonFinder.polygonArrayToPolygon(s), minArea, maxAspectRatio));
             });
 
             return divided;
@@ -232,6 +241,7 @@ export default class PolygonFinder {
         ];
         const sliced = PolyK.Slice(rectangle, p1.x, p1.y, p2.x, p2.y).map(p => this.polygonArrayToPolygon(p));
         const minArea = PolygonFinder.calcPolygonArea(sliced[0]);
+
         if (sliced.length > 1 && PolygonFinder.calcPolygonArea(sliced[1]) < minArea) {
             return sliced[1];
         } 
@@ -254,13 +264,6 @@ export default class PolygonFinder {
         }
         return outP;
     }
-
-    // private isValidPolygon(p: Vector[]): boolean {
-    //     if (p.length > this.maxLength) return false;
-    //     const area = PolygonFinder.calcPolygonArea(p);
-    //     if (area < this.minArea || area > 10000) return false;
-    //     return true;
-    // }
 
     private static calcPolygonArea(vertices: Vector[]): number {
         let total = 0;

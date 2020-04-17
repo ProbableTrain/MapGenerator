@@ -34,7 +34,7 @@ export default class RoadsGUI {
     private majorParams: StreamlineParams;
     private minorParams: StreamlineParams = {
         dsep: 20,
-        dtest: 10,
+        dtest: 15,
         dstep: 1,
         dlookahead: 100,
         dcirclejoin: 5,
@@ -42,6 +42,7 @@ export default class RoadsGUI {
         pathIterations: 1000,
         seedTries: 300,
         simplifyTolerance: 0.5,
+        collideEarly: 0.7,
     };
 
     private redraw: boolean = true;
@@ -59,11 +60,13 @@ export default class RoadsGUI {
         this.majorParams.dsep = 100;
         this.majorParams.dtest = 30;
         this.majorParams.dlookahead = 200;
+        this.majorParams.collideEarly = 0;
 
         this.mainParams = Object.assign({}, this.minorParams);
         this.mainParams.dsep = 400;
         this.mainParams.dtest = 200;
         this.mainParams.dlookahead = 300;
+        this.mainParams.collideEarly = 0;
 
         const integrator = new RK4Integrator(tensorField, this.minorParams);
         const redraw = () => this.redraw = true;
@@ -72,6 +75,7 @@ export default class RoadsGUI {
         this.mainRoads = new RoadGUI(this.mainParams, integrator, this.guiFolder, closeTensorFolder, 'Main', redraw).initFolder();
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw).initFolder();
         this.minorRoads = new RoadGUI(this.minorParams, integrator, this.guiFolder, closeTensorFolder, 'Minor', redraw).initFolder();
+
 
         this.minorRoads.setExistingStreamlines([this.coastline, this.mainRoads, this.majorRoads]);
         this.majorRoads.setExistingStreamlines([this.coastline, this.mainRoads]);
@@ -88,7 +92,8 @@ export default class RoadsGUI {
         });
 
         this.coastline.setPostGenerateCallback(() => {
-            tensorField.setSea(this.coastline.seaPolygon);
+            // seaPolygon is in screen space for rendering
+            tensorField.setSea(this.coastline.seaPolygon.map(v => this.domainController.screenToWorld(v.clone())));
         });
 
         this.mainRoads.setPreGenerateCallback(() => {
@@ -108,7 +113,8 @@ export default class RoadsGUI {
 
         this.majorRoads.setPostGenerateCallback(() => {
             const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
-            this.intersections = g.intersections; 
+            this.intersections = g.intersections;
+
             const p = new PolygonFinder(g.nodes);
             p.findPolygons();
             const polygons = p.polygons;
@@ -123,6 +129,8 @@ export default class RoadsGUI {
                     this.parks.push(p);
                 }
             }
+
+            this.redraw = true;
         });
 
         this.minorRoads.setPreGenerateCallback(() => {
@@ -137,10 +145,10 @@ export default class RoadsGUI {
 
     generateEverything() {
         this.coastline.generateRoads();
-        this.mainRoads.generateRoads();
-        this.majorRoads.generateRoads();
-        this.minorRoads.generateRoads();
-        this.addBuildings();
+        this.mainRoads.generateRoads()
+            .then(() => this.majorRoads.generateRoads())
+            .then(() => this.minorRoads.generateRoads())
+            .then(() => this.addBuildings());
     }
 
     addBuildings() {
@@ -148,12 +156,19 @@ export default class RoadsGUI {
             this.majorRoads.allStreamlines
             .concat(this.mainRoads.allStreamlines)
             .concat(this.minorRoads.allStreamlines)
-            .concat(this.coastline.allStreamlines), this.minorParams.dstep);
+            .concat(this.coastline.allStreamlines), this.minorParams.dstep, true);
         const p = new PolygonFinder(g.nodes);
         p.shrink(this.buildingMargin);
         p.divide(this.buildingSize);
         this.lots = p.polygons;
         this.redraw = true;
+    }
+
+    update() {
+        const minorChanged = this.minorRoads.update();
+        const majorChanged = this.majorRoads.update();
+        const mainChanged = this.mainRoads.update();
+        this.redraw = this.redraw || minorChanged || majorChanged || mainChanged;
     }
 
     draw(style: Style, forceDraw=false, customCanvas?: CanvasWrapper): void {

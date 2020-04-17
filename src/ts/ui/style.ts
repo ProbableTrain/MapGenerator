@@ -24,6 +24,9 @@ export interface ColourScheme {
     mainRoadColour?: string;
     mainRoadOutline?: string;
     outlineSize?: number;
+    minorWidth?: number;
+    majorWidth?: number;
+    mainWidth?: number;
     zoomBuildings?: boolean;
 }
 
@@ -74,6 +77,9 @@ export class DefaultStyle extends Style {
         if (!colourScheme.mainRoadOutline) colourScheme.mainRoadOutline = colourScheme.majorRoadOutline;
         if (!colourScheme.outlineSize) colourScheme.outlineSize = 1;
         if (!colourScheme.zoomBuildings) colourScheme.zoomBuildings = false;
+        if (!colourScheme.minorWidth) colourScheme.minorWidth = 2;
+        if (!colourScheme.majorWidth) colourScheme.majorWidth = 4;
+        if (!colourScheme.mainWidth) colourScheme.mainWidth = 5;
 
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
@@ -118,29 +124,29 @@ export class DefaultStyle extends Style {
 
         // Road outline
         canvas.setStrokeStyle(this.colourScheme.minorRoadOutline);
-        canvas.setLineWidth(this.colourScheme.outlineSize + 2 * this.domainController.zoom);
+        canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.minorWidth * this.domainController.zoom);
         this.minorRoads.forEach(s => canvas.drawPolyline(s));
 
         canvas.setStrokeStyle(this.colourScheme.majorRoadOutline);
-        canvas.setLineWidth(this.colourScheme.outlineSize + 4 * this.domainController.zoom);
+        canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.majorWidth * this.domainController.zoom);
         this.majorRoads.forEach(s => canvas.drawPolyline(s));
 
         canvas.setStrokeStyle(this.colourScheme.mainRoadOutline);
-        canvas.setLineWidth(this.colourScheme.outlineSize + 5 * this.domainController.zoom);
+        canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.mainWidth * this.domainController.zoom);
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
         this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
 
         // Road inline
         canvas.setStrokeStyle(this.colourScheme.minorRoadColour);
-        canvas.setLineWidth(2 * this.domainController.zoom);
+        canvas.setLineWidth(this.colourScheme.minorWidth * this.domainController.zoom);
         this.minorRoads.forEach(s => canvas.drawPolyline(s));
 
         canvas.setStrokeStyle(this.colourScheme.majorRoadColour);
-        canvas.setLineWidth(4 * this.domainController.zoom);
+        canvas.setLineWidth(this.colourScheme.majorWidth * this.domainController.zoom);
         this.majorRoads.forEach(s => canvas.drawPolyline(s));
 
         canvas.setStrokeStyle(this.colourScheme.mainRoadColour);
-        canvas.setLineWidth(5 * this.domainController.zoom);
+        canvas.setLineWidth(this.colourScheme.mainWidth * this.domainController.zoom);
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
         this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
     }

@@ -66,7 +66,7 @@ class Main {
         this.tensorFolder = this.gui.addFolder('Tensor Field');
         this.tensorField = new TensorFieldGUI(this.tensorFolder, this.dragController, true, noiseParams);
         this.tensorFolder.open();
-        this.roadsFolder = this.gui.addFolder('Roads');
+        this.roadsFolder = this.gui.addFolder('Map');
         this.roadsFolder.open();
         this.roadsGUI = new RoadsGUI(this.roadsFolder, this.tensorField, () => this.tensorFolder.close());
 
@@ -89,7 +89,11 @@ class Main {
     }
 
     changeColourScheme(scheme: string) {
-        this._style = new DefaultStyle(this.canvas, (ColourSchemes as any)[scheme]);
+        if (scheme === "Drawn") {
+            this._style = new RoughStyle(this.canvas);
+        } else {
+            this._style = new DefaultStyle(this.canvas, (ColourSchemes as any)[scheme]);    
+        }
         this.changeCanvasScale(this.highDPI);
     }
 
@@ -145,6 +149,7 @@ class Main {
     }
 
     update(): void {
+        this.roadsGUI.update();
         this.draw();
         requestAnimationFrame(this.update.bind(this));
     }

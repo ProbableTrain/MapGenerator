@@ -12,10 +12,12 @@
 // mainRoadOutline?: string;  // Be careful, inherits majorRoadOutline, not mainRoadColour
 // outlineSize?: number;      // Cascade semantics in style.ts
 // zoomBuildings?: boolean;
+
 {
     "Default": {
         "bgColour": "rgb(236,229,219)",
         "buildingStroke": "#282828",
+        // "buildingColour": "red",
         "seaColour": "#a9d9fe",
         "grassColour": "#c5e8c5",
         "minorRoadOutline": "#020202",
@@ -61,6 +63,7 @@
         "mainRoadColour": "rgb(149,161,157)",
         "mainRoadOutline": "rgb(149,161,157)",
     },
+    "Drawn": {},  // Special canvas
     "Google": {
         "bgColour": "rgb(248,249,250)",
         "bgColourIn": "rgb(241,242,243)",

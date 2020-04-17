@@ -24,6 +24,7 @@ export interface StreamlineParams {
     pathIterations: number;  // Path integration iteration limit
     seedTries: number;  // Max failed seeds
     simplifyTolerance: number;
+    collideEarly: number;  // Chance of early collision 0-1
 }
 
 export default class StreamlineGenerator {
@@ -44,6 +45,7 @@ export default class StreamlineGenerator {
     private candidateSeedsMinor: Vector[] = [];
 
     private streamlinesDone: boolean = true;
+    private resolve: () => void;
     private lastStreamlineMajor: boolean = true;
 
     public streamlinesMajor: Vector[][] = [];
@@ -146,15 +148,6 @@ export default class StreamlineGenerator {
      * returns null if there are no good candidates
      */
     getBestNextPoint(point: Vector, previousPoint: Vector, streamline: Vector[]): Vector {
-        // Only consider points not on the edge
-        if (point.x < this.NEAR_EDGE || point.x > this.worldDimensions.x - this.NEAR_EDGE) {
-            return null;
-        }
-
-        if (point.y < this.NEAR_EDGE || point.y > this.worldDimensions.y - this.NEAR_EDGE) {
-            return null;
-        }
-
         const nearbyPoints = this.majorGrid.getNearbyPoints(point, this.params.dlookahead)
             .concat(this.minorGrid.getNearbyPoints(point, this.params.dlookahead));
         const direction = point.clone().sub(previousPoint);
@@ -187,7 +180,7 @@ export default class StreamlineGenerator {
         // If trying to find intersections in the simplified graph
         // prevent ends getting pulled away from simplified lines
         if (closestSample !== null) {
-            closestSample = closestSample.clone().add(direction.setLength(this.params.simplifyTolerance * 3));
+            closestSample = closestSample.clone().add(direction.setLength(this.params.simplifyTolerance * 4));
         }
 
         return closestSample;
@@ -202,25 +195,42 @@ export default class StreamlineGenerator {
         this.minorGrid.addAll(s.minorGrid);
     }
 
+    setGrid(s: StreamlineGenerator): void {
+        this.majorGrid = s.majorGrid;
+        this.minorGrid = s.minorGrid;
+    }
+
     get allStreamlines(): Vector[][] {
         // Combine
         return this.streamlinesMajor.concat(this.streamlinesMinor);
     }
 
-    update(): void {
+    /**
+     * returns true if state updates
+     */
+    update(): boolean {
         if (!this.streamlinesDone) {
             this.lastStreamlineMajor = !this.lastStreamlineMajor;
             if (!this.createStreamline(this.lastStreamlineMajor)) {
                 this.streamlinesDone = true;
+                this.joinDanglingStreamlines();
+                this.resolve();
             }
+            return true;
         }
+
+        return false;
     }
 
     /**
      * Streamlines created each frame (animated)
      */
-    createAllStreamlinesDynamic(): void {
+    createAllStreamlinesDynamic(): Promise<unknown> {
         this.streamlinesDone = false;
+        let testPromise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+        });
+        return testPromise;
         // this.joinDanglingStreamlines();
     }
 
@@ -232,6 +242,8 @@ export default class StreamlineGenerator {
         while (this.createStreamline(major)) {
             major = !major;
         }
+        this.streamlinesDone = true;
+        this.joinDanglingStreamlines();
     }
 
     createCoastStreamline(): Vector[] {
@@ -367,11 +379,14 @@ export default class StreamlineGenerator {
         return seed;
     }
 
-    private isValidSample(major: boolean, point: Vector, dSq: number) {
-        return this.integrator.onLand(point) && this.grid(major).isValidSample(point, dSq);
+    private isValidSample(major: boolean, point: Vector, dSq: number, bothGrids=false) {
+        let gridValid = this.grid(major).isValidSample(point, dSq);
+        if (bothGrids) {
+            gridValid = gridValid && this.grid(!major).isValidSample(point, dSq);
+        }
+        return this.integrator.onLand(point) && gridValid;
     }
 
-    // TODO enum to remove these functions
     private candidateSeeds(major: boolean): Vector[] {
         return major ? this.candidateSeedsMajor : this.candidateSeedsMinor;
     }
@@ -439,7 +454,7 @@ export default class StreamlineGenerator {
      * // TODO this doesn't work well - consider something disallowing one direction (F/B) to turn more than 180 deg
      * One step of the streamline integration process
      */
-    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean): void {
+    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean, collideBoth: boolean): void {
         if (params.valid) {
             params.streamline.push(params.previousPoint);
             const nextDirection = this.integrator.integrate(params.previousPoint, major);
@@ -464,7 +479,7 @@ export default class StreamlineGenerator {
             // }
 
             if (this.pointInBounds(nextPoint)
-                && this.isValidSample(major, nextPoint, this.paramsSq.dtest)
+                && this.isValidSample(major, nextPoint, this.paramsSq.dtest, collideBoth)
                 && !this.streamlineTurned(params.seed, params.originalDir, nextPoint, nextDirection)) {
                 params.previousPoint = nextPoint;
                 params.previousDirection = nextDirection;
@@ -483,6 +498,10 @@ export default class StreamlineGenerator {
     private integrateStreamline(seed: Vector, major: boolean): Vector[] {
         let count = 0;
         let pointsEscaped = false;  // True once two integration fronts have moved dlookahead away
+
+        // Whether or not to test validity using both grid storages
+        // (Collide with both major and minor)
+        const collideBoth = Math.random() < this.params.collideEarly;
 
         const d = this.integrator.integrate(seed, major);
 
@@ -510,8 +529,8 @@ export default class StreamlineGenerator {
         backwardParams.valid = this.pointInBounds(backwardParams.previousPoint);
 
         while (count < this.params.pathIterations && (forwardParams.valid || backwardParams.valid)) {
-            this.streamlineIntegrationStep(forwardParams, major);
-            this.streamlineIntegrationStep(backwardParams, major);
+            this.streamlineIntegrationStep(forwardParams, major, collideBoth);
+            this.streamlineIntegrationStep(backwardParams, major, collideBoth);
 
             // Join up circles
             const sqDistanceBetweenPoints = forwardParams.previousPoint.distanceToSquared(backwardParams.previousPoint);
