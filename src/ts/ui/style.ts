@@ -39,16 +39,18 @@ export default abstract class Style {
     public abstract draw(canvas?: CanvasWrapper): void;
 
     // Polygons
-    public seaPolygon: Vector[];
-    public buildings: Vector[][];
-    public parks: Vector[][];
+    public seaPolygon: Vector[] = [];
+    public buildings: Vector[][] = [];
+    public parks: Vector[][] = [];
 
     // Polylines
-    public coastline: Vector[];
-    public minorRoads: Vector[][];
-    public majorRoads: Vector[][];
-    public mainRoads: Vector[][];
-    public coastlineRoads: Vector[][];
+    public coastline: Vector[] = [];
+    public river: Vector[] = [];
+    public secondaryRiver: Vector[] = [];
+    public minorRoads: Vector[][] = [];
+    public majorRoads: Vector[][] = [];
+    public mainRoads: Vector[][] = [];
+    public coastlineRoads: Vector[][] = [];
     public showFrame: boolean;
 
     public set canvasScale(scale: number) {
@@ -116,6 +118,7 @@ export class DefaultStyle extends Style {
         canvas.setLineWidth(0.1);
         canvas.drawPolygon(this.seaPolygon);
 
+        // Coastline
         canvas.setStrokeStyle(bgColour);
         canvas.setLineWidth(30 * this.domainController.zoom);
         canvas.drawPolyline(this.coastline);
@@ -132,6 +135,12 @@ export class DefaultStyle extends Style {
         canvas.setFillStyle(this.colourScheme.grassColour);
         for (const p of this.parks) canvas.drawPolygon(p);
 
+        // River
+        canvas.setFillStyle(this.colourScheme.seaColour);
+        canvas.setStrokeStyle(this.colourScheme.seaColour);
+        canvas.setLineWidth(0.1);
+        canvas.drawPolygon(this.river);
+
         // Road outline
         canvas.setStrokeStyle(this.colourScheme.minorRoadOutline);
         canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.minorWidth * this.domainController.zoom);
@@ -140,6 +149,7 @@ export class DefaultStyle extends Style {
         canvas.setStrokeStyle(this.colourScheme.majorRoadOutline);
         canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.majorWidth * this.domainController.zoom);
         for (const s of this.majorRoads) canvas.drawPolyline(s);
+        canvas.drawPolyline(this.secondaryRiver);
 
         canvas.setStrokeStyle(this.colourScheme.mainRoadOutline);
         canvas.setLineWidth(this.colourScheme.outlineSize + this.colourScheme.mainWidth * this.domainController.zoom);
@@ -154,6 +164,7 @@ export class DefaultStyle extends Style {
         canvas.setStrokeStyle(this.colourScheme.majorRoadColour);
         canvas.setLineWidth(this.colourScheme.majorWidth * this.domainController.zoom);
         for (const s of this.majorRoads) canvas.drawPolyline(s);
+        canvas.drawPolyline(this.secondaryRiver);
 
         canvas.setStrokeStyle(this.colourScheme.mainRoadColour);
         canvas.setLineWidth(this.colourScheme.mainWidth * this.domainController.zoom);

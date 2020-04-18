@@ -14,7 +14,7 @@ interface StreamlineIntegration {
 }
 
 export interface StreamlineParams {
-    [prop: string]: number;
+    [key: string]: any;
     dsep: number;  // Streamline seed separating distance
     dtest: number;  // Streamline integration separating distance
     dstep: number;  // Step size
@@ -28,25 +28,25 @@ export interface StreamlineParams {
 }
 
 export default class StreamlineGenerator {
-    private readonly SEED_AT_ENDPOINTS = false;
-    private readonly NEAR_EDGE = 3;  // Sample near edge
+    protected readonly SEED_AT_ENDPOINTS = false;
+    protected readonly NEAR_EDGE = 3;  // Sample near edge
 
-    private majorGrid: GridStorage;
-    private minorGrid: GridStorage;
-    private paramsSq: StreamlineParams;
+    protected majorGrid: GridStorage;
+    protected minorGrid: GridStorage;
+    protected paramsSq: StreamlineParams;
 
     // How many samples to skip when checking streamline collision with itself
-    private nStreamlineStep: number;
+    protected nStreamlineStep: number;
     // How many samples to ignore backwards when checking streamline collision with itself
-    private nStreamlineLookBack: number;
-    private dcollideselfSq: number;
+    protected nStreamlineLookBack: number;
+    protected dcollideselfSq: number;
 
-    private candidateSeedsMajor: Vector[] = [];
-    private candidateSeedsMinor: Vector[] = [];
+    protected candidateSeedsMajor: Vector[] = [];
+    protected candidateSeedsMinor: Vector[] = [];
 
-    private streamlinesDone = true;
-    private resolve: () => void;
-    private lastStreamlineMajor = true;
+    protected streamlinesDone = true;
+    protected resolve: () => void;
+    protected lastStreamlineMajor = true;
 
     public allStreamlines: Vector[][] = [];
     public streamlinesMajor: Vector[][] = [];
@@ -56,10 +56,10 @@ export default class StreamlineGenerator {
     /**
      * Uses world-space coordinates
      */
-    constructor(private integrator: FieldIntegrator,
-                private origin: Vector,
-                private worldDimensions: Vector,
-                private params: StreamlineParams) {
+    constructor(protected integrator: FieldIntegrator,
+                protected origin: Vector,
+                protected worldDimensions: Vector,
+                protected params: StreamlineParams) {
         if (params.dstep > params.dsep) {
             log.error("STREAMLINE SAMPLE DISTANCE BIGGER THAN DSEP");
         }
@@ -242,67 +242,7 @@ export default class StreamlineGenerator {
         }).then(() => this.joinDanglingStreamlines());
     }
 
-    createCoastStreamline(): Vector[] {
-        let streamline;
-        let seed;
-        let major;
-        for (let i = 0; i < 500; i++) {
-            major = Math.random() < 0.5;
-            seed = this.getSeed(major);
-            streamline = this.integrateStreamline(seed, major);
-            streamline.unshift(streamline[0].clone().add(
-                streamline[0].clone().sub(streamline[1]).setLength(this.params.dstep * 5)));
-            streamline.push(streamline[streamline.length - 1].clone().add(
-                streamline[streamline.length - 1].clone().sub(streamline[streamline.length - 2]).setLength(this.params.dstep * 5)));
-
-            if (this.vectorOffScreen(streamline[0]) && this.vectorOffScreen(streamline[streamline.length - 1])) {
-                break;
-            }
-        }
-
-        // Streamline is coastal = noisy
-        const road = this.simplifyStreamline(streamline);
-        this.allStreamlinesSimple.push(road);
-
-        // Create intermediate samples
-        const complex = this.complexifyStreamline(road);
-        this.grid(major).addPolyline(complex);
-        this.streamlines(major).push(complex);
-        this.allStreamlines.push(complex);
-
-        return streamline;
-    }
-
-    /**
-     * Insert samples in streamline until separated by dstep
-     */
-    private complexifyStreamline(s: Vector[]): Vector[] {
-        let out: Vector[] = [];
-        for (let i = 0; i < s.length - 1; i++) {
-            out.push(...this.complexifyStreamlineRecursive(s[i], s[i+1]));
-        }
-        return out;
-    }
-
-    private complexifyStreamlineRecursive(v1: Vector, v2: Vector): Vector[] {
-        if (v1.distanceToSquared(v2) <= this.paramsSq.dstep) {
-            return [v1, v2];
-        }
-        const d = v2.clone().sub(v1);
-        const halfway = v1.clone().add(d.multiplyScalar(0.5));
-        
-        const complex = this.complexifyStreamlineRecursive(v1, halfway);
-        complex.push(...this.complexifyStreamlineRecursive(halfway, v2));
-        return complex;
-    }
-
-    vectorOffScreen(v: Vector): boolean {
-        const toOrigin = v.clone().sub(this.origin);
-        return toOrigin.x <= 0 || toOrigin.y <= 0 ||
-            toOrigin.x >= this.worldDimensions.x || toOrigin.y >= this.worldDimensions.y;
-    }
-
-    private simplifyStreamline(streamline: Vector[]): Vector[] {
+    protected simplifyStreamline(streamline: Vector[]): Vector[] {
         const simplified = [];
         for (const point of simplify(streamline, this.params.simplifyTolerance)) {
             simplified.push(new Vector(point.x, point.y));
@@ -315,7 +255,7 @@ export default class StreamlineGenerator {
      * Pushes new candidate seeds to queue
      * @return {Vector[]} returns false if seed isn't found within params.seedTries
      */
-    private createStreamline(major: boolean): boolean {
+    protected createStreamline(major: boolean): boolean {
         const seed = this.getSeed(major);
         if (seed === null) {
             return false;
@@ -338,18 +278,20 @@ export default class StreamlineGenerator {
         return true;
     }
 
-    private validStreamline(s: Vector[]): boolean {
+    protected validStreamline(s: Vector[]): boolean {
         return s.length > 5;
     } 
 
-    private setParamsSq(): void {
+    protected setParamsSq(): void {
         this.paramsSq = Object.assign({}, this.params);
         for (const p in this.paramsSq) {
-            this.paramsSq[p] *= this.paramsSq[p];
+            if (typeof this.paramsSq[p] === "number") {
+                this.paramsSq[p] *= this.paramsSq[p];
+            }
         }
     }
 
-    private samplePoint(): Vector {
+    protected samplePoint(): Vector {
         // TODO better seeding scheme
         return new Vector(
             Math.random() * this.worldDimensions.x,
@@ -360,7 +302,7 @@ export default class StreamlineGenerator {
     /**
      * Tries this.candidateSeeds first, then samples using this.samplePoint
      */
-    private getSeed(major: boolean): Vector {
+    protected getSeed(major: boolean): Vector {
         // Candidate seeds first
         if (this.SEED_AT_ENDPOINTS && this.candidateSeeds(major).length > 0) {
             while (this.candidateSeeds(major).length > 0) {
@@ -384,7 +326,7 @@ export default class StreamlineGenerator {
         return seed;
     }
 
-    private isValidSample(major: boolean, point: Vector, dSq: number, bothGrids=false): boolean {
+    protected isValidSample(major: boolean, point: Vector, dSq: number, bothGrids=false): boolean {
         // dSq = dSq * point.distanceToSquared(Vector.zeroVector());
         let gridValid = this.grid(major).isValidSample(point, dSq);
         if (bothGrids) {
@@ -393,19 +335,19 @@ export default class StreamlineGenerator {
         return this.integrator.onLand(point) && gridValid;
     }
 
-    private candidateSeeds(major: boolean): Vector[] {
+    protected candidateSeeds(major: boolean): Vector[] {
         return major ? this.candidateSeedsMajor : this.candidateSeedsMinor;
     }
 
-    private streamlines(major: boolean): Vector[][] {
+    protected streamlines(major: boolean): Vector[][] {
         return major ? this.streamlinesMajor : this.streamlinesMinor;
     }
 
-    private grid(major: boolean): GridStorage {
+    protected grid(major: boolean): GridStorage {
         return major ? this.majorGrid : this.minorGrid;
     }
 
-    private pointInBounds(v: Vector): boolean {
+    protected pointInBounds(v: Vector): boolean {
         return (v.x >= this.origin.x
             && v.y >= this.origin.y
             && v.x < this.worldDimensions.x + this.origin.x
@@ -420,7 +362,7 @@ export default class StreamlineGenerator {
      * testSample is candidate to pushed on end of streamlineForwards
      * returns true if streamline collides with itself
      */
-    private doesStreamlineCollideSelf(testSample: Vector, streamlineForwards: Vector[], streamlineBackwards: Vector[]): boolean {
+    protected doesStreamlineCollideSelf(testSample: Vector, streamlineForwards: Vector[], streamlineBackwards: Vector[]): boolean {
         // Streamline long enough
         if (streamlineForwards.length > this.nStreamlineLookBack) {
             // Forwards check
@@ -444,7 +386,7 @@ export default class StreamlineGenerator {
     /**
      * Tests whether streamline has turned through greater than 180 degrees
      */
-    private streamlineTurned(seed: Vector, originalDir: Vector, point: Vector, direction: Vector): boolean {
+    protected streamlineTurned(seed: Vector, originalDir: Vector, point: Vector, direction: Vector): boolean {
         if (originalDir.dot(direction) < 0) {
             // TODO optimise
             const perpendicularVector = new Vector(originalDir.y, -originalDir.x);
@@ -460,7 +402,7 @@ export default class StreamlineGenerator {
      * // TODO this doesn't work well - consider something disallowing one direction (F/B) to turn more than 180 deg
      * One step of the streamline integration process
      */
-    private streamlineIntegrationStep(params: StreamlineIntegration, major: boolean, collideBoth: boolean): void {
+    protected streamlineIntegrationStep(params: StreamlineIntegration, major: boolean, collideBoth: boolean): void {
         if (params.valid) {
             params.streamline.push(params.previousPoint);
             const nextDirection = this.integrator.integrate(params.previousPoint, major);
@@ -501,7 +443,7 @@ export default class StreamlineGenerator {
      * By simultaneously integrating in both directions we reduce the impact of circles not joining
      * up as the error matches at the join
      */
-    private integrateStreamline(seed: Vector, major: boolean): Vector[] {
+    protected integrateStreamline(seed: Vector, major: boolean): Vector[] {
         let count = 0;
         let pointsEscaped = false;  // True once two integration fronts have moved dlookahead away
 

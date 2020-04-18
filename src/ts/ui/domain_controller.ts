@@ -97,6 +97,12 @@ export default class DomainController {
         }
     }
 
+    onScreen(v: Vector): boolean {
+        const screenSpace = this.worldToScreen(v.clone());
+        return screenSpace.x >= 0 && screenSpace.y >= 0
+            && screenSpace.x <= this.screenDimensions.x && screenSpace.y <= this.screenDimensions.y;
+    }
+
     setZoomUpdate(callback: () => any): void {
         this.zoomCallback = callback;
     }
