@@ -4,32 +4,34 @@ import TensorField from '../impl/tensor_field';
 import {RK4Integrator} from '../impl/integrator';
 import FieldIntegrator from '../impl/integrator';
 import {StreamlineParams} from '../impl/streamlines';
+import {WaterParams} from '../impl/water_generator';
 import Graph from '../impl/graph';
 import RoadGUI from './road_gui';
-import CoastlineGUI from './coastline_gui';
+import WaterGUI from './water_gui';
 import Vector from '../vector';
 import PolygonFinder from '../impl/polygon_finder';
 import {PolygonParams} from '../impl/polygon_finder';
 import StreamlineGenerator from '../impl/streamlines';
+import WaterGenerator from '../impl/water_generator';
 import Style from './style';
 import CanvasWrapper from './canvas_wrapper';
 
 export default class RoadsGUI {
+    public numParks: number = 2;
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
-    public numParks: number = 2;
     private parks: Vector[][] = [];
     private animate: boolean = true;
     private animationSpeed: number = 30;
 
-    private coastline: CoastlineGUI;
+    private coastline: WaterGUI;
     private mainRoads: RoadGUI;
     private majorRoads: RoadGUI;
     private minorRoads: RoadGUI;
     private buildings: PolygonFinder;
 
     // Params
-    private coastlineParams: StreamlineParams;
+    private coastlineParams: WaterParams;
     private mainParams: StreamlineParams;
     private majorParams: StreamlineParams;
     private minorParams: StreamlineParams = {
@@ -63,7 +65,20 @@ export default class RoadsGUI {
         const roadsParams = guiFolder.addFolder('Params');
         roadsParams.add(this, 'numParks');
 
-        this.coastlineParams = Object.assign({}, this.minorParams);
+        this.coastlineParams = Object.assign({
+            coastNoise: {
+                noiseEnabled: true,
+                noiseSize: 30,
+                noiseAngle: 20,
+            },
+            riverNoise: {
+                noiseEnabled: true,
+                noiseSize: 30,
+                noiseAngle: 20,
+            },
+            riverBankSize: 10,
+            riverSize: 30,
+        }, this.minorParams);
         this.coastlineParams.pathIterations = 10000;
         this.coastlineParams.simplifyTolerance = 10;
 
@@ -81,8 +96,8 @@ export default class RoadsGUI {
 
         const integrator = new RK4Integrator(tensorField, this.minorParams);
         const redraw = () => this.redraw = true;
-        this.coastline = new CoastlineGUI(tensorField, this.coastlineParams, integrator,
-            this.guiFolder, closeTensorFolder, 'Coastline', redraw, tensorField.noiseParams).initFolder();
+        this.coastline = new WaterGUI(tensorField, this.coastlineParams, integrator,
+            this.guiFolder, closeTensorFolder, 'Water', redraw).initFolder();
         this.mainRoads = new RoadGUI(this.mainParams, integrator, this.guiFolder, closeTensorFolder, 'Main', redraw).initFolder();
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw, this.animate).initFolder();
         this.minorRoads = new RoadGUI(this.minorParams, integrator, this.guiFolder, closeTensorFolder, 'Minor', redraw, this.animate).initFolder();
@@ -103,8 +118,9 @@ export default class RoadsGUI {
             this.minorRoads.clearStreamlines();
             this.parks = [];
             this.buildings.reset();
-            tensorField.setParks([]);
-            tensorField.resetWater();
+            tensorField.parks = [];
+            tensorField.sea = [];
+            tensorField.river = [];
         });
 
         this.mainRoads.setPreGenerateCallback(() => {
@@ -112,14 +128,20 @@ export default class RoadsGUI {
             this.minorRoads.clearStreamlines();
             this.parks = [];
             this.buildings.reset();
-            tensorField.setParks([]);
+            tensorField.parks = [];
+            tensorField.ignoreRiver = true;
+        });
+
+        this.mainRoads.setPostGenerateCallback(() => {
+            tensorField.ignoreRiver = false;
         });
 
         this.majorRoads.setPreGenerateCallback(() => {
             this.minorRoads.clearStreamlines();
             this.parks = [];
             this.buildings.reset();
-            tensorField.setParks(this.parks);
+            tensorField.parks = [];
+            tensorField.ignoreRiver = true;
         });
 
         this.majorRoads.setPostGenerateCallback(() => {
@@ -141,12 +163,13 @@ export default class RoadsGUI {
                 }
             }
 
+            tensorField.parks = this.parks;
+            tensorField.ignoreRiver = false;
             this.redraw = true;
         });
 
         this.minorRoads.setPreGenerateCallback(() => {
             this.buildings.reset();
-            tensorField.addWater(this.coastline.river);
         });
 
         const buildingsFolder = guiFolder.addFolder('Buildings');
@@ -186,7 +209,7 @@ export default class RoadsGUI {
         allStreamlines.push(...this.mainRoads.allStreamlines);
         allStreamlines.push(...this.majorRoads.allStreamlines);
         allStreamlines.push(...this.minorRoads.allStreamlines);
-        allStreamlines.push(...this.coastline.allStreamlines);
+        allStreamlines.push(...this.coastline.streamlinesWithSecondaryRoad);
 
         const g = new Graph(allStreamlines, this.minorParams.dstep, true);
 
@@ -225,13 +248,14 @@ export default class RoadsGUI {
         style.seaPolygon = this.coastline.seaPolygon;
         style.coastline = this.coastline.coastline;
         style.river = this.coastline.river;
-        style.riverRoads = this.coastline.riverRoads;
+        // style.riverRoads = this.coastline.riverRoads;
         style.buildings = this.buildings.polygons.map(l => l.map(v => this.domainController.worldToScreen(v.clone())));
         style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
         style.minorRoads = this.minorRoads.roads;
         style.majorRoads = this.majorRoads.roads;
         style.mainRoads = this.mainRoads.roads;
         style.coastlineRoads = this.coastline.roads;
+        style.secondaryRiver = this.coastline.secondaryRiver;
         style.draw(customCanvas);
     }
 

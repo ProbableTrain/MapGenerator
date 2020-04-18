@@ -16,12 +16,25 @@ export interface NoiseParams {
 
 export default class TensorField {
     private basisFields: BasisField[] = [];
-    private parks: Vector[][] = [];
-    private water: Vector[][] = [];
     private noise: SimplexNoise;
+
+    public parks: Vector[][] = [];
+    public sea: Vector[] = [];
+    public river: Vector[] = [];
+    public ignoreRiver = false;
 
     constructor(public noiseParams: NoiseParams) {
         this.noise = new SimplexNoise();
+    }
+
+    enableGlobalNoise(angle: number, size: number): void {
+        this.noiseParams.globalNoise = true;
+        this.noiseParams.noiseAngleGlobal = angle;
+        this.noiseParams.noiseSizeGlobal = size;
+    }
+
+    disableGlobalNoise(): void {
+        this.noiseParams.globalNoise = false;
     }
 
     addGrid(centre: Vector, size: number, decay: number, theta: number): void {
@@ -48,23 +61,12 @@ export default class TensorField {
     reset(): void {
         this.basisFields = [];
         this.parks = [];
-        this.resetWater();
-    }
-
-    resetWater(): void {
-        this.water = [];
+        this.sea = [];
+        this.river = [];
     }
 
     getCentrePoints(): Vector[] {
         return this.basisFields.map(field => field.centre);
-    }
-
-    setParks(p: Vector[][]): void {
-        this.parks = p;
-    }
-
-    addWater(p: Vector[]): void {
-        this.water.push(p);
     }
 
     samplePoint(point: Vector): Tensor {
@@ -102,6 +104,11 @@ export default class TensorField {
     }
 
     onLand(point: Vector): boolean {
-        return !this.water.some(p => PolygonUtil.insidePolygon(point, p));
+        const inSea = PolygonUtil.insidePolygon(point, this.sea);
+        if (this.ignoreRiver) {
+            return !inSea;
+        }
+
+        return !inSea && !PolygonUtil.insidePolygon(point, this.river);
     }
 }
