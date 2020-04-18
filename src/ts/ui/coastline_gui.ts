@@ -7,15 +7,20 @@ import {StreamlineParams} from '../impl/streamlines';
 import StreamlineGenerator from '../impl/streamlines';
 import Vector from '../vector';
 import PolygonFinder from '../impl/polygon_finder';
+import PolygonUtil from '../impl/polygon_util';
 import RoadGUI from './road_gui';
 import {NoiseParams} from '../impl/tensor_field';
+import TensorField from '../impl/tensor_field';
 
 export default class CoastlineGUI extends RoadGUI {
     private _seaPolygon: Vector[] = [];
+    private _riverPolygon: Vector[] = [];
+    private _riverRoads: Vector[][] = [];
     private _noisyRoad: Vector[] = [];
     public noise: boolean = true;
 
-    constructor(params: StreamlineParams,
+    constructor(private tensorField: TensorField,
+                params: StreamlineParams,
                 integrator: FieldIntegrator,
                 guiFolder: dat.GUI,
                 closeTensorFolder: () => void,
@@ -58,8 +63,34 @@ export default class CoastlineGUI extends RoadGUI {
         if (this.noise) {
             this.noiseParams.globalNoise = true;
         }
-        this._noisyRoad = this.streamlines.createCoastStreamline();
+
+        const lines = this.streamlines.createCoastStreamlines()  // Unsimplified
+        this._noisyRoad = lines[0];
+        
+        // Expand to create unsimplified
+        this._riverPolygon = PolygonUtil.resizeGeometry(lines[1], 20, false);
+        const roadPolygon = PolygonUtil.resizeGeometry(lines[1], 20, false);
+        // Make sure riverPolygon[0] is off screen
+        const firstOffScreen = roadPolygon.findIndex(v => !this.domainController.onScreen(v));
+        for (let i = 0; i < firstOffScreen; i++) {
+            roadPolygon.push(roadPolygon.shift());
+        }
+
+        // Simplified streamline used as road and sea polygon
         this._seaPolygon = this.getSeaPolygon(this.allStreamlines[0]);
+        this.tensorField.addWater(this._seaPolygon);
+
+        // Create river roads
+        const riverSplitPoly = this.getSeaPolygon(lines[1]);
+        this.streamlines.manuallyAddStreamline(roadPolygon.filter(v =>
+            !PolygonUtil.insidePolygon(v, this._seaPolygon)
+            && this.domainController.onScreen(v)
+            && PolygonUtil.insidePolygon(v, riverSplitPoly)));
+        this.streamlines.manuallyAddStreamline(roadPolygon.filter(v =>
+            !PolygonUtil.insidePolygon(v, this._seaPolygon)
+            && this.domainController.onScreen(v)
+            && !PolygonUtil.insidePolygon(v, riverSplitPoly)));
+
         this.noiseParams.globalNoise = false;
 
         this.closeTensorFolder();
@@ -68,7 +99,18 @@ export default class CoastlineGUI extends RoadGUI {
         return null;
     }
 
+    get river(): Vector[] {
+        return this._riverPolygon.map(v => this.domainController.worldToScreen(v.clone()));
+    }
+
+    get riverRoads(): Vector[][] {
+        return this._riverRoads.map(
+            r => r.map(v => this.domainController.worldToScreen(v.clone())));
+    }
+
     get coastline(): Vector[] {
+        // Use unsimplified noisy streamline as coastline
+        // Visual only, no road logic performed using this
         return this._noisyRoad.map(v => this.domainController.worldToScreen(v.clone()));
     }
 
@@ -81,7 +123,7 @@ export default class CoastlineGUI extends RoadGUI {
      */
     private getSeaPolygon(polyline: Vector[]): Vector[] {
         this.domainController.zoom = this.domainController.zoom / 1.2;
-        const seaPolygon = PolygonFinder.sliceRectangle(this.domainController.origin, this.domainController.worldDimensions,
+        const seaPolygon = PolygonUtil.sliceRectangle(this.domainController.origin, this.domainController.worldDimensions,
             polyline[0], polyline[polyline.length - 1]);
         this.domainController.zoom = this.domainController.zoom * 1.2;
 

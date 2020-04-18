@@ -45,6 +45,8 @@ export default abstract class Style {
 
     // Polylines
     public coastline: Vector[];
+    public river: Vector[];
+    public riverRoads: Vector[][];
     public minorRoads: Vector[][];
     public majorRoads: Vector[][];
     public mainRoads: Vector[][];
@@ -116,6 +118,7 @@ export class DefaultStyle extends Style {
         canvas.setLineWidth(0.1);
         canvas.drawPolygon(this.seaPolygon);
 
+        // Coastline
         canvas.setStrokeStyle(bgColour);
         canvas.setLineWidth(30 * this.domainController.zoom);
         canvas.drawPolyline(this.coastline);
@@ -131,6 +134,12 @@ export class DefaultStyle extends Style {
         // Parks
         canvas.setFillStyle(this.colourScheme.grassColour);
         for (const p of this.parks) canvas.drawPolygon(p);
+
+        // River
+        canvas.setFillStyle(this.colourScheme.seaColour);
+        canvas.setStrokeStyle(this.colourScheme.seaColour);
+        canvas.setLineWidth(0.1);
+        canvas.drawPolygon(this.river);
 
         // Road outline
         canvas.setStrokeStyle(this.colourScheme.minorRoadOutline);
@@ -159,6 +168,7 @@ export class DefaultStyle extends Style {
         canvas.setLineWidth(this.colourScheme.mainWidth * this.domainController.zoom);
         for (const s of this.mainRoads) canvas.drawPolyline(s);
         for (const s of this.coastlineRoads) canvas.drawPolyline(s);
+        for (const s of this.riverRoads) canvas.drawPolyline(s);
 
         if (this.showFrame) {
             canvas.setFillStyle(this.colourScheme.frameColour);

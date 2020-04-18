@@ -81,7 +81,7 @@ export default class RoadsGUI {
 
         const integrator = new RK4Integrator(tensorField, this.minorParams);
         const redraw = () => this.redraw = true;
-        this.coastline = new CoastlineGUI(this.coastlineParams, integrator,
+        this.coastline = new CoastlineGUI(tensorField, this.coastlineParams, integrator,
             this.guiFolder, closeTensorFolder, 'Coastline', redraw, tensorField.noiseParams).initFolder();
         this.mainRoads = new RoadGUI(this.mainParams, integrator, this.guiFolder, closeTensorFolder, 'Main', redraw).initFolder();
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw, this.animate).initFolder();
@@ -104,12 +104,7 @@ export default class RoadsGUI {
             this.parks = [];
             this.buildings.reset();
             tensorField.setParks([]);
-            tensorField.setSea([]);
-        });
-
-        this.coastline.setPostGenerateCallback(() => {
-            // seaPolygon is in screen space for rendering
-            tensorField.setSea(this.coastline.seaPolygon.map(v => this.domainController.screenToWorld(v.clone())));
+            tensorField.resetWater();
         });
 
         this.mainRoads.setPreGenerateCallback(() => {
@@ -151,6 +146,7 @@ export default class RoadsGUI {
 
         this.minorRoads.setPreGenerateCallback(() => {
             this.buildings.reset();
+            tensorField.addWater(this.coastline.river);
         });
 
         const buildingsFolder = guiFolder.addFolder('Buildings');
@@ -228,6 +224,8 @@ export default class RoadsGUI {
 
         style.seaPolygon = this.coastline.seaPolygon;
         style.coastline = this.coastline.coastline;
+        style.river = this.coastline.river;
+        style.riverRoads = this.coastline.riverRoads;
         style.buildings = this.buildings.polygons.map(l => l.map(v => this.domainController.worldToScreen(v.clone())));
         style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
         style.minorRoads = this.minorRoads.roads;

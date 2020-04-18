@@ -242,26 +242,39 @@ export default class StreamlineGenerator {
         }).then(() => this.joinDanglingStreamlines());
     }
 
-    createCoastStreamline(): Vector[] {
-        let streamline;
+    createCoastStreamlines(): Vector[][] {
+        let coastStreamline;
+        let riverStreamline;
         let seed;
         let major;
-        for (let i = 0; i < 500; i++) {
-            major = Math.random() < 0.5;
-            seed = this.getSeed(major);
-            streamline = this.integrateStreamline(seed, major);
+
+        const extendStreamline = (streamline: Vector[]) => {
             streamline.unshift(streamline[0].clone().add(
                 streamline[0].clone().sub(streamline[1]).setLength(this.params.dstep * 5)));
             streamline.push(streamline[streamline.length - 1].clone().add(
                 streamline[streamline.length - 1].clone().sub(streamline[streamline.length - 2]).setLength(this.params.dstep * 5)));
+            return streamline;
+        }
 
-            if (this.vectorOffScreen(streamline[0]) && this.vectorOffScreen(streamline[streamline.length - 1])) {
+        const reachesEdges = (streamline: Vector[]) => {
+            return this.vectorOffScreen(streamline[0]) && this.vectorOffScreen(streamline[streamline.length - 1]);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            // TODO
+            major = true;
+            // major = Math.random() < 0.5;
+            seed = this.getSeed(major);
+            coastStreamline = extendStreamline(this.integrateStreamline(seed, major));
+            riverStreamline = extendStreamline(this.integrateStreamline(seed, !major));
+
+            if (reachesEdges(coastStreamline) && reachesEdges(riverStreamline)) {
                 break;
             }
         }
 
         // Streamline is coastal = noisy
-        const road = this.simplifyStreamline(streamline);
+        const road = this.simplifyStreamline(coastStreamline);
         this.allStreamlinesSimple.push(road);
 
         // Create intermediate samples
@@ -270,7 +283,22 @@ export default class StreamlineGenerator {
         this.streamlines(major).push(complex);
         this.allStreamlines.push(complex);
 
-        return streamline;
+        // Return unsimplified streamlines
+        return [coastStreamline, riverStreamline];
+    }
+
+    /**
+     * Will simplify
+     * Used for adding river roads
+     */
+    manuallyAddStreamline(s: Vector[]): void {
+        const simple = this.simplifyStreamline(s);
+        this.allStreamlinesSimple.push(simple);
+        // Create intermediate samples
+        const complex = this.complexifyStreamline(simple);
+        this.grid(false).addPolyline(complex);
+        this.streamlines(false).push(complex);
+        this.allStreamlines.push(complex);
     }
 
     /**

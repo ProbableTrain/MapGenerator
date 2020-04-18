@@ -4,6 +4,7 @@ import * as SimplexNoise from 'simplex-noise';
 import Tensor from './tensor';
 import Vector from '../vector';
 import {Grid, Radial, BasisField} from './basis_field';
+import PolygonUtil from './polygon_util';
 
 export interface NoiseParams {
     globalNoise: boolean;
@@ -16,7 +17,7 @@ export interface NoiseParams {
 export default class TensorField {
     private basisFields: BasisField[] = [];
     private parks: Vector[][] = [];
-    private sea: Vector[] = [];
+    private water: Vector[][] = [];
     private noise: SimplexNoise;
 
     constructor(public noiseParams: NoiseParams) {
@@ -47,7 +48,11 @@ export default class TensorField {
     reset(): void {
         this.basisFields = [];
         this.parks = [];
-        this.sea = [];
+        this.resetWater();
+    }
+
+    resetWater(): void {
+        this.water = [];
     }
 
     getCentrePoints(): Vector[] {
@@ -58,8 +63,8 @@ export default class TensorField {
         this.parks = p;
     }
 
-    setSea(p: Vector[]): void {
-        this.sea = p;
+    addWater(p: Vector[]): void {
+        this.water.push(p);
     }
 
     samplePoint(point: Vector): Tensor {
@@ -77,7 +82,7 @@ export default class TensorField {
         this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point)));
 
         // Add rotational noise for parks - range -pi/2 to pi/2
-        if (this.parks.some(p => this.insidePolygon(point, p))) {
+        if (this.parks.some(p => PolygonUtil.insidePolygon(point, p))) {
             // TODO optimise insidePolygon e.g. distance
             tensorAcc.rotate(this.getRotationalNoise(point, this.noiseParams.noiseSizePark, this.noiseParams.noiseAnglePark));
         }
@@ -97,27 +102,6 @@ export default class TensorField {
     }
 
     onLand(point: Vector): boolean {
-        return !this.insidePolygon(point, this.sea);
+        return !this.water.some(p => PolygonUtil.insidePolygon(point, p));
     }
-
-    insidePolygon(point: Vector, polygon: Vector[]) {
-        // ray-casting algorithm based on
-        // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-
-        if (polygon.length === 0) {
-            return false;
-        }
-
-        let inside = false;
-        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-            var xi = polygon[i].x, yi = polygon[i].y;
-            var xj = polygon[j].x, yj = polygon[j].y;
-
-            var intersect = ((yi > point.y) != (yj > point.y))
-                && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
-            if (intersect) inside = !inside;
-        }
-
-        return inside;
-    };
 }
