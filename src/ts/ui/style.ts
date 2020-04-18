@@ -39,18 +39,18 @@ export default abstract class Style {
     public abstract draw(canvas?: CanvasWrapper): void;
 
     // Polygons
-    public seaPolygon: Vector[];
-    public buildings: Vector[][];
-    public parks: Vector[][];
+    public seaPolygon: Vector[] = [];
+    public buildings: Vector[][] = [];
+    public parks: Vector[][] = [];
 
     // Polylines
-    public coastline: Vector[];
-    public river: Vector[];
-    public secondaryRiver: Vector[];
-    public minorRoads: Vector[][];
-    public majorRoads: Vector[][];
-    public mainRoads: Vector[][];
-    public coastlineRoads: Vector[][];
+    public coastline: Vector[] = [];
+    public river: Vector[] = [];
+    public secondaryRiver: Vector[] = [];
+    public minorRoads: Vector[][] = [];
+    public majorRoads: Vector[][] = [];
+    public mainRoads: Vector[][] = [];
+    public coastlineRoads: Vector[][] = [];
     public showFrame: boolean;
 
     public set canvasScale(scale: number) {

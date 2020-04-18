@@ -24,7 +24,10 @@ export default class WaterGUI extends RoadGUI {
                 folderName: string,
                 redraw: () => void) {
         super(params, integrator, guiFolder, closeTensorFolder, folderName, redraw);
-
+        this.streamlines = new WaterGenerator(
+            this.integrator, this.domainController.origin,
+            this.domainController.worldDimensions,
+            Object.assign({},this.params), this.tensorField);
     }
 
     initFolder(): WaterGUI {
@@ -77,7 +80,7 @@ export default class WaterGUI extends RoadGUI {
     }
 
     get secondaryRiver(): Vector[] {
-        return this.streamlines.riverSecondaryRoad.map(v => this.domainController.worldToScreen(v.clone()));;
+        return this.streamlines.riverSecondaryRoad.map(v => this.domainController.worldToScreen(v.clone()));
     }
 
     get coastline(): Vector[] {

@@ -248,7 +248,6 @@ export default class RoadsGUI {
         style.seaPolygon = this.coastline.seaPolygon;
         style.coastline = this.coastline.coastline;
         style.river = this.coastline.river;
-        // style.riverRoads = this.coastline.riverRoads;
         style.buildings = this.buildings.polygons.map(l => l.map(v => this.domainController.worldToScreen(v.clone())));
         style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
         style.minorRoads = this.minorRoads.roads;
