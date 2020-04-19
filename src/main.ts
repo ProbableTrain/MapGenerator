@@ -2,7 +2,7 @@ import * as log from 'loglevel';
 import * as dat from 'dat.gui';
 import TensorFieldGUI from './ts/ui/tensor_field_gui';
 import {NoiseParams} from './ts/impl/tensor_field';
-import RoadsGUI from './ts/ui/roads_gui';
+import MainGUI from './ts/ui/main_gui';
 import CanvasWrapper from './ts/ui/canvas_wrapper';
 import {DefaultCanvasWrapper, RoughCanvasWrapper} from './ts/ui/canvas_wrapper';
 import Util from './ts/util';
@@ -17,7 +17,7 @@ class Main {
     private domainController = DomainController.getInstance();
     private gui: dat.GUI = new dat.GUI({width: 300});
     private tensorField: TensorFieldGUI;
-    private roadsGUI: RoadsGUI;
+    private mainGui: MainGUI;
     private dragController = new DragController(this.gui);
 
     // Options
@@ -59,7 +59,7 @@ class Main {
         this.tensorFolder.open();
         this.roadsFolder = this.gui.addFolder('Map');
         this.roadsFolder.open();
-        this.roadsGUI = new RoadsGUI(this.roadsFolder, this.tensorField, () => this.tensorFolder.close());
+        this.mainGui = new MainGUI(this.roadsFolder, this.tensorField, () => this.tensorFolder.close());
 
         const optionsFolder = this.gui.addFolder('Options');
         optionsFolder.add(this.tensorField, 'drawCentre');
@@ -123,7 +123,7 @@ class Main {
             this.tensorField.draw(new DefaultCanvasWrapper(c, this.imageScale, false));
         } else {            
             const imgCanvas = this._style.createCanvasWrapper(c, this.imageScale, false);
-            this.roadsGUI.draw(this._style, true, imgCanvas);
+            this.mainGui.draw(this._style, true, imgCanvas);
         }
 
         const link = document.createElement('a');
@@ -133,7 +133,7 @@ class Main {
     }
 
     private showTensorField(): boolean {
-        return !this.tensorFolder.closed || this.roadsGUI.roadsEmpty();
+        return !this.tensorFolder.closed || this.mainGui.roadsEmpty();
     }
 
     draw(): void {
@@ -149,15 +149,15 @@ class Main {
                 this.previousFrameDrawTensor = false;
 
                 // Force redraw if switching from tensor field
-                this.roadsGUI.draw(this._style, true);
+                this.mainGui.draw(this._style, true);
             } else {
-                this.roadsGUI.draw(this._style);
+                this.mainGui.draw(this._style);
             }
         }
     }
 
     update(): void {
-        this.roadsGUI.update();
+        this.mainGui.update();
         this.draw();
         requestAnimationFrame(this.update.bind(this));
     }

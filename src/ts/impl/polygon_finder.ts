@@ -162,9 +162,7 @@ export default class PolygonFinder {
     private filterPolygonsByWater(polygons: Vector[][]): Vector[][] {
         const out: Vector[][] = [];
         for (const p of polygons) {
-            const averagePoint = Vector.zeroVector();
-            for (const v of p) averagePoint.add(v);
-            averagePoint.divideScalar(p.length);
+            const averagePoint = PolygonUtil.averagePoint(p);
             if (this.tensorField.onLand(averagePoint)) out.push(p);
         }
         return out;

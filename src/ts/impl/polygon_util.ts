@@ -105,6 +105,15 @@ export default class PolygonUtil {
         }
     }
 
+    public static averagePoint(polygon: Vector[]): Vector {
+        if (polygon.length === 0) return Vector.zeroVector();
+        const sum = Vector.zeroVector();
+        for (const v of polygon) {
+            sum.add(v);
+        }
+        return sum.divideScalar(polygon.length);
+    }
+
     public static insidePolygon(point: Vector, polygon: Vector[]): boolean {
         // ray-casting algorithm based on
         // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html

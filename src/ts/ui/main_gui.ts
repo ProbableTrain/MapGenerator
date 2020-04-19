@@ -15,8 +15,9 @@ import StreamlineGenerator from '../impl/streamlines';
 import WaterGenerator from '../impl/water_generator';
 import Style from './style';
 import CanvasWrapper from './canvas_wrapper';
+import Buildings from './buildings';
 
-export default class RoadsGUI {
+export default class MainGUI {
     public numParks: number = 2;
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
@@ -28,7 +29,7 @@ export default class RoadsGUI {
     private mainRoads: RoadGUI;
     private majorRoads: RoadGUI;
     private minorRoads: RoadGUI;
-    private buildings: PolygonFinder;
+    private buildings: Buildings;
 
     // Params
     private coastlineParams: WaterParams;
@@ -47,18 +48,11 @@ export default class RoadsGUI {
         collideEarly: 0.7,
     };
 
-    private buildingParams: PolygonParams = {
-        maxLength: 20,
-        minArea: 80,
-        shrinkSpacing: 4,
-        maxAspectRatio: 5,
-    };
-
     private redraw: boolean = true;
 
     constructor(private guiFolder: dat.GUI, private tensorField: TensorField, private closeTensorFolder: () => void) {
         guiFolder.add(this, 'generateEverything');
-        guiFolder.add(this, 'simpleBenchMark');
+        // guiFolder.add(this, 'simpleBenchMark');
         const animateController = guiFolder.add(this, 'animate');
         guiFolder.add(this, 'animationSpeed');
 
@@ -101,11 +95,21 @@ export default class RoadsGUI {
         this.mainRoads = new RoadGUI(this.mainParams, integrator, this.guiFolder, closeTensorFolder, 'Main', redraw).initFolder();
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw, this.animate).initFolder();
         this.minorRoads = new RoadGUI(this.minorParams, integrator, this.guiFolder, closeTensorFolder, 'Minor', redraw, this.animate).initFolder();
-        this.buildings = new PolygonFinder([], this.buildingParams, this.tensorField);
+        const buildingsFolder = guiFolder.addFolder('Buildings');
+        this.buildings = new Buildings(tensorField, buildingsFolder, redraw, this.minorParams.dstep);
+        this.buildings.setPreGenerateCallback(() => {
+            const allStreamlines = [];
+            allStreamlines.push(...this.mainRoads.allStreamlines);
+            allStreamlines.push(...this.majorRoads.allStreamlines);
+            allStreamlines.push(...this.minorRoads.allStreamlines);
+            allStreamlines.push(...this.coastline.streamlinesWithSecondaryRoad);
+            this.buildings.setAllStreamlines(allStreamlines);
+        });
 
         animateController.onChange((b: boolean) => {
             this.majorRoads.animate = b;
             this.minorRoads.animate = b;
+            this.buildings.animate = b;
         });
 
         this.minorRoads.setExistingStreamlines([this.coastline, this.mainRoads, this.majorRoads]);
@@ -149,7 +153,12 @@ export default class RoadsGUI {
             const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
             this.intersections = g.intersections;
 
-            const p = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
+            const p = new PolygonFinder(g.nodes, {
+                    maxLength: 20,
+                    minArea: 80,
+                    shrinkSpacing: 4,
+                    maxAspectRatio: 5,
+                }, this.tensorField);
             p.findPolygons();
             const polygons = p.polygons;
 
@@ -172,28 +181,27 @@ export default class RoadsGUI {
             this.buildings.reset();
         });
 
-        const buildingsFolder = guiFolder.addFolder('Buildings');
-        buildingsFolder.add({'AddBuildings': () => this.addBuildings(this.animate)}, 'AddBuildings');
-        buildingsFolder.add(this.buildingParams, 'minArea');
-        buildingsFolder.add(this.buildingParams, 'maxAspectRatio');
-        buildingsFolder.add(this.buildingParams, 'shrinkSpacing');
+        // buildingsFolder.add({'AddBuildings': () => this.addBuildings(this.animate)}, 'AddBuildings');
+        // buildingsFolder.add(this.buildingParams, 'minArea');
+        // buildingsFolder.add(this.buildingParams, 'maxAspectRatio');
+        // buildingsFolder.add(this.buildingParams, 'shrinkSpacing');
     }
 
-    async simpleBenchMark() {
-        log.info(`Starting Benchmark...`);
-        const tries = 10;
-        let sum = 0;
-        for (let i = 0; i < tries; i++) {
-            const start = performance.now();
-            await this.mainRoads.generateRoads();
-            await this.majorRoads.generateRoads();
-            await this.minorRoads.generateRoads();
-            await this.addBuildings();
-            sum += performance.now() - start;
-        }
+    // async simpleBenchMark() {
+    //     log.info(`Starting Benchmark...`);
+    //     const tries = 10;
+    //     let sum = 0;
+    //     for (let i = 0; i < tries; i++) {
+    //         const start = performance.now();
+    //         await this.mainRoads.generateRoads();
+    //         await this.majorRoads.generateRoads();
+    //         await this.minorRoads.generateRoads();
+    //         await this.addBuildings();
+    //         sum += performance.now() - start;
+    //     }
 
-        log.info(`Generated ${tries} cities with average ${sum/tries}ms`);
-    }
+    //     log.info(`Generated ${tries} cities with average ${sum/tries}ms`);
+    // }
 
     async generateEverything() {
         this.coastline.generateRoads();
@@ -201,26 +209,26 @@ export default class RoadsGUI {
         await this.majorRoads.generateRoads(this.animate);
         await this.minorRoads.generateRoads(this.animate);
         this.redraw = true;
-        await this.addBuildings(this.animate);
+        await this.buildings.generate(this.animate);
     }
 
-    async addBuildings(animate=false): Promise<void> {
-        const allStreamlines = [];
-        allStreamlines.push(...this.mainRoads.allStreamlines);
-        allStreamlines.push(...this.majorRoads.allStreamlines);
-        allStreamlines.push(...this.minorRoads.allStreamlines);
-        allStreamlines.push(...this.coastline.streamlinesWithSecondaryRoad);
+    // async addBuildings(animate=false): Promise<void> {
+    //     const allStreamlines = [];
+    //     allStreamlines.push(...this.mainRoads.allStreamlines);
+    //     allStreamlines.push(...this.majorRoads.allStreamlines);
+    //     allStreamlines.push(...this.minorRoads.allStreamlines);
+    //     allStreamlines.push(...this.coastline.streamlinesWithSecondaryRoad);
 
-        const g = new Graph(allStreamlines, this.minorParams.dstep, true);
+    //     const g = new Graph(allStreamlines, this.minorParams.dstep, true);
 
-        this.buildings = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
-        this.buildings.findPolygons();
-        await this.buildings.shrink(animate);
-        await this.buildings.divide(animate);
+    //     this.buildings = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
+    //     this.buildings.findPolygons();
+    //     await this.buildings.shrink(animate);
+    //     await this.buildings.divide(animate);
 
 
-        this.redraw = true;
-    }
+    //     this.redraw = true;
+    // }
 
     update() {
         let continueUpdate = true;
@@ -248,7 +256,7 @@ export default class RoadsGUI {
         style.seaPolygon = this.coastline.seaPolygon;
         style.coastline = this.coastline.coastline;
         style.river = this.coastline.river;
-        style.buildings = this.buildings.polygons.map(l => l.map(v => this.domainController.worldToScreen(v.clone())));
+        style.buildings = this.buildings.polygons;
         style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
         style.minorRoads = this.minorRoads.roads;
         style.majorRoads = this.majorRoads.roads;
