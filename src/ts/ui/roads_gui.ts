@@ -56,7 +56,7 @@ export default class RoadsGUI {
 
     private redraw: boolean = true;
 
-    constructor(private guiFolder: dat.GUI, tensorField: TensorField, private closeTensorFolder: () => void) {
+    constructor(private guiFolder: dat.GUI, private tensorField: TensorField, private closeTensorFolder: () => void) {
         guiFolder.add(this, 'generateEverything');
         guiFolder.add(this, 'simpleBenchMark');
         const animateController = guiFolder.add(this, 'animate');
@@ -101,7 +101,7 @@ export default class RoadsGUI {
         this.mainRoads = new RoadGUI(this.mainParams, integrator, this.guiFolder, closeTensorFolder, 'Main', redraw).initFolder();
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw, this.animate).initFolder();
         this.minorRoads = new RoadGUI(this.minorParams, integrator, this.guiFolder, closeTensorFolder, 'Minor', redraw, this.animate).initFolder();
-        this.buildings = new PolygonFinder([], this.buildingParams);
+        this.buildings = new PolygonFinder([], this.buildingParams, this.tensorField);
 
         animateController.onChange((b: boolean) => {
             this.majorRoads.animate = b;
@@ -145,10 +145,11 @@ export default class RoadsGUI {
         });
 
         this.majorRoads.setPostGenerateCallback(() => {
+            tensorField.ignoreRiver = false;
             const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
             this.intersections = g.intersections;
 
-            const p = new PolygonFinder(g.nodes, this.buildingParams);
+            const p = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
             p.findPolygons();
             const polygons = p.polygons;
 
@@ -164,7 +165,6 @@ export default class RoadsGUI {
             }
 
             tensorField.parks = this.parks;
-            tensorField.ignoreRiver = false;
             this.redraw = true;
         });
 
@@ -213,7 +213,7 @@ export default class RoadsGUI {
 
         const g = new Graph(allStreamlines, this.minorParams.dstep, true);
 
-        this.buildings = new PolygonFinder(g.nodes, this.buildingParams);
+        this.buildings = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
         this.buildings.findPolygons();
         await this.buildings.shrink(animate);
         await this.buildings.divide(animate);

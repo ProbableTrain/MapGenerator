@@ -65,8 +65,8 @@
     },
     "Drawn": {},  // Special canvas
     "Google": {
-        "bgColour": "rgb(248,249,250)",
-        "bgColourIn": "rgb(241,242,243)",
+        "bgColour": "rgb(236,236,236)",
+        "bgColourIn": "rgb(248,249,250)",
         "buildingColour": "rgb(240,240,240)",
         "buildingStroke": "rgb(220,220,220)",
         "seaColour": "rgb(166,213,249)",
@@ -76,6 +76,7 @@
         "mainRoadColour": "rgb(255,242,175)",
         "mainRoadOutline": "rgb(246,207,101)",
         "zoomBuildings": true,
+        "outlineSize": 2,
     },
     "Paper": {
         "bgColour": "white",

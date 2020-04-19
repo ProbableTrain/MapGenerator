@@ -103,7 +103,7 @@ export class DefaultStyle extends Style {
     public draw(canvas=this.canvas as DefaultCanvasWrapper): void {
         let bgColour;
         if (this.colourScheme.zoomBuildings) {
-            bgColour = this.domainController.zoom >= 2 ? this.colourScheme.bgColour : this.colourScheme.bgColourIn;
+            bgColour = this.domainController.zoom >= 2 ? this.colourScheme.bgColourIn : this.colourScheme.bgColour;
         } else {
             bgColour = this.colourScheme.bgColour;
         }

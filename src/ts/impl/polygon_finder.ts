@@ -2,6 +2,7 @@ import * as log from 'loglevel';
 import Vector from '../vector';
 import {Node} from './graph';
 import PolygonUtil from './polygon_util';
+import TensorField from './tensor_field';
 
 export interface PolygonParams {
     maxLength: number;
@@ -19,7 +20,7 @@ export default class PolygonFinder {
     private toDivide: Vector[][] = [];
     private resolveDivide: () => void;
 
-    constructor(private nodes: Node[], private params: PolygonParams) {}
+    constructor(private nodes: Node[], private params: PolygonParams, private tensorField: TensorField) {}
 
     get polygons(): Vector[][] {
         if (this._dividedPolygons.length > 0) {
@@ -155,7 +156,18 @@ export default class PolygonFinder {
             }
         }
 
-        this._polygons = polygons;
+        this._polygons = this.filterPolygonsByWater(polygons);
+    }
+
+    private filterPolygonsByWater(polygons: Vector[][]): Vector[][] {
+        const out: Vector[][] = [];
+        for (const p of polygons) {
+            const averagePoint = Vector.zeroVector();
+            for (const v of p) averagePoint.add(v);
+            averagePoint.divideScalar(p.length);
+            if (this.tensorField.onLand(averagePoint)) out.push(p);
+        }
+        return out;
     }
 
     private removePolygonAdjacencies(polygon: Node[]): void {
