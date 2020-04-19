@@ -163,7 +163,7 @@ export default class PolygonFinder {
         const out: Vector[][] = [];
         for (const p of polygons) {
             const averagePoint = PolygonUtil.averagePoint(p);
-            if (this.tensorField.onLand(averagePoint)) out.push(p);
+            if (this.tensorField.onLand(averagePoint) && !this.tensorField.inParks(averagePoint)) out.push(p);
         }
         return out;
     }

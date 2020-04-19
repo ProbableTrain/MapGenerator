@@ -40,9 +40,9 @@ export default class WaterGUI extends RoadGUI {
         coastParamsFolder.add(this.params.coastNoise, 'noiseSize');
         coastParamsFolder.add(this.params.coastNoise, 'noiseAngle');
         const riverParamsFolder = folder.addFolder('RiverParams');
-        riverParamsFolder.add(this.params.coastNoise, 'noiseEnabled');
-        riverParamsFolder.add(this.params.coastNoise, 'noiseSize');
-        riverParamsFolder.add(this.params.coastNoise, 'noiseAngle');
+        riverParamsFolder.add(this.params.riverNoise, 'noiseEnabled');
+        riverParamsFolder.add(this.params.riverNoise, 'noiseSize');
+        riverParamsFolder.add(this.params.riverNoise, 'noiseAngle');
         
         folder.add(this.params, 'simplifyTolerance');
         const devParamsFolder = folder.addFolder('Dev');

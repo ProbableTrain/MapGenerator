@@ -9,6 +9,7 @@ import PolygonUtil from '../impl/polygon_util';
 import DragController from './drag_controller';
 import DomainController from './domain_controller';
 import Vector from '../vector';
+import {BuildingModel} from './buildings';
 
 export interface ColourScheme {
     bgColour: string;
@@ -40,7 +41,8 @@ export default abstract class Style {
 
     // Polygons
     public seaPolygon: Vector[] = [];
-    public buildings: Vector[][] = [];
+    public lots: Vector[][] = [];
+    public buildingModels: BuildingModel[] = [];
     public parks: Vector[][] = [];
 
     // Polylines
@@ -98,34 +100,6 @@ export class DefaultStyle extends Style {
 
     public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
         return new DefaultCanvasWrapper(c, scale, resizeToWindow);
-    }
-
-    private heightVectorToScreen(v: Vector, h: number) {
-        const d = 1000 / this.domainController.zoom;
-        const scale = d / (d - h);
-        const centre = this.domainController.screenDimensions.divideScalar(2);
-        // const perspective = this.domainController.screenDimensions.x * 0.8;
-        
-        // const scaleProjected = perspective / (perspective - d);
-        return v.clone().sub(centre).multiplyScalar(scale).add(centre);
-    }
-
-    private getScaledPolygon(p: Vector[], zoom: number, buildingHeight: number, fov: number, k: number): Vector[] {
-        // const scale = 1/(zoom * Math.tan(fov/2) * (zoom * Math.tan(fov/2) - buildingHeight));
-        // const scale = (zoom * (zoom - buildingHeight));
-        const d = k/zoom;
-        const scale = d / (d - buildingHeight);
-        const averagePoint = PolygonUtil.averagePoint(p);
-        return p.map(v => v.clone().sub(averagePoint).multiplyScalar(scale).add(averagePoint));
-    }
-
-    private getBuildingSides(building: Vector[], translatedBuilding: Vector[]): Vector[][] {
-        const polygons: Vector[][] = [];
-        for (let i = 0; i < building.length; i++) {
-            const next = (i + 1) % building.length;
-            polygons.push([building[i], building[next], translatedBuilding[next], translatedBuilding[i]]);
-        }
-        return polygons;
     }
 
     public draw(canvas=this.canvas as DefaultCanvasWrapper): void {
@@ -197,33 +171,19 @@ export class DefaultStyle extends Style {
         if (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2) {
             canvas.setFillStyle(this.colourScheme.buildingColour);
             canvas.setStrokeStyle(this.colourScheme.buildingStroke);
-            for (const b of this.buildings) canvas.drawPolygon(b);
+            for (const b of this.lots) canvas.drawPolygon(b);
 
-            // Pseudo-3D
+            // // Pseudo-3D
             if (this.domainController.zoom >= 2) {
-                const allSides: Vector[][] = [];
-                const allTops: Vector[][] = [];
-                for (const b of this.buildings) {
-                    // Translate more if far from centre or zoomed in
-                    // const centre = this.domainController.screenDimensions.divideScalar(2);
-                    const height = Math.random() * 10 + 10;
-                    // const l = this.domainController.zoom * height / centre.length();
-                    // const translateVector = buildingAverage.sub(centre).multiplyScalar(l);
-                    // const translated = this.getTranslatedPolygon(b, translateVector);
-                    // const translated = b.map(v => v.clone().add(v.clone().sub(centre).multiplyScalar(l)));
-                    // const roof = this.getScaledPolygon(translated, this.domainController.zoom, height, Math.PI/2, centre.length());
-                    const roof = b.map(v => this.heightVectorToScreen(v, height));
-                    const sides = this.getBuildingSides(b, roof);
-                    allSides.push(...sides);
-                    allTops.push(roof);
-                }
                 canvas.setFillStyle("rgb(200, 200, 200)");
                 canvas.setStrokeStyle("rgb(200, 200, 200)");
-                for (const p of allSides) canvas.drawPolygon(p);
+                for (const b of this.buildingModels) {
+                    for (const s of b.sides) canvas.drawPolygon(s);
+                }
                 canvas.setFillStyle(this.colourScheme.buildingColour);
                 canvas.setStrokeStyle(this.colourScheme.buildingStroke);
                 // Sort by z
-                for (const p of allTops) canvas.drawPolygon(p);
+                for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
             }
         }
 
@@ -294,7 +254,7 @@ export class RoughStyle extends Style {
             fill: '',
         });
 
-        this.buildings.forEach(b => canvas.drawPolygon(b));
+        this.lots.forEach(b => canvas.drawPolygon(b));
 
         // Parks
         canvas.setOptions({

@@ -111,4 +111,11 @@ export default class TensorField {
 
         return !inSea && !PolygonUtil.insidePolygon(point, this.river);
     }
+
+    inParks(point: Vector): boolean {
+        for (const p of this.parks) {
+            if (PolygonUtil.insidePolygon(point, p)) return true;
+        }
+        return false;
+    }
 }

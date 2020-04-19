@@ -96,7 +96,7 @@ export default class MainGUI {
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw, this.animate).initFolder();
         this.minorRoads = new RoadGUI(this.minorParams, integrator, this.guiFolder, closeTensorFolder, 'Minor', redraw, this.animate).initFolder();
         const buildingsFolder = guiFolder.addFolder('Buildings');
-        this.buildings = new Buildings(tensorField, buildingsFolder, redraw, this.minorParams.dstep);
+        this.buildings = new Buildings(tensorField, buildingsFolder, redraw, this.minorParams.dstep, this.animate);
         this.buildings.setPreGenerateCallback(() => {
             const allStreamlines = [];
             allStreamlines.push(...this.mainRoads.allStreamlines);
@@ -256,7 +256,8 @@ export default class MainGUI {
         style.seaPolygon = this.coastline.seaPolygon;
         style.coastline = this.coastline.coastline;
         style.river = this.coastline.river;
-        style.buildings = this.buildings.polygons;
+        style.lots = this.buildings.lots;
+        style.buildingModels = this.buildings.models;
         style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
         style.minorRoads = this.minorRoads.roads;
         style.majorRoads = this.majorRoads.roads;
