@@ -265,6 +265,17 @@ export class RoughStyle extends Style {
         });
         canvas.drawPolyline(this.coastline);
 
+        canvas.setOptions({
+            roughness: 0,
+            fillWeight: 1,
+            fill: "#dbd2bd",
+            fillStyle: 'solid',
+            stroke: "none",
+            strokeWidth: 1,
+        });
+
+        canvas.drawPolygon(this.river);
+
         // Buildings
         canvas.setOptions({
             roughness: 1.2,
@@ -281,7 +292,7 @@ export class RoughStyle extends Style {
         });
         this.parks.forEach(p => canvas.drawPolygon(p));
 
-        // Road inline
+        // Roads
         
         canvas.setOptions({
             stroke: '#666666',
@@ -297,6 +308,7 @@ export class RoughStyle extends Style {
         });
 
         this.majorRoads.forEach(s => canvas.drawPolyline(s));
+        canvas.drawPolyline(this.secondaryRiver);
 
         canvas.setOptions({
             strokeWidth: 3,
