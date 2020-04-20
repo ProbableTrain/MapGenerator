@@ -41,29 +41,37 @@ export default class PolygonUtil {
         return Math.abs(total);
     }
 
-    public static subdividePolygon(p: Vector[], minArea: number, maxAspectRatio: number): Vector[][] {
+    public static subdividePolygon(p: Vector[], minArea: number): Vector[][] {
         const area = PolygonUtil.calcPolygonArea(p);
-        if (area < minArea) {
-            return [p];
+        if (area < 0.5 * minArea) {
+            return [];
         }
-
         let divided: Vector[][] = [];  // Array of polygons
 
-        let longestSideLengthSq = 0;
+        let longestSideLength = 0;
         let longestSide = [p[0], p[1]];
 
+        let perimeter = 0;
+
         for (let i = 0; i < p.length; i++) {
-            const sideLength = p[i].clone().sub(p[(i+1) % p.length]).lengthSq();  // TODO squared
-            if (sideLength > longestSideLengthSq) {
-                longestSideLengthSq = sideLength;
+            const sideLength = p[i].clone().sub(p[(i+1) % p.length]).length();
+            perimeter += sideLength;
+            if (sideLength > longestSideLength) {
+                longestSideLength = sideLength;
                 longestSide = [p[i], p[(i+1) % p.length]];
             }
         }
 
-        // Aspect ratio approximation
-        // if (longestSideLengthSq / area >= maxAspectRatio) {  // Approximation
-        //     return [];
-        // }
+        // Shape index
+        // Using rectangle ratio of 1:4 as limit
+        // if (area / perimeter * perimeter < 0.04) {
+        if (area / (perimeter * perimeter) < 0.04) {
+            return [];
+        }
+
+        if (area < 2 * minArea) {
+            return [p];
+        }
 
         // Between 0.4 and 0.6
         const deviation = (Math.random() * 0.2) + 0.4;
@@ -81,7 +89,7 @@ export default class PolygonUtil {
             const sliced = PolyK.Slice(PolygonUtil.polygonToPolygonArray(p), bisect[0].x, bisect[0].y, bisect[1].x, bisect[1].y);
             // Recursive call
             for (const s of sliced) {
-                divided.push(...PolygonUtil.subdividePolygon(PolygonUtil.polygonArrayToPolygon(s), minArea, maxAspectRatio));
+                divided.push(...PolygonUtil.subdividePolygon(PolygonUtil.polygonArrayToPolygon(s), minArea));
             }
 
             return divided;

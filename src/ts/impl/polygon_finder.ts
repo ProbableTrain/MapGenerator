@@ -7,7 +7,6 @@ import TensorField from './tensor_field';
 export interface PolygonParams {
     maxLength: number;
     minArea: number;
-    maxAspectRatio: number;
     shrinkSpacing: number;
 }
 
@@ -57,8 +56,8 @@ export default class PolygonFinder {
         if (this.toDivide.length > 0) {
             let resolve = this.toDivide.length === 1;
             const divided = [];
-            for (const p of PolygonUtil.subdividePolygon(this.toDivide.pop(), this.params.minArea, this.params.minArea)) {
-                if (PolygonUtil.calcPolygonArea(p) > this.params.minArea * 0.4) divided.push(p);
+            for (const p of PolygonUtil.subdividePolygon(this.toDivide.pop(), this.params.minArea)) {
+                divided.push(p);
             }
 
             if (divided.length > 0) {
@@ -119,13 +118,11 @@ export default class PolygonFinder {
             } else {
                 let divided: Vector[][] = [];
                 for (const p of polygons) {
-                    divided.push(...PolygonUtil.subdividePolygon(p, this.params.minArea, this.params.minArea));
+                    divided.push(...PolygonUtil.subdividePolygon(p, this.params.minArea));
                 }
                 this._dividedPolygons = [];
                 for (const p of divided) {
-                    if (PolygonUtil.calcPolygonArea(p) > this.params.minArea * 0.4) {
-                        this._dividedPolygons.push(p);
-                    }
+                    this._dividedPolygons.push(p);
                 }
                 resolve();
             }

@@ -158,7 +158,6 @@ export default class MainGUI {
                     maxLength: 20,
                     minArea: 80,
                     shrinkSpacing: 4,
-                    maxAspectRatio: 5,
                 }, this.tensorField);
             p.findPolygons();
             const polygons = p.polygons;

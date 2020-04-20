@@ -80,9 +80,8 @@ export default class Buildings {
 
     private buildingParams: PolygonParams = {
         maxLength: 20,
-        minArea: 80,
+        minArea: 50,
         shrinkSpacing: 4,
-        maxAspectRatio: 5,
     };
 
     constructor(private tensorField: TensorField,
@@ -92,7 +91,6 @@ export default class Buildings {
                 private _animate: boolean) {
         folder.add({'AddBuildings': () => this.generate(this._animate)}, 'AddBuildings');
         folder.add(this.buildingParams, 'minArea');
-        folder.add(this.buildingParams, 'maxAspectRatio');
         folder.add(this.buildingParams, 'shrinkSpacing');
         this.polygonFinder = new PolygonFinder([], this.buildingParams, this.tensorField);
     }
