@@ -14,6 +14,7 @@ import {PolygonParams} from '../impl/polygon_finder';
 import StreamlineGenerator from '../impl/streamlines';
 import WaterGenerator from '../impl/water_generator';
 import Style from './style';
+import {DefaultStyle} from './style';
 import CanvasWrapper from './canvas_wrapper';
 import Buildings from './buildings';
 
@@ -180,11 +181,6 @@ export default class MainGUI {
         this.minorRoads.setPreGenerateCallback(() => {
             this.buildings.reset();
         });
-
-        // buildingsFolder.add({'AddBuildings': () => this.addBuildings(this.animate)}, 'AddBuildings');
-        // buildingsFolder.add(this.buildingParams, 'minArea');
-        // buildingsFolder.add(this.buildingParams, 'maxAspectRatio');
-        // buildingsFolder.add(this.buildingParams, 'shrinkSpacing');
     }
 
     // async simpleBenchMark() {
@@ -211,24 +207,6 @@ export default class MainGUI {
         this.redraw = true;
         await this.buildings.generate(this.animate);
     }
-
-    // async addBuildings(animate=false): Promise<void> {
-    //     const allStreamlines = [];
-    //     allStreamlines.push(...this.mainRoads.allStreamlines);
-    //     allStreamlines.push(...this.majorRoads.allStreamlines);
-    //     allStreamlines.push(...this.minorRoads.allStreamlines);
-    //     allStreamlines.push(...this.coastline.streamlinesWithSecondaryRoad);
-
-    //     const g = new Graph(allStreamlines, this.minorParams.dstep, true);
-
-    //     this.buildings = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
-    //     this.buildings.findPolygons();
-    //     await this.buildings.shrink(animate);
-    //     await this.buildings.divide(animate);
-
-
-    //     this.redraw = true;
-    // }
 
     update() {
         let continueUpdate = true;
@@ -257,7 +235,11 @@ export default class MainGUI {
         style.coastline = this.coastline.coastline;
         style.river = this.coastline.river;
         style.lots = this.buildings.lots;
-        style.buildingModels = this.buildings.models;
+
+        if (style instanceof DefaultStyle && style.showBuildingModels) {
+            style.buildingModels = this.buildings.models;    
+        }
+
         style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
         style.minorRoads = this.minorRoads.roads;
         style.majorRoads = this.majorRoads.roads;

@@ -36,6 +36,7 @@ class Main {
     private styleFolder: dat.GUI;
     private colourScheme: string = "Default";
     private zoomBuildings: boolean = false;
+    private buildingModels: boolean = false;
     private showFrame: boolean = false;
     public highDPI = false;
 
@@ -70,12 +71,22 @@ class Main {
         
         // Style
         this.styleFolder = this.gui.addFolder('Style');
-        const styleController = this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes));
+        this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => 
+            this.changeColourScheme(val));
+        
         this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
             if (this._style instanceof DefaultStyle) {
                 // Force redraw
                 this.previousFrameDrawTensor = true;
                 this._style.zoomBuildings = val;
+            }
+        });
+
+        this.styleFolder.add(this, 'buildingModels').onChange((val: boolean) => {
+            if (this._style instanceof DefaultStyle) {
+                // Force redraw
+                this.previousFrameDrawTensor = true;
+                this._style.showBuildingModels = val;
             }
         });
         
@@ -84,7 +95,6 @@ class Main {
             this._style.showFrame = val;
         });
 
-        styleController.onChange((val: string) => this.changeColourScheme(val));
         this.changeColourScheme(this.colourScheme);
 
         this.tensorField.setRecommended();
@@ -98,6 +108,7 @@ class Main {
         } else {
             const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
             this.zoomBuildings = colourScheme.zoomBuildings;
+            this.buildingModels = colourScheme.buildingModels;
             Util.updateGui(this.styleFolder);
             this._style = new DefaultStyle(this.canvas, Object.assign({}, colourScheme));
         }

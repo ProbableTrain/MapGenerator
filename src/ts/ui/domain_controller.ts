@@ -87,7 +87,7 @@ export default class DomainController {
     }
 
     set zoom(z: number) {
-        if (z > 0) {
+        if (z >= 0.3 && z <= 20) {
             this.moved = true;
             const oldWorldSpaceMidpoint = this.origin.add(this.worldDimensions.divideScalar(2));
             this._zoom = z;

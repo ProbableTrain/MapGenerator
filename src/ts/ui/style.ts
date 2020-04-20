@@ -15,6 +15,7 @@ export interface ColourScheme {
     bgColour: string;
     bgColourIn?: string;
     buildingColour?: string;
+    buildingSideColour?: string;
     buildingStroke?: string;
     seaColour: string;
     grassColour?: string;
@@ -29,6 +30,7 @@ export interface ColourScheme {
     majorWidth?: number;
     mainWidth?: number;
     zoomBuildings?: boolean;
+    buildingModels?: boolean;
     frameColour?: string;
     frameTextColour?: string;
 }
@@ -84,6 +86,7 @@ export class DefaultStyle extends Style {
         if (!colourScheme.mainRoadOutline) colourScheme.mainRoadOutline = colourScheme.majorRoadOutline;
         if (!colourScheme.outlineSize) colourScheme.outlineSize = 1;
         if (!colourScheme.zoomBuildings) colourScheme.zoomBuildings = false;
+        if (!colourScheme.buildingModels) colourScheme.buildingModels = false;
         if (!colourScheme.minorWidth) colourScheme.minorWidth = 2;
         if (!colourScheme.majorWidth) colourScheme.majorWidth = 4;
         if (!colourScheme.mainWidth) colourScheme.mainWidth = 5;
@@ -91,15 +94,32 @@ export class DefaultStyle extends Style {
         if (!colourScheme.frameColour) colourScheme.frameColour = colourScheme.bgColour;
         if (!colourScheme.frameTextColour) colourScheme.frameTextColour = colourScheme.minorRoadOutline;
 
+        if (!colourScheme.buildingSideColour) {
+            const parsedRgb = Util.parseCSSColor(colourScheme.buildingColour).map(v => Math.max(0, v - 40));
+            if (parsedRgb) {
+                colourScheme.buildingSideColour = `rgb(${parsedRgb[0]},${parsedRgb[1]},${parsedRgb[2]})`;
+            } else {
+                colourScheme.buildingSideColour = colourScheme.buildingColour;
+            }
+        }
+
         this.canvas = this.createCanvasWrapper(c, 1, true);
+    }
+
+    public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
+        return new DefaultCanvasWrapper(c, scale, resizeToWindow);
     }
 
     set zoomBuildings(b: boolean) {
         this.colourScheme.zoomBuildings = b;
     }
 
-    public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
-        return new DefaultCanvasWrapper(c, scale, resizeToWindow);
+    set showBuildingModels(b: boolean) {
+        this.colourScheme.buildingModels = b;
+    }
+
+    get showBuildingModels(): boolean {
+        return this.colourScheme.buildingModels;
     }
 
     public draw(canvas=this.canvas as DefaultCanvasWrapper): void {
@@ -174,15 +194,14 @@ export class DefaultStyle extends Style {
             for (const b of this.lots) canvas.drawPolygon(b);
 
             // // Pseudo-3D
-            if (this.domainController.zoom >= 2) {
-                canvas.setFillStyle("rgb(200, 200, 200)");
-                canvas.setStrokeStyle("rgb(200, 200, 200)");
+            if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
+                canvas.setFillStyle(this.colourScheme.buildingSideColour);
+                canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
                 for (const b of this.buildingModels) {
                     for (const s of b.sides) canvas.drawPolygon(s);
                 }
                 canvas.setFillStyle(this.colourScheme.buildingColour);
                 canvas.setStrokeStyle(this.colourScheme.buildingStroke);
-                // Sort by z
                 for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
             }
         }
@@ -190,10 +209,10 @@ export class DefaultStyle extends Style {
         if (this.showFrame) {
             canvas.setFillStyle(this.colourScheme.frameColour);
             canvas.setStrokeStyle(this.colourScheme.frameColour);
-            canvas.drawFrame(30, 30, 30, 80);
+            canvas.drawFrame(30, 30, 30, 30);
 
-            canvas.setFillStyle(this.colourScheme.frameTextColour);
-            canvas.drawCityName();
+            // canvas.setFillStyle(this.colourScheme.frameTextColour);
+            // canvas.drawCityName();
         }
     }
 }
