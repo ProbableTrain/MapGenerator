@@ -192,18 +192,18 @@ export class DefaultStyle extends Style {
             canvas.setFillStyle(this.colourScheme.buildingColour);
             canvas.setStrokeStyle(this.colourScheme.buildingStroke);
             for (const b of this.lots) canvas.drawPolygon(b);
+        }
 
-            // // Pseudo-3D
-            if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
-                canvas.setFillStyle(this.colourScheme.buildingSideColour);
-                canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
-                for (const b of this.buildingModels) {
-                    for (const s of b.sides) canvas.drawPolygon(s);
-                }
-                canvas.setFillStyle(this.colourScheme.buildingColour);
-                canvas.setStrokeStyle(this.colourScheme.buildingStroke);
-                for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
+        // Pseudo-3D
+        if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
+            canvas.setFillStyle(this.colourScheme.buildingSideColour);
+            canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
+            for (const b of this.buildingModels) {
+                for (const s of b.sides) canvas.drawPolygon(s);
             }
+            canvas.setFillStyle(this.colourScheme.buildingColour);
+            canvas.setStrokeStyle(this.colourScheme.buildingStroke);
+            for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
         }
 
         if (this.showFrame) {

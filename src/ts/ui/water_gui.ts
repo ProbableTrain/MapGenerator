@@ -32,7 +32,6 @@ export default class WaterGUI extends RoadGUI {
 
     initFolder(): WaterGUI {
         const folder = this.guiFolder.addFolder(this.folderName);
-        folder.open();
         folder.add({Generate: () => this.generateRoads()}, 'Generate');
         
         const coastParamsFolder = folder.addFolder('CoastParams');

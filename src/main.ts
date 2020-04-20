@@ -34,7 +34,7 @@ class Main {
     private tensorCanvas: DefaultCanvasWrapper;
     private _style: Style;
     private styleFolder: dat.GUI;
-    private colourScheme: string = "Default";
+    private colourScheme: string = "GoogleNoZoom";
     private zoomBuildings: boolean = false;
     private buildingModels: boolean = false;
     private showFrame: boolean = false;
@@ -45,8 +45,13 @@ class Main {
         this.tensorCanvas = new DefaultCanvasWrapper(this.canvas);
 
         const zoomController = this.gui.add(this.domainController, 'zoom');
+        this.gui.add(this, 'generate');
         this.domainController.setZoomUpdate(() => zoomController.updateDisplay());
         
+        // Style
+        this.styleFolder = this.gui.addFolder('Style');
+        this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => this.changeColourScheme(val));
+
         const noiseParams: NoiseParams = {
             globalNoise: false,
             noiseSizePark: 20,
@@ -57,9 +62,7 @@ class Main {
 
         this.tensorFolder = this.gui.addFolder('Tensor Field');
         this.tensorField = new TensorFieldGUI(this.tensorFolder, this.dragController, true, noiseParams);
-        this.tensorFolder.open();
         this.roadsFolder = this.gui.addFolder('Map');
-        this.roadsFolder.open();
         this.mainGui = new MainGUI(this.roadsFolder, this.tensorField, () => this.tensorFolder.close());
 
         const optionsFolder = this.gui.addFolder('Options');
@@ -68,11 +71,6 @@ class Main {
         canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'download');
-        
-        // Style
-        this.styleFolder = this.gui.addFolder('Style');
-        this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => 
-            this.changeColourScheme(val));
         
         this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
             if (this._style instanceof DefaultStyle) {
@@ -101,6 +99,13 @@ class Main {
 
         requestAnimationFrame(this.update.bind(this));
     }
+
+    generate() {
+        this.tensorField.setRecommended();
+        this.mainGui.generateEverything();
+    }
+
+
 
     changeColourScheme(scheme: string) {
         if (scheme === "Drawn") {

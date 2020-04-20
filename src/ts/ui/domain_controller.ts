@@ -1,6 +1,6 @@
 import * as log from 'loglevel';
 import Vector from '../vector';
-import Util from '../util.js';
+import Util from '../util';
 
 /**
  * Singleton
@@ -30,12 +30,14 @@ export default class DomainController {
         window.addEventListener('resize', (): void => this.setScreenDimensions());
 
         window.addEventListener('wheel', (e: any): void => {
-            const delta: number = e.deltaY;
-            // TODO scale by value of delta
-            if (delta > 0) {
-                this.zoom = this._zoom * this.ZOOM_SPEED;
-            } else {
-                this.zoom = this._zoom / this.ZOOM_SPEED;
+            if (e.target.id === Util.CANVAS_ID) {
+                const delta: number = e.deltaY;
+                // TODO scale by value of delta
+                if (delta > 0) {
+                    this.zoom = this._zoom * this.ZOOM_SPEED;
+                } else {
+                    this.zoom = this._zoom / this.ZOOM_SPEED;
+                }
             }
         });
 
