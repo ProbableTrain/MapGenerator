@@ -19,6 +19,7 @@
   "homepage": "https://github.com/ProbableTrain/MapGenerator#readme",
   "dependencies": {
     "@interactjs/types": "^1.9.8",
+    "@svgdotjs/svg.js": "^3.0.16",
     "@types/d3-quadtree": "^1.0.7",
     "@types/dat.gui": "^0.7.5",
     "@types/jsts": "^0.17.2",
@@ -34,9 +35,12 @@
     "simplify-js": "^1.2.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
     "@types/node": "^13.11.0",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
+    "babelify": "^10.0.0",
     "browserify": "^16.5.1",
     "eslint": "^6.8.0",
     "fancy-log": "^1.3.3",

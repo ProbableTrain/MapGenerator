@@ -1,5 +1,12 @@
 import * as log from 'loglevel';
 import Vector from '../vector';
+import { SVG } from '@svgdotjs/svg.js';
+import Util from '../util';
+
+// TO IMPORT SVGJS ADD THIS TO package.json in svg js folder
+// "browserify": {
+//     "transform": [["babelify", { "presets": ["@babel/preset-env"] }]]
+// }
 
 export interface RoughOptions {
     roughness?: number;
@@ -18,6 +25,7 @@ export interface RoughOptions {
 }
 
 export default abstract class CanvasWrapper {
+    protected svgNode: any;
     protected _width: number;
     protected _height: number;
     public needsUpdate: boolean = false;
@@ -31,6 +39,16 @@ export default abstract class CanvasWrapper {
                 this.resizeCanvas();
             });
         }
+    }
+
+    protected appendSvgNode(node: any): void {
+        if (this.svgNode) {
+            this.svgNode.appendChild(node);
+        }
+    }
+
+    createSVG(svgElement: any) {
+        this.svgNode = svgElement;
     }
 
     abstract drawFrame(left: number, right: number, up: number, down: number): void;
@@ -72,6 +90,7 @@ export default abstract class CanvasWrapper {
 
 export class DefaultCanvasWrapper extends CanvasWrapper {
     private ctx: CanvasRenderingContext2D;
+    private svg: any;
 
     constructor(canvas: HTMLCanvasElement, scale=1, resizeToWindow=true) {
         super(canvas, scale, resizeToWindow);
@@ -80,12 +99,24 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
     }
 
+    createSVG(svgElement: any): void {
+        super.createSVG(svgElement);
+        this.svg = SVG(svgElement);
+    }
+
     setFillStyle(colour: string): void {
         this.ctx.fillStyle = colour;
     }
 
     clearCanvas(): void {
-        this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
+        if (this.svgNode) {
+            // Expanded to cover whole drawn area
+            const startW = window.innerWidth * (Util.DRAW_INFLATE_AMOUNT - 1) / 2;
+            const startH = window.innerHeight * (Util.DRAW_INFLATE_AMOUNT - 1) / 2;
+            this.drawRectangle(-startW, -startH, window.innerWidth * Util.DRAW_INFLATE_AMOUNT, window.innerHeight * Util.DRAW_INFLATE_AMOUNT);
+        } else {
+            this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
+        }
     }
 
     drawFrame(left: number, right: number, up: number, down: number): void {
@@ -110,6 +141,19 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
             height *= this._scale;
         }
         this.ctx.fillRect(x, y, width, height);
+
+        if (this.svg) {
+            this.svg.rect({
+                fill: this.ctx.fillStyle,
+                'fill-opacity': 1,
+                stroke: this.ctx.strokeStyle,
+                'stroke-width': this.ctx.lineWidth,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+            });
+        }
     }
 
     drawPolygon(polygon: Vector[]) {
@@ -128,6 +172,17 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
 
         this.ctx.fill();
         this.ctx.stroke();
+
+        if (this.svg) {
+            const vectorArray = polygon.map(v => [v.x, v.y]);
+            vectorArray.push(vectorArray[0]);
+            this.svg.polyline(vectorArray).attr({
+                fill: this.ctx.fillStyle,
+                'fill-opacity': 1,
+                stroke: this.ctx.strokeStyle,
+                'stroke-width': this.ctx.lineWidth,
+            });
+        }
     }
 
     drawSquare(centre: Vector, radius: number) {
@@ -160,11 +215,22 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         }
 
         this.ctx.stroke();
+
+        if (this.svg) {
+            const vectorArray = line.map(v => [v.x, v.y]);
+            this.svg.polyline(vectorArray).attr({
+                'fill-opacity': 0,
+                stroke: this.ctx.strokeStyle,
+                'stroke-width': this.ctx.lineWidth,
+            });
+        }
     }
 }
 
 export class RoughCanvasWrapper extends CanvasWrapper {
+    private r = require('roughjs/bundled/rough.cjs');
     private rc: any;
+        
     private options: RoughOptions = {
         roughness: 1,
         bowing: 1,
@@ -176,8 +242,12 @@ export class RoughCanvasWrapper extends CanvasWrapper {
 
     constructor(canvas: HTMLCanvasElement, scale=1, resizeToWindow=true) {
         super(canvas, scale, resizeToWindow);
-        let r = require('roughjs/bundled/rough.cjs');
-        this.rc = r.canvas(canvas);
+        this.rc = this.r.canvas(canvas);
+    }
+
+    createSVG(svgElement: any) {
+        super.createSVG(svgElement);
+        this.rc = this.r.svg(this.svgNode);
     }
 
     drawFrame(left: number, right: number, up: number, down: number): void {
@@ -192,7 +262,14 @@ export class RoughCanvasWrapper extends CanvasWrapper {
     }
 
     clearCanvas(): void {
-        this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
+        if (this.svgNode) {
+            // Expanded to cover whole drawn area
+            const startW = window.innerWidth * (Util.DRAW_INFLATE_AMOUNT - 1) / 2;
+            const startH = window.innerHeight * (Util.DRAW_INFLATE_AMOUNT - 1) / 2;
+            this.drawRectangle(-startW, -startH, window.innerWidth * Util.DRAW_INFLATE_AMOUNT, window.innerHeight * Util.DRAW_INFLATE_AMOUNT);
+        } else {
+            this.drawRectangle(0, 0, window.innerWidth, window.innerHeight);
+        }
     }
 
     drawRectangle(x: number, y: number, width: number, height: number): void {
@@ -202,7 +279,7 @@ export class RoughCanvasWrapper extends CanvasWrapper {
             width *= this._scale;
             height *= this._scale;
         }
-        this.rc.rectangle(x, y, width, height, this.options);
+        this.appendSvgNode(this.rc.rectangle(x, y, width, height, this.options));
     }
 
     drawPolygon(polygon: Vector[]) {
@@ -214,7 +291,7 @@ export class RoughCanvasWrapper extends CanvasWrapper {
             polygon = polygon.map(v => v.clone().multiplyScalar(this._scale));
         }
 
-        this.rc.polygon(polygon.map(v => [v.x, v.y]), this.options);
+        this.appendSvgNode(this.rc.polygon(polygon.map(v => [v.x, v.y]), this.options));
     }
 
     drawSquare(centre: Vector, radius: number) {
@@ -233,6 +310,6 @@ export class RoughCanvasWrapper extends CanvasWrapper {
             line = line.map(v => v.clone().multiplyScalar(this._scale));
         }
 
-        this.rc.linearPath(line.map(v => [v.x, v.y]), this.options);
+        this.appendSvgNode(this.rc.linearPath(line.map(v => [v.x, v.y]), this.options));
     }
 }

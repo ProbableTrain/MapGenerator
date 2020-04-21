@@ -7,6 +7,10 @@ export default class Util {
     // Must match style.css
     static readonly CANVAS_ID = 'map-canvas';
     static readonly IMG_CANVAS_ID = 'img-canvas';
+    static readonly SVG_ID = 'map-svg';
+
+    // How far to integrate streamlines beyond screen - for making buildings reach the edge
+    static readonly DRAW_INFLATE_AMOUNT = 1.2;
 
     static updateGui(gui: dat.GUI): void {
         if (gui.__controllers) {
