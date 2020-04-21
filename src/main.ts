@@ -195,7 +195,7 @@ class Main {
 
         // Clear SVG
         const element = SVG(svgElement);
-        // element.clear();
+        element.clear();
     }
 
     private showTensorField(): boolean {
