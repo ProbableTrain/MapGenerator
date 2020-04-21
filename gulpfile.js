@@ -11,6 +11,11 @@ var paths = {
     pages: ['src/html/*.html', 'src/html/*.css']
 };
 
+var babelconfig = {
+    presets: ['@babel/preset-env'],
+    extensions: ['.ts'],
+};
+
 var files = [];
 var globFiles = glob.sync("./src/**/*.ts");
 for (var i = 0; i < globFiles.length; i++) {
@@ -22,8 +27,11 @@ var watchedBrowserify = watchify(browserify({
     debug: true,
     entries: files,
     cache: {},
-    packageCache: {}
-}).plugin(tsify));
+    packageCache: {},
+})
+    .plugin(tsify)
+    .transform('babelify', babelconfig).on('error', (err) => { log("babel error: " + err); })
+);
 
 gulp.task('copy-html', function () {
     return gulp.src(paths.pages)
