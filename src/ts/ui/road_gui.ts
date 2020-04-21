@@ -43,7 +43,7 @@ export default class RoadGUI {
 
         const folder = this.guiFolder.addFolder(this.folderName);
         folder.add(roadGUI, 'Generate');
-        folder.add(roadGUI, 'JoinDangling');
+        // folder.add(roadGUI, 'JoinDangling');
         
         const paramsFolder = folder.addFolder('Params');
         paramsFolder.add(this.params, 'dsep');

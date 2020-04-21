@@ -34,21 +34,29 @@ class Main {
     private tensorCanvas: DefaultCanvasWrapper;
     private _style: Style;
     private styleFolder: dat.GUI;
-    private colourScheme: string = "GoogleNoZoom";
+    private colourScheme: string = "Default";
     private zoomBuildings: boolean = false;
     private buildingModels: boolean = false;
     private showFrame: boolean = false;
     public highDPI = false;
 
+    private readonly STARTING_WIDTH = 1440;
+
     constructor() {
+        // Canvas setup
         this.canvas = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
         this.tensorCanvas = new DefaultCanvasWrapper(this.canvas);
-
         const zoomController = this.gui.add(this.domainController, 'zoom');
-        this.gui.add(this, 'generate');
         this.domainController.setZoomUpdate(() => zoomController.updateDisplay());
-        
-        // Style
+
+        // Make sure we're not too zoomed out for large resolutions
+        const screenWidth = this.domainController.screenDimensions.x;
+        if (screenWidth > this.STARTING_WIDTH) {
+            this.domainController.zoom = screenWidth / this.STARTING_WIDTH;
+        }
+
+        // GUI Setup
+        this.gui.add(this, 'generate');
         this.styleFolder = this.gui.addFolder('Style');
         this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => this.changeColourScheme(val));
 
@@ -94,9 +102,7 @@ class Main {
         });
 
         this.changeColourScheme(this.colourScheme);
-
         this.tensorField.setRecommended();
-
         requestAnimationFrame(this.update.bind(this));
     }
 
@@ -104,8 +110,6 @@ class Main {
         this.tensorField.setRecommended();
         this.mainGui.generateEverything();
     }
-
-
 
     changeColourScheme(scheme: string) {
         if (scheme === "Drawn") {
