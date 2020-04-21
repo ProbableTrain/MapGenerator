@@ -52,12 +52,12 @@ export default class WaterGUI extends RoadGUI {
     generateRoads(): Promise<void> {
         this.preGenerateCallback();
 
-        this.domainController.zoom = this.domainController.zoom / 1.2;
+        this.domainController.zoom = this.domainController.zoom / Util.DRAW_INFLATE_AMOUNT;
         this.streamlines = new WaterGenerator(
             this.integrator, this.domainController.origin,
             this.domainController.worldDimensions,
             Object.assign({},this.params), this.tensorField);
-        this.domainController.zoom = this.domainController.zoom * 1.2;
+        this.domainController.zoom = this.domainController.zoom * Util.DRAW_INFLATE_AMOUNT;
 
         this.streamlines.createCoast();
         this.streamlines.createRiver();

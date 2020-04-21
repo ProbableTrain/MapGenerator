@@ -12,6 +12,7 @@ import Style from './ts/ui/style';
 import {ColourScheme, DefaultStyle, RoughStyle} from './ts/ui/style';
 import * as ColourSchemes from './colour_schemes.json';
 import Vector from './ts/vector';
+import { SVG } from '@svgdotjs/svg.js';
 
 class Main {
     private domainController = DomainController.getInstance();
@@ -79,6 +80,7 @@ class Main {
         canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'download');
+        optionsFolder.add(this, 'downloadSVG');
         
         this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
             if (this._style instanceof DefaultStyle) {
@@ -150,6 +152,50 @@ class Main {
         link.download = 'map.png';
         link.href = (document.getElementById(Util.IMG_CANVAS_ID) as any).toDataURL();
         link.click();
+    }
+
+    /**
+     * Downloads svg of map
+     * Draws onto hidden svg at requested resolution
+     */
+    downloadSVG(): void {
+        const c = document.getElementById(Util.IMG_CANVAS_ID) as HTMLCanvasElement;
+        const svgElement = document.getElementById(Util.SVG_ID);
+
+        if (this.showTensorField()) {
+            const imgCanvas = new DefaultCanvasWrapper(c, 1, false);
+            imgCanvas.createSVG(svgElement);
+            this.tensorField.draw(imgCanvas);
+        } else {
+            const imgCanvas = this._style.createCanvasWrapper(c, 1, false);
+            imgCanvas.createSVG(svgElement);
+            this.mainGui.draw(this._style, true, imgCanvas);
+        }
+
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svgElement);
+        //add name spaces.
+        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+        }
+
+        //add xml declaration
+        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+        //convert svg source to URI data scheme.
+        const url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+
+        const link = document.createElement('a');
+        link.download = 'map.svg';
+        link.href = url;
+        link.click();
+
+        // Clear SVG
+        const element = SVG(svgElement);
+        // element.clear();
     }
 
     private showTensorField(): boolean {
