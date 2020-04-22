@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/probabletrain/mapgenerator">
-    <img src="https://img.itch.zone/aW1nLzMyODczMDAucG5n/315x250%23c/Ik9qMl.png" alt="Logo" width="315" height="250">
+    <img src="docs/images/logo.png" alt="Logo" width="315" height="250">
   </a>
 
   <h3 align="center">Map Generator</h3>
