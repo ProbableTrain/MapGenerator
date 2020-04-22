@@ -12,6 +12,8 @@
     <a href="https://probabletrain.itch.io/city-generator"><strong>Open Generator »</strong></a>
     <br />
     <br />
+    <a href="maps.probabletrain.com">Read the Docs</a>
+    ·
     <a href="https://github.com/probabletrain/mapgenerator/issues">Report Bug</a>
     ·
     <a href="https://github.com/probabletrain/mapgenerator/issues">Request Feature</a>
@@ -93,7 +95,7 @@ gulp
 
 ## Usage
 
-TODO Link to docs
+See the [documentation](maps.probabletrain.com).
 
 
 
