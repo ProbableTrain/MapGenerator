@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/probabletrain/mapgenerator">
-    <img src="docs/images/logo.png" alt="Logo" width="315" height="250">
+      <img src="docs/images/logo.png" alt="Logo" width="250" height="125">
   </a>
 
   <h3 align="center">Map Generator</h3>
@@ -32,13 +32,12 @@
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
 
 
 
 ## About The Project
 
-![Map Generator Screen Shot](https://img.itch.zone/aW1hZ2UvNjE3OTM5LzMyODY2NDUucG5n/794x1000/TWQydp.png)
+![Map Generator Screen Shot](docs/images/screenshot.png)
 
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output. Generated cities can be downloaded as a `.png` or an `.svg`. There are a few choices for drawing style, ranging from colour themes similar to Google or Apple maps, to a hand-drawn sketch.
 
