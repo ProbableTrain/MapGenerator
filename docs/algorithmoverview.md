@@ -1,4 +1,4 @@
-# Algorithm Overview
+# Implementation Details
 
 > This section is under construction
 
