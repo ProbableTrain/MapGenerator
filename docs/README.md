@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/probabletrain/mapgenerator">
-      <img src="docs/images/logo.png" alt="Logo" width="125" height="125">
+      <img src="images/logo.png" alt="Logo" width="125" height="125">
   </a>
 
   <h3 align="center">Map Generator</h3>
@@ -17,7 +17,10 @@
     <a href="https://github.com/probabletrain/mapgenerator/issues">Request Feature</a>
   </p>
 </p>
-<!-- TODO link to docs -->
+
+<!-- TODO Changelog https://github.com/anikethsaha/docsify-plugin/tree/master/packages/docsify-changelog-plugin -->
+<!-- TODO top announcement banner https://github.com/anikethsaha/docsify-plugin/tree/master/packages/docsify-top-banner-plugin -->
+
 
 
 ## Table of Contents
@@ -27,7 +30,6 @@
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-* [Usage](#usage)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
@@ -37,8 +39,7 @@
 
 ## About The Project
 
-![Map Generator Screen Shot](docs/images/screenshot.png)
-<!-- TODO YT video -->
+![Map Generator Screen Shot](images/screenshot.png)
 
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output. Generated cities can be downloaded as a `.png` or an `.svg`. There are a few choices for drawing style, ranging from colour themes similar to Google or Apple maps, to a hand-drawn sketch.
 
@@ -88,15 +89,6 @@ npm install
 gulp
 ```
 5. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
-
-
-
-## Usage
-
-TODO Link to docs
-
-
-
 
 ## Roadmap
 
