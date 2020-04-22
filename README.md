@@ -12,7 +12,7 @@
     <a href="https://probabletrain.itch.io/city-generator"><strong>Open Generator »</strong></a>
     <br />
     <br />
-    <a href="maps.probabletrain.com">Read the Docs</a>
+    <a href="https://maps.probabletrain.com" target="_blank">Read the Docs</a>
     ·
     <a href="https://github.com/probabletrain/mapgenerator/issues">Report Bug</a>
     ·
@@ -95,7 +95,7 @@ gulp
 
 ## Usage
 
-See the [documentation](maps.probabletrain.com).
+See the [documentation](https://maps.probabletrain.com).
 
 
 
