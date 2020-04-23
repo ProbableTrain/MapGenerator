@@ -19,7 +19,8 @@ export default class DragController {
     private readonly MIN_DRAG_DISTANCE = 50;
 
     private draggables: Draggable[] = [];
-    private currentlyDragging: Draggable = null;
+    private currentlyDragging: Draggable = null;  // Tensor field
+    private _isDragging = false;
     private disabled: boolean = false;
     private domainController = DomainController.getInstance();
 
@@ -42,6 +43,7 @@ export default class DragController {
     }
 
     dragStart(event: any): void {
+        this._isDragging = true;
         // Transform screen space to world space
         const origin = this.domainController.screenToWorld(new Vector(event.x0, event.y0));
         
@@ -76,8 +78,14 @@ export default class DragController {
     }
 
     dragEnd(): void {
+        this._isDragging = false;
+        this.domainController.pan(Vector.zeroVector());  // Triggers canvas update
         this.currentlyDragging = null;
         Util.updateGui(this.gui);
+    }
+
+    get isDragging(): boolean {
+        return this._isDragging;
     }
 
     /**

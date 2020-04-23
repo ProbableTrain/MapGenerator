@@ -41,6 +41,8 @@ export default abstract class Style {
     public abstract createCanvasWrapper(c: HTMLCanvasElement, scale: number, resizeToWindow: boolean): CanvasWrapper;
     public abstract draw(canvas?: CanvasWrapper): void;
 
+    public update(): void {}
+
     // Polygons
     public seaPolygon: Vector[] = [];
     public lots: Vector[][] = [];
@@ -57,6 +59,8 @@ export default abstract class Style {
     public coastlineRoads: Vector[][] = [];
     public showFrame: boolean;
 
+    constructor(protected dragController: DragController) {}
+
     public set canvasScale(scale: number) {
         this.canvas.canvasScale = scale;
     }
@@ -71,8 +75,8 @@ export default abstract class Style {
 }
 
 export class DefaultStyle extends Style {
-    constructor(c: HTMLCanvasElement, private colourScheme: ColourScheme) {
-        super();
+    constructor(c: HTMLCanvasElement, dragController: DragController, private colourScheme: ColourScheme) {
+        super(dragController);
 
         // Default cascade
         if (!colourScheme.bgColourIn) colourScheme.bgColourIn = colourScheme.bgColour;
@@ -218,13 +222,21 @@ export class DefaultStyle extends Style {
 }
 
 export class RoughStyle extends Style {
-    constructor(c: HTMLCanvasElement) {
-        super();
+    private dragging = false;
+
+    constructor(c: HTMLCanvasElement, dragController: DragController) {
+        super(dragController);
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
 
     public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
         return new RoughCanvasWrapper(c, scale, resizeToWindow);
+    }
+
+    public update() {
+        const dragging = this.dragController.isDragging || this.domainController.isScrolling;
+        if (!dragging && this.dragging) this.canvas.needsUpdate = true;
+        this.dragging = dragging;
     }
 
     public draw(canvas=this.canvas as RoughCanvasWrapper): void {
@@ -276,16 +288,6 @@ export class RoughStyle extends Style {
 
         canvas.drawPolygon(this.river);
 
-        // Buildings
-        canvas.setOptions({
-            roughness: 1.2,
-            stroke: '#333333',
-            strokeWidth: 1,
-            fill: '',
-        });
-
-        this.lots.forEach(b => canvas.drawPolygon(b));
-
         // Parks
         canvas.setOptions({
             fill: "rgb(242,236,222)",
@@ -293,7 +295,6 @@ export class RoughStyle extends Style {
         this.parks.forEach(p => canvas.drawPolygon(p));
 
         // Roads
-        
         canvas.setOptions({
             stroke: '#666666',
             strokeWidth: 1,
@@ -317,5 +318,17 @@ export class RoughStyle extends Style {
 
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
         this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
+
+        // Buildings
+        if (!this.dragging) {
+            canvas.setOptions({
+                roughness: 1.2,
+                stroke: '#333333',
+                strokeWidth: 1,
+                fill: '',
+            });
+
+            this.lots.forEach(b => canvas.drawPolygon(b));
+        }
     }
 }

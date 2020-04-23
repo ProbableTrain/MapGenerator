@@ -10,6 +10,7 @@ export default class DomainController {
     private static instance: DomainController;
 
     private readonly ZOOM_SPEED = 0.96;
+    private readonly SCROLL_DELAY = 100;
 
     // Location of screen origin in world space
     private _origin: Vector = Vector.zeroVector();
@@ -20,6 +21,8 @@ export default class DomainController {
     // Ratio of screen pixels to world pixels
     private _zoom: number = 1;
     private zoomCallback: () => any = () => {};
+    private lastScrolltime = -this.SCROLL_DELAY;
+    private refreshedAfterScroll = false;
 
     // Set after pan or zoom
     public moved = false;
@@ -31,6 +34,8 @@ export default class DomainController {
 
         window.addEventListener('wheel', (e: any): void => {
             if (e.target.id === Util.CANVAS_ID) {
+                this.lastScrolltime = Date.now();
+                this.refreshedAfterScroll = false;
                 const delta: number = e.deltaY;
                 // TODO scale by value of delta
                 if (delta > 0) {
@@ -41,6 +46,10 @@ export default class DomainController {
             }
         });
 
+    }
+
+    get isScrolling(): boolean {
+        return Date.now() - this.lastScrolltime < this.SCROLL_DELAY;
     }
 
     private setScreenDimensions(): void {

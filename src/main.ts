@@ -121,13 +121,13 @@ class Main {
 
     changeColourScheme(scheme: string) {
         if (scheme === "Drawn") {
-            this._style = new RoughStyle(this.canvas);
+            this._style = new RoughStyle(this.canvas, this.dragController);
         } else {
             const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
             this.zoomBuildings = colourScheme.zoomBuildings;
             this.buildingModels = colourScheme.buildingModels;
             Util.updateGui(this.styleFolder);
-            this._style = new DefaultStyle(this.canvas, Object.assign({}, colourScheme));
+            this._style = new DefaultStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         }
         this._style.showFrame = this.showFrame;
         this.changeCanvasScale(this.highDPI);
@@ -229,6 +229,7 @@ class Main {
     }
 
     update(): void {
+        this._style.update();
         this.mainGui.update();
         this.draw();
         requestAnimationFrame(this.update.bind(this));
