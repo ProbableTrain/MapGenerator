@@ -1,7 +1,9 @@
-<br />
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+
+<br />
 <p align="center">
   <a href="https://github.com/probabletrain/mapgenerator">
       <img src="docs/images/logo.png" alt="Logo" width="125" height="125">
@@ -22,7 +24,6 @@
     <a href="https://github.com/probabletrain/mapgenerator/issues">Request Feature</a>
   </p>
 </p>
-<!-- TODO link to docs -->
 
 
 ## Table of Contents
@@ -114,23 +115,6 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
-
-
-## License
-
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
-
-
-
-<!-- CONTACT -->
-
-## Contact
-
-Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
-
-Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
-
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -149,3 +133,16 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+
+## Contact
+
+Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
+
+Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
+
+
+
+## License
+
+Distributed under the GPL-3.0 License. See `LICENSE` for more information.
