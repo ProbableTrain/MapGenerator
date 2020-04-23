@@ -42,6 +42,7 @@ class Main {
     public highDPI = false;
 
     private readonly STARTING_WIDTH = 1440;
+    private firstGenerate = true;
 
     constructor() {
         // Canvas setup
@@ -109,7 +110,12 @@ class Main {
     }
 
     generate() {
-        this.tensorField.setRecommended();
+        if (!this.firstGenerate) {
+            this.tensorField.setRecommended();
+        } else {
+            this.firstGenerate = false;
+        }
+        
         this.mainGui.generateEverything();
     }
 
