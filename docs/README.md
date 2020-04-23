@@ -78,17 +78,11 @@ git clone https://github.com/probabletrain/mapgenerator.git
 cd mapgenerator
 npm install
 ```
-3. Add this line to `node_modules/@svgdotjs/svg.js/package.json`
-```
-"browserify": {
-  "transform": [["babelify", { "presets": ["@babel/preset-env"] }]]
-},
-```
-4. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
+3. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
 ```
 gulp
 ```
-5. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
+4. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
 
 ## Roadmap
 
@@ -107,19 +101,12 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
-
-
-## License
-
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
-
-
-
-<!-- CONTACT -->
-
 ## Contact
 
 Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
 
 Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
+
+## License
+
+Distributed under the GPL-3.0 License. See `LICENSE` for more information.
