@@ -8,6 +8,7 @@ export interface PolygonParams {
     maxLength: number;
     minArea: number;
     shrinkSpacing: number;
+    chanceNoDivide: number;
 }
 
 export default class PolygonFinder {
@@ -45,25 +46,24 @@ export default class PolygonFinder {
         let change = false;
         if (this.toShrink.length > 0) {
             let resolve = this.toShrink.length === 1;
-            const shrunk = PolygonUtil.resizeGeometry(this.toShrink.pop(), -this.params.shrinkSpacing);
-            if (shrunk.length > 0) {
-                this._shrunkPolygons.push(shrunk)
+            if (this.stepShrink(this.toShrink.pop())) {
                 change = true;
-            };
+            }
+            
             if (resolve) this.resolveShrink();
         }
 
         if (this.toDivide.length > 0) {
             let resolve = this.toDivide.length === 1;
-            const divided = [];
-            for (const p of PolygonUtil.subdividePolygon(this.toDivide.pop(), this.params.minArea)) {
-                divided.push(p);
+            if (this.stepDivide(this.toDivide.pop())) {
+                change = true;
             }
+            // const divided = PolygonUtil.subdividePolygon(this.toDivide.pop(), this.params.minArea);
 
-            if (divided.length > 0) {
-                this._dividedPolygons.push(...divided);
-                change = true;    
-            }
+            // if (divided.length > 0) {
+            //     this._dividedPolygons.push(...divided);
+            //     change = true;    
+            // }
             if (resolve) this.resolveDivide();
         }
         return change;
@@ -86,14 +86,20 @@ export default class PolygonFinder {
             } else {
                 this._shrunkPolygons = [];
                 for (const p of this._polygons) {
-                    const shrunk = PolygonUtil.resizeGeometry(p, -this.params.shrinkSpacing);
-                    if (shrunk.length > 0) {
-                        this._shrunkPolygons.push(shrunk);
-                    }
+                    this.stepShrink(p);
                 }
                 resolve();
             }
         });
+    }
+
+    private stepShrink(polygon: Vector[]): boolean {
+        const shrunk = PolygonUtil.resizeGeometry(polygon, -this.params.shrinkSpacing);
+        if (shrunk.length > 0) {
+            this._shrunkPolygons.push(shrunk)
+            return true;
+        };
+        return false;
     }
 
     async divide(animate=false): Promise<void> {
@@ -116,17 +122,28 @@ export default class PolygonFinder {
                 this.toDivide = polygons.slice();
                 this.resolveDivide = resolve;
             } else {
-                let divided: Vector[][] = [];
-                for (const p of polygons) {
-                    divided.push(...PolygonUtil.subdividePolygon(p, this.params.minArea));
-                }
                 this._dividedPolygons = [];
-                for (const p of divided) {
-                    this._dividedPolygons.push(p);
+                for (const p of polygons) {
+                    this.stepDivide(p);
                 }
                 resolve();
             }
         });
+    }
+
+    private stepDivide(polygon: Vector[]): boolean {
+        // TODO need to filter shrunk polygons using aspect ratio, area 
+        // this skips the filter in PolygonUtil.subdividePolygon
+        if (this.params.chanceNoDivide > 0 && Math.random() < this.params.chanceNoDivide) {
+            this._dividedPolygons.push(polygon);
+            return true;
+        }
+        const divided = PolygonUtil.subdividePolygon(polygon, this.params.minArea);
+        if (divided.length > 0) {
+            this._dividedPolygons.push(...divided);
+            return true;
+        }
+        return false;
     }
 
     findPolygons(): void {

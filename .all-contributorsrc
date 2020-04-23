@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "trees-and-airlines",
+      "name": "trees-and-airlines",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/63573826?v=4",
+      "profile": "https://github.com/trees-and-airlines",
+      "contributions": [
+        "infra"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "MapGenerator",
+  "projectOwner": "ProbableTrain",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
