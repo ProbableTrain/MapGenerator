@@ -276,16 +276,6 @@ export class RoughStyle extends Style {
 
         canvas.drawPolygon(this.river);
 
-        // Buildings
-        canvas.setOptions({
-            roughness: 1.2,
-            stroke: '#333333',
-            strokeWidth: 1,
-            fill: '',
-        });
-
-        this.lots.forEach(b => canvas.drawPolygon(b));
-
         // Parks
         canvas.setOptions({
             fill: "rgb(242,236,222)",
@@ -317,5 +307,45 @@ export class RoughStyle extends Style {
 
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
         this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
+
+        // Buildings
+        canvas.setOptions({
+            roughness: 1.2,
+            stroke: '#333333',
+            strokeWidth: 1,
+            fill: 'rgb(202,194,182)',
+        });
+        // this.lots.forEach(b => canvas.drawPolygon(b));
+        const allSidesDistances: any[] = [];
+        const centre = this.domainController.screenDimensions.divideScalar(2);
+        for (const b of this.buildingModels) {
+            for (const s of b.sides) {
+                const averagePoint = s[0].clone().add(s[1]).divideScalar(2);
+                allSidesDistances.push([averagePoint.distanceToSquared(centre), s]);
+            }
+        }
+        allSidesDistances.sort((a, b) => b[0] - a[0]);
+        for (const p of allSidesDistances) canvas.drawPolygon(p[1]);
+
+        canvas.setOptions({
+            roughness: 1.2,
+            stroke: '#333333',
+            strokeWidth: 1,
+            fill: 'rgb(242,236,222)',
+        });
+
+        for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
+
+        // Pseudo-3D
+        // if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
+        //     canvas.setFillStyle(this.colourScheme.buildingSideColour);
+        //     canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
+        //     for (const b of this.buildingModels) {
+        //         for (const s of b.sides) canvas.drawPolygon(s);
+        //     }
+        //     canvas.setFillStyle(this.colourScheme.buildingColour);
+        //     canvas.setStrokeStyle(this.colourScheme.buildingStroke);
+        //     for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
+        // }
     }
 }

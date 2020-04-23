@@ -14,7 +14,7 @@ import {PolygonParams} from '../impl/polygon_finder';
 import StreamlineGenerator from '../impl/streamlines';
 import WaterGenerator from '../impl/water_generator';
 import Style from './style';
-import {DefaultStyle} from './style';
+import {DefaultStyle, RoughStyle} from './style';
 import CanvasWrapper from './canvas_wrapper';
 import Buildings from './buildings';
 
@@ -236,7 +236,7 @@ export default class MainGUI {
         style.river = this.coastline.river;
         style.lots = this.buildings.lots;
 
-        if (style instanceof DefaultStyle && style.showBuildingModels) {
+        if (style instanceof DefaultStyle && style.showBuildingModels || style instanceof RoughStyle) {
             style.buildingModels = this.buildings.models;    
         }
 
