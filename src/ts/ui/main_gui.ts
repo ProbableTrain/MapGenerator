@@ -100,10 +100,6 @@ export default class MainGUI {
         
         const parks = guiFolder.addFolder('Parks');
         parks.add({Generate: () => {
-            this.bigParks = [];
-            this.smallParks = [];
-            this.buildings.reset();
-            tensorField.parks = [];
             this.buildings.reset();
             this.addParks();
             this.redraw = true;
@@ -201,6 +197,8 @@ export default class MainGUI {
 
         if (this.minorRoads.allStreamlines.length === 0) {
             // Big parks - add consecutive polygons
+            this.bigParks = [];
+            this.smallParks = [];
             if (polygons.length > this.numBigParks) {
                 const parkIndex = Math.floor(Math.random() * (polygons.length - this.numBigParks));
                 for (let i = parkIndex; i < parkIndex + this.numBigParks; i++) {
@@ -211,6 +209,7 @@ export default class MainGUI {
             }
         } else {
             // Small parks
+            this.smallParks = [];
             for (let i = 0; i < this.numSmallParks; i++) {
                 const parkIndex = Math.floor(Math.random() * polygons.length);
                 this.smallParks.push(polygons[parkIndex]);
