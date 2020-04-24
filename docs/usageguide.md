@@ -39,6 +39,15 @@ Open the `Maps` folder to start creating roads. You can click `generateEverythin
 - **Buildings** - click `addBuildings` to fill the city with buildings. If you can't see them, the chosen style might not display buildings, or you might not be zoomed in enough. The `Default` style, and `GoogleNoZoom` styles both show buildings at all zoom levels. You can change the minimum building size, and the sidewalk size with `shrinkSpacing`.
 - **Animation** - Generation will be faster if you untick 'Animate', but note that this will swamp the UI thread so you won't be able to pan, zoom, or retry until generation has completed. Animation speed gives you a tradeoff between FPS and generation time.
 
+## Recommended Workflow
+
+Here are the steps I usually take when I use the tool:
+
+- **Water First** - I open the `Map/Water` folder and click `Generate` until I'm happy with the water features.
+- **Tensor Field Detail** - Opening the `Tensor` folder reveals the tensor field. I `addRadial` a couple of times to add some roundabouts. I `addGrid` a few times and change their size, decay, and position to vary the grid structure.
+- **Roads** - I step through each of the `Main`, `Major`, `Minor` folders `Generate`ing roads at each stage, moving to the next when I'm happy. Increase `numParks` under `Map/Params` if you want more parks.
+- **Buildings** - `Buildings/AddBuildings`
+
 ## Editing Colour Themes
 
 The file containing the available colour schemes is [src/colour_schemes.json](https://github.com/ProbableTrain/MapGenerator/blob/master/src/colour_schemes.json). In future you'll be able to edit these in the web editor, but for now you have to build the project yourself to add colour schemes.

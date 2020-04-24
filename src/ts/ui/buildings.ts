@@ -10,11 +10,13 @@ import RoadGUI from './road_gui';
 import WaterGUI from './water_gui';
 import Vector from '../vector';
 import PolygonFinder from '../impl/polygon_finder';
+import PolygonUtil from '../impl/polygon_util';
 import {PolygonParams} from '../impl/polygon_finder';
 import StreamlineGenerator from '../impl/streamlines';
 import WaterGenerator from '../impl/water_generator';
 import Style from './style';
 import CanvasWrapper from './canvas_wrapper';
+import Util from '../util';
 
 export interface BuildingModel {
     height: number;

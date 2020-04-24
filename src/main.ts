@@ -42,6 +42,7 @@ class Main {
     public highDPI = false;
 
     private readonly STARTING_WIDTH = 1440;
+    private firstGenerate = true;
 
     constructor() {
         // Canvas setup
@@ -83,19 +84,15 @@ class Main {
         optionsFolder.add(this, 'downloadSVG');
         
         this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
-            if (this._style instanceof DefaultStyle) {
-                // Force redraw
-                this.previousFrameDrawTensor = true;
-                this._style.zoomBuildings = val;
-            }
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.zoomBuildings = val;
         });
 
         this.styleFolder.add(this, 'buildingModels').onChange((val: boolean) => {
-            if (this._style instanceof DefaultStyle) {
-                // Force redraw
-                this.previousFrameDrawTensor = true;
-                this._style.showBuildingModels = val;
-            }
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.showBuildingModels = val;
         });
         
         this.styleFolder.add(this, 'showFrame').onChange((val: boolean) => {
@@ -109,19 +106,24 @@ class Main {
     }
 
     generate() {
-        this.tensorField.setRecommended();
+        if (!this.firstGenerate) {
+            this.tensorField.setRecommended();
+        } else {
+            this.firstGenerate = false;
+        }
+        
         this.mainGui.generateEverything();
     }
 
     changeColourScheme(scheme: string) {
+        const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
+        this.zoomBuildings = colourScheme.zoomBuildings;
+        this.buildingModels = colourScheme.buildingModels;
+        Util.updateGui(this.styleFolder);
         if (scheme === "Drawn") {
-            this._style = new RoughStyle(this.canvas);
+            this._style = new RoughStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         } else {
-            const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
-            this.zoomBuildings = colourScheme.zoomBuildings;
-            this.buildingModels = colourScheme.buildingModels;
-            Util.updateGui(this.styleFolder);
-            this._style = new DefaultStyle(this.canvas, Object.assign({}, colourScheme));
+            this._style = new DefaultStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         }
         this._style.showFrame = this.showFrame;
         this.changeCanvasScale(this.highDPI);
@@ -223,6 +225,7 @@ class Main {
     }
 
     update(): void {
+        this._style.update();
         this.mainGui.update();
         this.draw();
         requestAnimationFrame(this.update.bind(this));

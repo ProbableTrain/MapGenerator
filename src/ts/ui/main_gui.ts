@@ -19,10 +19,13 @@ import CanvasWrapper from './canvas_wrapper';
 import Buildings from './buildings';
 
 export default class MainGUI {
-    public numParks: number = 2;
+    private numBigParks: number = 2;
+    private numSmallParks: number = 5;
+
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
-    private parks: Vector[][] = [];
+    private bigParks: Vector[][] = [];
+    private smallParks: Vector[][] = [];
     private animate: boolean = true;
     private animationSpeed: number = 30;
 
@@ -57,9 +60,6 @@ export default class MainGUI {
         const animateController = guiFolder.add(this, 'animate');
         guiFolder.add(this, 'animationSpeed');
 
-        const roadsParams = guiFolder.addFolder('Params');
-        roadsParams.add(this, 'numParks');
-
         this.coastlineParams = Object.assign({
             coastNoise: {
                 noiseEnabled: true,
@@ -91,11 +91,26 @@ export default class MainGUI {
 
         const integrator = new RK4Integrator(tensorField, this.minorParams);
         const redraw = () => this.redraw = true;
+
         this.coastline = new WaterGUI(tensorField, this.coastlineParams, integrator,
             this.guiFolder, closeTensorFolder, 'Water', redraw).initFolder();
         this.mainRoads = new RoadGUI(this.mainParams, integrator, this.guiFolder, closeTensorFolder, 'Main', redraw).initFolder();
         this.majorRoads = new RoadGUI(this.majorParams, integrator, this.guiFolder, closeTensorFolder, 'Major', redraw, this.animate).initFolder();
         this.minorRoads = new RoadGUI(this.minorParams, integrator, this.guiFolder, closeTensorFolder, 'Minor', redraw, this.animate).initFolder();
+        
+        const parks = guiFolder.addFolder('Parks');
+        parks.add({Generate: () => {
+            this.bigParks = [];
+            this.smallParks = [];
+            this.buildings.reset();
+            tensorField.parks = [];
+            this.buildings.reset();
+            this.addParks();
+            this.redraw = true;
+        }}, 'Generate');
+        parks.add(this, 'numBigParks');
+        parks.add(this, 'numSmallParks');
+
         const buildingsFolder = guiFolder.addFolder('Buildings');
         this.buildings = new Buildings(tensorField, buildingsFolder, redraw, this.minorParams.dstep, this.animate);
         this.buildings.setPreGenerateCallback(() => {
@@ -121,7 +136,8 @@ export default class MainGUI {
             this.mainRoads.clearStreamlines();
             this.majorRoads.clearStreamlines();
             this.minorRoads.clearStreamlines();
-            this.parks = [];
+            this.bigParks = [];
+            this.smallParks = [];
             this.buildings.reset();
             tensorField.parks = [];
             tensorField.sea = [];
@@ -131,7 +147,8 @@ export default class MainGUI {
         this.mainRoads.setPreGenerateCallback(() => {
             this.majorRoads.clearStreamlines();
             this.minorRoads.clearStreamlines();
-            this.parks = [];
+            this.bigParks = [];
+            this.smallParks = [];
             this.buildings.reset();
             tensorField.parks = [];
             tensorField.ignoreRiver = true;
@@ -143,7 +160,8 @@ export default class MainGUI {
 
         this.majorRoads.setPreGenerateCallback(() => {
             this.minorRoads.clearStreamlines();
-            this.parks = [];
+            this.bigParks = [];
+            this.smallParks = [];
             this.buildings.reset();
             tensorField.parks = [];
             tensorField.ignoreRiver = true;
@@ -151,36 +169,55 @@ export default class MainGUI {
 
         this.majorRoads.setPostGenerateCallback(() => {
             tensorField.ignoreRiver = false;
-            const g = new Graph(this.majorRoads.allStreamlines.concat(this.mainRoads.allStreamlines), this.minorParams.dstep);
-            this.intersections = g.intersections;
-
-            const p = new PolygonFinder(g.nodes, {
-                    maxLength: 20,
-                    minArea: 80,
-                    shrinkSpacing: 4,
-                    chanceNoDivide: 1,
-                }, this.tensorField);
-            p.findPolygons();
-            const polygons = p.polygons;
-
-            if (polygons.length > this.numParks) {
-                const parkIndex = Math.floor(Math.random() * (polygons.length - this.numParks));
-                for (let i = parkIndex; i < parkIndex + this.numParks; i++) {
-                    this.parks.push(polygons[i]);    
-                }
-            } else {
-                for (let p of polygons) {
-                    this.parks.push(p);
-                }
-            }
-
-            tensorField.parks = this.parks;
+            this.addParks();
             this.redraw = true;
         });
 
         this.minorRoads.setPreGenerateCallback(() => {
             this.buildings.reset();
         });
+
+        this.minorRoads.setPostGenerateCallback(() => {
+            this.addParks();
+        });
+    }
+
+    addParks(): void {
+        const g = new Graph(this.majorRoads.allStreamlines
+            .concat(this.mainRoads.allStreamlines)
+            .concat(this.minorRoads.allStreamlines), this.minorParams.dstep);
+        this.intersections = g.intersections;
+
+        const p = new PolygonFinder(g.nodes, {
+                maxLength: 20,
+                minArea: 80,
+                shrinkSpacing: 4,
+                chanceNoDivide: 1,
+            }, this.tensorField);
+        p.findPolygons();
+        const polygons = p.polygons;
+
+        if (this.minorRoads.allStreamlines.length === 0) {
+            // Big parks - add consecutive polygons
+            if (polygons.length > this.numBigParks) {
+                const parkIndex = Math.floor(Math.random() * (polygons.length - this.numBigParks));
+                for (let i = parkIndex; i < parkIndex + this.numBigParks; i++) {
+                    this.bigParks.push(polygons[i]);    
+                }
+            } else {
+                this.bigParks.push(...polygons);
+            }
+        } else {
+            // Small parks
+            for (let i = 0; i < this.numSmallParks; i++) {
+                const parkIndex = Math.floor(Math.random() * polygons.length);
+                this.smallParks.push(polygons[parkIndex]);
+            }
+        }
+
+        this.tensorField.parks = [];
+        this.tensorField.parks.push(...this.bigParks);
+        this.tensorField.parks.push(...this.smallParks);
     }
 
     // async simpleBenchMark() {
@@ -240,7 +277,9 @@ export default class MainGUI {
             style.buildingModels = this.buildings.models;    
         }
 
-        style.parks = this.parks.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
+        style.parks = [];
+        style.parks.push(...this.bigParks.map(p => p.map(v => this.domainController.worldToScreen(v.clone()))));
+        style.parks.push(...this.smallParks.map(p => p.map(v => this.domainController.worldToScreen(v.clone()))));
         style.minorRoads = this.minorRoads.roads;
         style.majorRoads = this.majorRoads.roads;
         style.mainRoads = this.mainRoads.roads;

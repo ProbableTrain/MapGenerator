@@ -1,3 +1,8 @@
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 <br />
 <p align="center">
   <a href="https://github.com/probabletrain/mapgenerator">
@@ -19,7 +24,6 @@
     <a href="https://github.com/probabletrain/mapgenerator/issues">Request Feature</a>
   </p>
 </p>
-<!-- TODO link to docs -->
 
 
 ## Table of Contents
@@ -79,17 +83,11 @@ git clone https://github.com/probabletrain/mapgenerator.git
 cd mapgenerator
 npm install
 ```
-3. Add this line to `node_modules/@svgdotjs/svg.js/package.json`
-```
-"browserify": {
-  "transform": [["babelify", { "presets": ["@babel/preset-env"] }]]
-},
-```
-4. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
+3. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
 ```
 gulp
 ```
-5. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
+4. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
 
 
 
@@ -117,19 +115,34 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## Contributors ✨
 
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/trees-and-airlines"><img src="https://avatars3.githubusercontent.com/u/63573826?v=4" width="100px;" alt=""/><br /><sub><b>trees-and-airlines</b></sub></a><br /><a href="#infra-trees-and-airlines" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+  </tr>
+</table>
 
-## License
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-
-
-<!-- CONTACT -->
 
 ## Contact
 
 Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
 
 Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
+
+
+
+## License
+
+Distributed under the GPL-3.0 License. See `LICENSE` for more information.

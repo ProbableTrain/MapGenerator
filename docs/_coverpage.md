@@ -7,12 +7,13 @@
 - Run in browser
 - Multiple themes
 
-[Open Generator](https://probabletrain.itch.io/city-generator)
+[Launch](https://probabletrain.itch.io/city-generator)
 [GitHub](https://github.com/probabletrain/mapgenerator)
-[Algorithm](algorithmoverview.md)
 [Usage](usageguide.md)
+[Implementation](algorithmoverview.md)
 
 
-<!-- background image + theme -->
+
+<!-- background image -->
 <!-- TODO bg image -->
 <!-- ![](images/bg.png) -->

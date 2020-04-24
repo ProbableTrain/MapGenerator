@@ -62,7 +62,16 @@
         "mainRoadColour": "rgb(149,161,157)",
         "mainRoadOutline": "rgb(149,161,157)",
     },
-    "Drawn": {},  // Special canvas
+    "Drawn": {  // Special canvas
+        "bgColour": "rgb(236,229,219)",
+        "buildingStroke": "#282828",
+        "seaColour": "#a9d9fe",
+        "grassColour": "#c5e8c5",
+        "minorRoadOutline": "#020202",
+        "minorRoadColour": "#F8F8F8",
+        "mainRoadOutline": "#282828",
+        "mainRoadColour": "#FAFA7A",
+    },
     "Google": {
         "bgColour": "rgb(236,236,236)",
         "bgColourIn": "rgb(248,249,250)",
