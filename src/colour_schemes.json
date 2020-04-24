@@ -12,6 +12,8 @@
 // mainRoadOutline?: string;  // Be careful, inherits majorRoadOutline, not mainRoadColour
 // outlineSize?: number;      // Cascade semantics in style.ts
 // zoomBuildings?: boolean;
+// 
+// Scheme name startsWith 'Drawn' means scheme will use RoughJS canvas
 
 {
     "Default": {
@@ -62,9 +64,18 @@
         "mainRoadColour": "rgb(149,161,157)",
         "mainRoadOutline": "rgb(149,161,157)",
     },
-    "Drawn": {  // Special canvas
+    "Drawn (slow)": {  // Special canvas
         "bgColour": "rgb(242,236,222)",
         "seaColour": "#dbd2bd",
+        "minorRoadColour": "#666666",
+        "majorRoadColour": "#444444",
+        "mainRoadColour": "#222222",
+        "buildingStroke": "#333333",
+        "buildingColour": "rgb(242,236,222)",
+    },
+    "Drawn2 (slow)": {  // Special canvas
+        "bgColour": "white",
+        "seaColour": "#c2c5bf",
         "minorRoadColour": "#666666",
         "majorRoadColour": "#444444",
         "mainRoadColour": "#222222",

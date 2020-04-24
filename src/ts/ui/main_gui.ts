@@ -175,6 +175,8 @@ export default class MainGUI {
 
         this.minorRoads.setPreGenerateCallback(() => {
             this.buildings.reset();
+            this.smallParks = [];
+            tensorField.parks = this.bigParks;
         });
 
         this.minorRoads.setPostGenerateCallback(() => {

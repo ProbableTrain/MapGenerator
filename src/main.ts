@@ -84,8 +84,8 @@ class Main {
         });
 
         this.styleFolder.add(this.domainController, 'orthographic');
-        this.styleFolder.add(this, 'cameraX', -2, 2).step(0.1).onChange(() => this.setCameraDirection());
-        this.styleFolder.add(this, 'cameraY', -2, 2).step(0.1).onChange(() => this.setCameraDirection());
+        this.styleFolder.add(this, 'cameraX', -15, 15).step(1).onChange(() => this.setCameraDirection());
+        this.styleFolder.add(this, 'cameraY', -15, 15).step(1).onChange(() => this.setCameraDirection());
 
         const noiseParams: NoiseParams = {
             globalNoise: false,
@@ -128,7 +128,7 @@ class Main {
         this.zoomBuildings = colourScheme.zoomBuildings;
         this.buildingModels = colourScheme.buildingModels;
         Util.updateGui(this.styleFolder);
-        if (scheme === "Drawn") {
+        if (scheme.startsWith("Drawn")) {
             this._style = new RoughStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         } else {
             this._style = new DefaultStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
@@ -144,7 +144,7 @@ class Main {
     }
 
     setCameraDirection(): void {
-        this.domainController.cameraDirection = new Vector(this.cameraX, this.cameraY);
+        this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
     /**
