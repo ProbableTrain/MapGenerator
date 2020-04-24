@@ -3,11 +3,6 @@ import Vector from '../vector';
 import { SVG } from '@svgdotjs/svg.js';
 import Util from '../util';
 
-// TO IMPORT SVGJS ADD THIS TO package.json in svg js folder
-// "browserify": {
-//     "transform": [["babelify", { "presets": ["@babel/preset-env"] }]]
-// }
-
 export interface RoughOptions {
     roughness?: number;
     bowing?: number;

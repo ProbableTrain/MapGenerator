@@ -244,16 +244,7 @@ export class RoughStyle extends Style {
 
     public draw(canvas=this.canvas as RoughCanvasWrapper): void {
         canvas.setOptions({
-            roughness: 1,
-            bowing: 1,
-            stroke: '#000000',
-            strokeWidth: 1,
-            fill: '#000000',
-            fillStyle: 'solid',
-        });
-
-        canvas.setOptions({
-            fill: "rgb(242,236,222)",
+            fill: this.colourScheme.bgColour,
             roughness: 1,
             bowing: 1,
             fillStyle: 'solid',
@@ -266,7 +257,7 @@ export class RoughStyle extends Style {
         canvas.setOptions({
             roughness: 0,
             fillWeight: 1,
-            fill: "#dbd2bd",
+            fill: this.colourScheme.seaColour,
             fillStyle: 'solid',
             stroke: "none",
             strokeWidth: 1,
@@ -275,7 +266,7 @@ export class RoughStyle extends Style {
         canvas.drawPolygon(this.seaPolygon);
 
         canvas.setOptions({
-            stroke: "rgb(242,236,222)",
+            stroke: this.colourScheme.bgColour,
             strokeWidth: 30,
         });
         canvas.drawPolyline(this.coastline);
@@ -283,7 +274,7 @@ export class RoughStyle extends Style {
         canvas.setOptions({
             roughness: 0,
             fillWeight: 1,
-            fill: "#dbd2bd",
+            fill: this.colourScheme.seaColour,
             fillStyle: 'solid',
             stroke: "none",
             strokeWidth: 1,
@@ -293,13 +284,13 @@ export class RoughStyle extends Style {
 
         // Parks
         canvas.setOptions({
-            fill: "rgb(242,236,222)",
+            fill: this.colourScheme.grassColour,
         });
         this.parks.forEach(p => canvas.drawPolygon(p));
 
         // Roads
         canvas.setOptions({
-            stroke: '#666666',
+            stroke: this.colourScheme.minorRoadColour,
             strokeWidth: 1,
             fill: 'none',
         });
@@ -308,7 +299,7 @@ export class RoughStyle extends Style {
 
         canvas.setOptions({
             strokeWidth: 2,
-            stroke: '#444444',
+            stroke: this.colourScheme.majorRoadColour,
         });
 
         this.majorRoads.forEach(s => canvas.drawPolyline(s));
@@ -316,22 +307,11 @@ export class RoughStyle extends Style {
 
         canvas.setOptions({
             strokeWidth: 3,
-            stroke: '#222222',
+            stroke: this.colourScheme.mainRoadColour,
         });
 
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
         this.coastlineRoads.forEach(s => canvas.drawPolyline(s));
-
-        // if (!this.dragging) {
-        //     canvas.setOptions({
-        //         roughness: 1.2,
-        //         stroke: '#333333',
-        //         strokeWidth: 1,
-        //         fill: '',
-        //     });
-
-        //     this.lots.forEach(b => canvas.drawPolygon(b));
-        // }
 
         // Buildings
         if (!this.dragging) {
@@ -340,7 +320,7 @@ export class RoughStyle extends Style {
                 // Lots
                 canvas.setOptions({
                     roughness: 1.2,
-                    stroke: '#333333',
+                    stroke: this.colourScheme.buildingStroke,
                     strokeWidth: 1,
                     fill: '',
                 });
@@ -352,9 +332,9 @@ export class RoughStyle extends Style {
                 // Pseudo-3D
                 canvas.setOptions({
                     roughness: 1.2,
-                    stroke: '#333333',
+                    stroke: this.colourScheme.buildingStroke,
                     strokeWidth: 1,
-                    fill: 'rgb(202,194,182)',
+                    fill: this.colourScheme.buildingSideColour,
                 });
 
                 // TODO this can be hugely improved
@@ -371,9 +351,9 @@ export class RoughStyle extends Style {
 
                 canvas.setOptions({
                     roughness: 1.2,
-                    stroke: '#333333',
+                    stroke: this.colourScheme.buildingStroke,
                     strokeWidth: 1,
-                    fill: 'rgb(242,236,222)',
+                    fill: this.colourScheme.buildingColour,
                 });
 
                 for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
