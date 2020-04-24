@@ -41,6 +41,10 @@ class Main {
     private showFrame: boolean = false;
     public highDPI = false;
 
+    // 3D settings
+    private cameraX = 0;
+    private cameraY = 0;
+
     private readonly STARTING_WIDTH = 1440;
     private firstGenerate = true;
 
@@ -62,6 +66,27 @@ class Main {
         this.styleFolder = this.gui.addFolder('Style');
         this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => this.changeColourScheme(val));
 
+        this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.zoomBuildings = val;
+        });
+
+        this.styleFolder.add(this, 'buildingModels').onChange((val: boolean) => {
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.showBuildingModels = val;
+        });
+        
+        this.styleFolder.add(this, 'showFrame').onChange((val: boolean) => {
+            this.previousFrameDrawTensor = true;
+            this._style.showFrame = val;
+        });
+
+        this.styleFolder.add(this.domainController, 'orthographic');
+        this.styleFolder.add(this, 'cameraX', -15, 15).step(1).onChange(() => this.setCameraDirection());
+        this.styleFolder.add(this, 'cameraY', -15, 15).step(1).onChange(() => this.setCameraDirection());
+
         const noiseParams: NoiseParams = {
             globalNoise: false,
             noiseSizePark: 20,
@@ -82,27 +107,6 @@ class Main {
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'download');
         optionsFolder.add(this, 'downloadSVG');
-        
-        this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
-            if (this._style instanceof DefaultStyle) {
-                // Force redraw
-                this.previousFrameDrawTensor = true;
-                this._style.zoomBuildings = val;
-            }
-        });
-
-        this.styleFolder.add(this, 'buildingModels').onChange((val: boolean) => {
-            if (this._style instanceof DefaultStyle) {
-                // Force redraw
-                this.previousFrameDrawTensor = true;
-                this._style.showBuildingModels = val;
-            }
-        });
-        
-        this.styleFolder.add(this, 'showFrame').onChange((val: boolean) => {
-            this.previousFrameDrawTensor = true;
-            this._style.showFrame = val;
-        });
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
@@ -120,13 +124,13 @@ class Main {
     }
 
     changeColourScheme(scheme: string) {
-        if (scheme === "Drawn") {
-            this._style = new RoughStyle(this.canvas, this.dragController);
+        const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
+        this.zoomBuildings = colourScheme.zoomBuildings;
+        this.buildingModels = colourScheme.buildingModels;
+        Util.updateGui(this.styleFolder);
+        if (scheme.startsWith("Drawn")) {
+            this._style = new RoughStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         } else {
-            const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
-            this.zoomBuildings = colourScheme.zoomBuildings;
-            this.buildingModels = colourScheme.buildingModels;
-            Util.updateGui(this.styleFolder);
             this._style = new DefaultStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         }
         this._style.showFrame = this.showFrame;
@@ -137,6 +141,10 @@ class Main {
         const value = high ? 2 : 1;
         this._style.canvasScale = value;
         this.tensorCanvas.canvasScale = value;
+    }
+
+    setCameraDirection(): void {
+        this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
     /**

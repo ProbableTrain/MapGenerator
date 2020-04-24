@@ -59,26 +59,12 @@ export default abstract class Style {
     public coastlineRoads: Vector[][] = [];
     public showFrame: boolean;
 
-    constructor(protected dragController: DragController) {}
+    constructor(protected dragController: DragController, protected colourScheme: ColourScheme) {
+        if (!colourScheme.bgColour) log.error("ColourScheme Error - bgColour not defined");
+        if (!colourScheme.seaColour) log.error("ColourScheme Error - seaColour not defined");
+        if (!colourScheme.minorRoadColour) log.error("ColourScheme Error - minorRoadColour not defined");
 
-    public set canvasScale(scale: number) {
-        this.canvas.canvasScale = scale;
-    }
-
-    public get needsUpdate(): boolean {
-        return this.canvas.needsUpdate;
-    }
-
-    public set needsUpdate(n: boolean) {
-        this.canvas.needsUpdate = n;
-    }
-}
-
-export class DefaultStyle extends Style {
-    constructor(c: HTMLCanvasElement, dragController: DragController, private colourScheme: ColourScheme) {
-        super(dragController);
-
-        // Default cascade
+        // Default colourscheme cascade
         if (!colourScheme.bgColourIn) colourScheme.bgColourIn = colourScheme.bgColour;
         if (!colourScheme.buildingColour) colourScheme.buildingColour = colourScheme.bgColour;
         if (!colourScheme.buildingStroke) colourScheme.buildingStroke = colourScheme.bgColour;
@@ -106,24 +92,41 @@ export class DefaultStyle extends Style {
                 colourScheme.buildingSideColour = colourScheme.buildingColour;
             }
         }
+    }
 
+    public set zoomBuildings(b: boolean) {
+        this.colourScheme.zoomBuildings = b;
+    }
+
+    public set showBuildingModels(b: boolean) {
+        this.colourScheme.buildingModels = b;
+    }
+
+    public get showBuildingModels(): boolean {
+        return this.colourScheme.buildingModels;
+    }
+
+    public set canvasScale(scale: number) {
+        this.canvas.canvasScale = scale;
+    }
+
+    public get needsUpdate(): boolean {
+        return this.canvas.needsUpdate;
+    }
+
+    public set needsUpdate(n: boolean) {
+        this.canvas.needsUpdate = n;
+    }
+}
+
+export class DefaultStyle extends Style {
+    constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme) {
+        super(dragController, colourScheme);
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
 
     public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
         return new DefaultCanvasWrapper(c, scale, resizeToWindow);
-    }
-
-    set zoomBuildings(b: boolean) {
-        this.colourScheme.zoomBuildings = b;
-    }
-
-    set showBuildingModels(b: boolean) {
-        this.colourScheme.buildingModels = b;
-    }
-
-    get showBuildingModels(): boolean {
-        return this.colourScheme.buildingModels;
     }
 
     public draw(canvas=this.canvas as DefaultCanvasWrapper): void {
@@ -224,8 +227,8 @@ export class DefaultStyle extends Style {
 export class RoughStyle extends Style {
     private dragging = false;
 
-    constructor(c: HTMLCanvasElement, dragController: DragController) {
-        super(dragController);
+    constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme) {
+        super(dragController, colourScheme);
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
 
@@ -241,16 +244,7 @@ export class RoughStyle extends Style {
 
     public draw(canvas=this.canvas as RoughCanvasWrapper): void {
         canvas.setOptions({
-            roughness: 1,
-            bowing: 1,
-            stroke: '#000000',
-            strokeWidth: 1,
-            fill: '#000000',
-            fillStyle: 'solid',
-        });
-
-        canvas.setOptions({
-            fill: "rgb(242,236,222)",
+            fill: this.colourScheme.bgColour,
             roughness: 1,
             bowing: 1,
             fillStyle: 'solid',
@@ -263,7 +257,7 @@ export class RoughStyle extends Style {
         canvas.setOptions({
             roughness: 0,
             fillWeight: 1,
-            fill: "#dbd2bd",
+            fill: this.colourScheme.seaColour,
             fillStyle: 'solid',
             stroke: "none",
             strokeWidth: 1,
@@ -272,7 +266,7 @@ export class RoughStyle extends Style {
         canvas.drawPolygon(this.seaPolygon);
 
         canvas.setOptions({
-            stroke: "rgb(242,236,222)",
+            stroke: this.colourScheme.bgColour,
             strokeWidth: 30,
         });
         canvas.drawPolyline(this.coastline);
@@ -280,7 +274,7 @@ export class RoughStyle extends Style {
         canvas.setOptions({
             roughness: 0,
             fillWeight: 1,
-            fill: "#dbd2bd",
+            fill: this.colourScheme.seaColour,
             fillStyle: 'solid',
             stroke: "none",
             strokeWidth: 1,
@@ -290,13 +284,13 @@ export class RoughStyle extends Style {
 
         // Parks
         canvas.setOptions({
-            fill: "rgb(242,236,222)",
+            fill: this.colourScheme.grassColour,
         });
         this.parks.forEach(p => canvas.drawPolygon(p));
 
         // Roads
         canvas.setOptions({
-            stroke: '#666666',
+            stroke: this.colourScheme.minorRoadColour,
             strokeWidth: 1,
             fill: 'none',
         });
@@ -305,7 +299,7 @@ export class RoughStyle extends Style {
 
         canvas.setOptions({
             strokeWidth: 2,
-            stroke: '#444444',
+            stroke: this.colourScheme.majorRoadColour,
         });
 
         this.majorRoads.forEach(s => canvas.drawPolyline(s));
@@ -313,7 +307,7 @@ export class RoughStyle extends Style {
 
         canvas.setOptions({
             strokeWidth: 3,
-            stroke: '#222222',
+            stroke: this.colourScheme.mainRoadColour,
         });
 
         this.mainRoads.forEach(s => canvas.drawPolyline(s));
@@ -321,14 +315,49 @@ export class RoughStyle extends Style {
 
         // Buildings
         if (!this.dragging) {
-            canvas.setOptions({
-                roughness: 1.2,
-                stroke: '#333333',
-                strokeWidth: 1,
-                fill: '',
-            });
+            // Lots
+            if (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2) {
+                // Lots
+                canvas.setOptions({
+                    roughness: 1.2,
+                    stroke: this.colourScheme.buildingStroke,
+                    strokeWidth: 1,
+                    fill: '',
+                });
+                for (const b of this.lots) canvas.drawPolygon(b);
+            }
 
-            this.lots.forEach(b => canvas.drawPolygon(b));
+            // Pseudo-3D
+            if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
+                // Pseudo-3D
+                canvas.setOptions({
+                    roughness: 1.2,
+                    stroke: this.colourScheme.buildingStroke,
+                    strokeWidth: 1,
+                    fill: this.colourScheme.buildingSideColour,
+                });
+
+                // TODO this can be hugely improved
+                const allSidesDistances: any[] = [];
+                const camera = this.domainController.getCameraPosition();
+                for (const b of this.buildingModels) {
+                    for (const s of b.sides) {
+                        const averagePoint = s[0].clone().add(s[1]).divideScalar(2);
+                        allSidesDistances.push([averagePoint.distanceToSquared(camera), s]);
+                    }
+                }
+                allSidesDistances.sort((a, b) => b[0] - a[0]);
+                for (const p of allSidesDistances) canvas.drawPolygon(p[1]);
+
+                canvas.setOptions({
+                    roughness: 1.2,
+                    stroke: this.colourScheme.buildingStroke,
+                    strokeWidth: 1,
+                    fill: this.colourScheme.buildingColour,
+                });
+
+                for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
+            }
         }
     }
 }

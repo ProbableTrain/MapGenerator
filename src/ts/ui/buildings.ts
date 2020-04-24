@@ -10,11 +10,13 @@ import RoadGUI from './road_gui';
 import WaterGUI from './water_gui';
 import Vector from '../vector';
 import PolygonFinder from '../impl/polygon_finder';
+import PolygonUtil from '../impl/polygon_util';
 import {PolygonParams} from '../impl/polygon_finder';
 import StreamlineGenerator from '../impl/streamlines';
 import WaterGenerator from '../impl/water_generator';
 import Style from './style';
 import CanvasWrapper from './canvas_wrapper';
+import Util from '../util';
 
 export interface BuildingModel {
     height: number;
@@ -47,17 +49,22 @@ class BuildingModels {
 
     setBuildingProjections(): void {
         const d = 1000 / this.domainController.zoom;
-        const centre = this.domainController.screenDimensions.divideScalar(2);
+        const cameraPos = this.domainController.getCameraPosition();
         for (const b of this._buildingModels) {
             b.lotScreen = b.lotWorld.map(v => this.domainController.worldToScreen(v.clone()));
-            b.roof = b.lotScreen.map(v => this.heightVectorToScreen(v, b.height, d, centre));
+            b.roof = b.lotScreen.map(v => this.heightVectorToScreen(v, b.height, d, cameraPos));
             b.sides = this.getBuildingSides(b);
         }
     }
 
-    private heightVectorToScreen(v: Vector, h: number, d: number, centre: Vector) {
-        const scale = d / (d - h);
-        return v.clone().sub(centre).multiplyScalar(scale).add(centre);
+    private heightVectorToScreen(v: Vector, h: number, d: number, camera: Vector) {
+        const scale = (d / (d - h)); // 0.1
+        if (this.domainController.orthographic) {
+            const diff = this.domainController.cameraDirection.multiplyScalar(-h * scale);
+            return v.clone().add(diff);
+        } else {
+            return v.clone().sub(camera).multiplyScalar(scale).add(camera);
+        }
     }
 
     private getBuildingSides(b: BuildingModel): Vector[][] {

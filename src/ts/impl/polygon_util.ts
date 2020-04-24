@@ -143,6 +143,10 @@ export default class PolygonUtil {
         return inside;
     }
 
+    public static pointInRectangle(point: Vector, origin: Vector, dimensions: Vector) {
+        return point.x >= origin.x && point.y >= origin.y && point.x <= dimensions.x && point.y <= dimensions.y;
+    }
+
     private static lineToJts(line: Vector[]): jsts.geom.LineString {
         const coords = line.map(v => new jsts.geom.Coordinate(v.x, v.y));
         return PolygonUtil.geometryFactory.createLineString(coords);
