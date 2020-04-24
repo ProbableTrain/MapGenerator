@@ -58,8 +58,13 @@ class BuildingModels {
     }
 
     private heightVectorToScreen(v: Vector, h: number, d: number, camera: Vector) {
-        const scale = d / (d - h);
-        return v.clone().sub(camera).multiplyScalar(scale).add(camera);
+        const scale = (d / (d - h)); // 0.1
+        if (this.domainController.orthographic) {
+            const diff = this.domainController.cameraDirection.multiplyScalar(-h * scale);
+            return v.clone().add(diff);
+        } else {
+            return v.clone().sub(camera).multiplyScalar(scale).add(camera);
+        }
     }
 
     private getBuildingSides(b: BuildingModel): Vector[][] {

@@ -15,18 +15,6 @@ import Vector from './ts/vector';
 import { SVG } from '@svgdotjs/svg.js';
 
 class Main {
-    private readonly cameraPositions: any = {
-        'Centre': new Vector(0,0),
-        'Left': new Vector(-1,0),
-        'Right': new Vector(1,0),
-        'Top': new Vector(0,-1),
-        'Bottom': new Vector(0,1),
-        'Top Left': new Vector(-1,-1),
-        'Top Right': new Vector(1,-1),
-        'Bottom Left': new Vector(-1,1),
-        'Bottom Right': new Vector(1,1),
-    };
-
     private domainController = DomainController.getInstance();
     private gui: dat.GUI = new dat.GUI({width: 300});
     private tensorField: TensorFieldGUI;
@@ -54,7 +42,8 @@ class Main {
     public highDPI = false;
 
     // 3D settings
-    private cameraPos = 'Centre';
+    private cameraX = 0;
+    private cameraY = 0;
 
     private readonly STARTING_WIDTH = 1440;
     private firstGenerate = true;
@@ -94,9 +83,9 @@ class Main {
             this._style.showFrame = val;
         });
 
-        this.styleFolder.add(this, 'cameraPos', Object.keys(this.cameraPositions)).onChange((val: string) => {
-            this.domainController.cameraPosition = this.cameraPositions[val];
-        });
+        this.styleFolder.add(this.domainController, 'orthographic');
+        this.styleFolder.add(this, 'cameraX', -2, 2).step(0.1).onChange(() => this.setCameraDirection());
+        this.styleFolder.add(this, 'cameraY', -2, 2).step(0.1).onChange(() => this.setCameraDirection());
 
         const noiseParams: NoiseParams = {
             globalNoise: false,
@@ -152,6 +141,10 @@ class Main {
         const value = high ? 2 : 1;
         this._style.canvasScale = value;
         this.tensorCanvas.canvasScale = value;
+    }
+
+    setCameraDirection(): void {
+        this.domainController.cameraDirection = new Vector(this.cameraX, this.cameraY);
     }
 
     /**
