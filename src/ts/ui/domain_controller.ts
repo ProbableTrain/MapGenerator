@@ -139,6 +139,9 @@ export default class DomainController {
 
     getCameraPosition(): Vector {
         const centre = new Vector(this._screenDimensions.x / 2, this._screenDimensions.y / 2);
+        if (this._orthographic) {
+            return centre.add(centre.clone().multiply(this._cameraDirection).multiplyScalar(100));
+        }
         return centre.add(centre.clone().multiply(this._cameraDirection));
         // this.screenDimensions.divideScalar(2);
     }
