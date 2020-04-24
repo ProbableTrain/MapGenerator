@@ -49,17 +49,17 @@ class BuildingModels {
 
     setBuildingProjections(): void {
         const d = 1000 / this.domainController.zoom;
-        const centre = this.domainController.screenDimensions.divideScalar(2);
+        const cameraPos = this.domainController.getCameraPosition();
         for (const b of this._buildingModels) {
             b.lotScreen = b.lotWorld.map(v => this.domainController.worldToScreen(v.clone()));
-            b.roof = b.lotScreen.map(v => this.heightVectorToScreen(v, b.height, d, centre));
+            b.roof = b.lotScreen.map(v => this.heightVectorToScreen(v, b.height, d, cameraPos));
             b.sides = this.getBuildingSides(b);
         }
     }
 
-    private heightVectorToScreen(v: Vector, h: number, d: number, centre: Vector) {
+    private heightVectorToScreen(v: Vector, h: number, d: number, camera: Vector) {
         const scale = d / (d - h);
-        return v.clone().sub(centre).multiplyScalar(scale).add(centre);
+        return v.clone().sub(camera).multiplyScalar(scale).add(camera);
     }
 
     private getBuildingSides(b: BuildingModel): Vector[][] {

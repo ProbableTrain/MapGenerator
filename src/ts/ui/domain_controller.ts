@@ -24,8 +24,11 @@ export default class DomainController {
     private lastScrolltime = -this.SCROLL_DELAY;
     private refreshedAfterScroll = false;
 
+    private _cameraPosition = Vector.zeroVector();
+
     // Set after pan or zoom
     public moved = false;
+
 
     private constructor() {
         this.setScreenDimensions();
@@ -112,6 +115,18 @@ export default class DomainController {
         const screenSpace = this.worldToScreen(v.clone());
         return screenSpace.x >= 0 && screenSpace.y >= 0
             && screenSpace.x <= this.screenDimensions.x && screenSpace.y <= this.screenDimensions.y;
+    }
+
+    set cameraPosition(v: Vector) {
+        this._cameraPosition = v;
+        // Screen update
+        this.moved = true;
+    }
+
+    getCameraPosition(): Vector {
+        const centre = new Vector(this._screenDimensions.x / 2, this._screenDimensions.y / 2);
+        return centre.add(centre.clone().multiply(this._cameraPosition));
+        // this.screenDimensions.divideScalar(2);
     }
 
     setZoomUpdate(callback: () => any): void {

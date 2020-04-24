@@ -359,11 +359,11 @@ export class RoughStyle extends Style {
 
                 // TODO this can be hugely improved
                 const allSidesDistances: any[] = [];
-                const centre = this.domainController.screenDimensions.divideScalar(2);
+                const camera = this.domainController.getCameraPosition();
                 for (const b of this.buildingModels) {
                     for (const s of b.sides) {
                         const averagePoint = s[0].clone().add(s[1]).divideScalar(2);
-                        allSidesDistances.push([averagePoint.distanceToSquared(centre), s]);
+                        allSidesDistances.push([averagePoint.distanceToSquared(camera), s]);
                     }
                 }
                 allSidesDistances.sort((a, b) => b[0] - a[0]);

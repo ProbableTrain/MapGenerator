@@ -15,6 +15,18 @@ import Vector from './ts/vector';
 import { SVG } from '@svgdotjs/svg.js';
 
 class Main {
+    private readonly cameraPositions: any = {
+        'Centre': new Vector(0,0),
+        'Left': new Vector(-1,0),
+        'Right': new Vector(1,0),
+        'Top': new Vector(0,-1),
+        'Bottom': new Vector(0,1),
+        'Top Left': new Vector(-1,-1),
+        'Top Right': new Vector(1,-1),
+        'Bottom Left': new Vector(-1,1),
+        'Bottom Right': new Vector(1,1),
+    };
+
     private domainController = DomainController.getInstance();
     private gui: dat.GUI = new dat.GUI({width: 300});
     private tensorField: TensorFieldGUI;
@@ -41,6 +53,9 @@ class Main {
     private showFrame: boolean = false;
     public highDPI = false;
 
+    // 3D settings
+    private cameraPos = 'Centre';
+
     private readonly STARTING_WIDTH = 1440;
     private firstGenerate = true;
 
@@ -62,6 +77,27 @@ class Main {
         this.styleFolder = this.gui.addFolder('Style');
         this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => this.changeColourScheme(val));
 
+        this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.zoomBuildings = val;
+        });
+
+        this.styleFolder.add(this, 'buildingModels').onChange((val: boolean) => {
+            // Force redraw
+            this.previousFrameDrawTensor = true;
+            this._style.showBuildingModels = val;
+        });
+        
+        this.styleFolder.add(this, 'showFrame').onChange((val: boolean) => {
+            this.previousFrameDrawTensor = true;
+            this._style.showFrame = val;
+        });
+
+        this.styleFolder.add(this, 'cameraPos', Object.keys(this.cameraPositions)).onChange((val: string) => {
+            this.domainController.cameraPosition = this.cameraPositions[val];
+        });
+
         const noiseParams: NoiseParams = {
             globalNoise: false,
             noiseSizePark: 20,
@@ -82,23 +118,6 @@ class Main {
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'download');
         optionsFolder.add(this, 'downloadSVG');
-        
-        this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
-            // Force redraw
-            this.previousFrameDrawTensor = true;
-            this._style.zoomBuildings = val;
-        });
-
-        this.styleFolder.add(this, 'buildingModels').onChange((val: boolean) => {
-            // Force redraw
-            this.previousFrameDrawTensor = true;
-            this._style.showBuildingModels = val;
-        });
-        
-        this.styleFolder.add(this, 'showFrame').onChange((val: boolean) => {
-            this.previousFrameDrawTensor = true;
-            this._style.showFrame = val;
-        });
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
