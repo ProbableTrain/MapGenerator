@@ -1,7 +1,5 @@
 # Implementation Details
 
-> This section is under construction
-
 ## High Level Overview
 
 ### Algorithm - Road Network
@@ -37,10 +35,10 @@ To add buildings we need to know the location and shape of building lots. We hav
 
 #### Graph
 
-* **Simplify-js** - To reduce the number of vectors in each streamline they are first simplified using `simplify-js` so that the intersection algorithm runs faster
+* **Simplify-js** - To reduce the number of vectors in each streamline they are first simplified using `simplify-js` so that the intersection algorithm runs faster (This is a source of error - simplification potentially ruins T-junctions, TODO is modify/implement simplify-js so that it preserves such intersections. Currently the problem is hidden by extending roads by a small amount.)
 * **isect** - Intersections are found in the streamlines using the `isect` library
 * **Graph** - A graph is built. It is made up of nodes, where each node has a position vector and a set of neighbor nodes. This is done in `src/ts/impl/graph.ts`.
-* **Polygon Finding** - Polygons are found in the graph using a simple algorithm: for each node, trace a path turning right at each intersection until you reach a visited node. This is done in `src/ts/impl/polygon_finder.ts`.
+* **Polygon Finding** - Polygons are found in the graph using a simple algorithm: for each node, trace a path turning right at each intersection until you reach a visited node. This is done in `src/ts/impl/polygon_finder.ts` (This works if we assume no dead end roads. In reality we can't/shouldn't have to assume this so a better algorithm is TODO).
 * **Polygons to buildings** - These polygons are first shrunk in size, and then divided by their longest edge recursively to create buildings. This stage is still an area of development.
 
 
@@ -51,7 +49,20 @@ To add buildings we need to know the location and shape of building lots. We hav
 
 ### Rendering
 
-Everything is put together in `src/ts/ui/main_gui.ts` and drawn on the canvas. 
+Everything is put together in `src/ts/ui/main_gui.ts` and drawn on the canvas.
+
+**Classes**: When this project was started 3D buildings was out-of-scope, so everything is done on the HTML Canvas with no drawing library. `RoughJS` was later added to allow a hand-drawn style. In general, everything in `src/ts/impl/` uses world-coordinates, independent of screen pan or zoom. `src/ts/ui/domain_controller.ts` and `src/ts/ui/drag_controller.ts` handle keeping track of world space relative to screen space, and provide methods for transforming between them. Classes in `src/ts/ui` use these methods to convert geometry to screen space before passing them to `src/ts/ui/style.ts`. The geometry currently consists of polygons and polylines. `src/ts/ui/canvas_wrapper.ts` provides a very thin wrapper over the HTML and RoughJS canvas, to reduce the logic in `style.ts`. The `canvas_wrapper` also provides methods for creating an SVG file. `style.ts` takes a colour scheme, read from `colour_schemes.json`, and uses that to draw the scene.
+
+**Update Loop**: The overall update loop for the application isn't very clean. The canvas is only redrawn when something changes - valid 'changes' have to be manually specified, see `main_gui.update()`. I've given the user the option to turn animation on or off, and to set the generation 'speed'. When animation is off, the generation runs until it is done. Since we only have one thread, the whole page freezes. When animation is on, we only run the generation algorithm for 30ms each frame. This value is configurable, and is called 'animationSpeed' in the UI. With animation on, the overall generation time is slower but the page is still interactable, and animation can be interrupted by clicking 'generate' again. 
+
+
+**Pseudo-3D**: At some point I tried implementing 3D buildings more out of curiosity to see if it would work. Definitely a 'could I' rather than a 'should I' moment. 3D buildings are 'faked' on the 2D canvas rather naively. The geometry is calculated in `src/ts/ui/buildings.ts`, and passed all the way to `src/ts/ui/style.ts` which can decide what to do with it. Building geometry consists of `sides: Polygon[]` and a `roof: Polygon` (a `Polygon` is just a `Vector[]`). Rendering calculations are done on the CPU, naive, and slow. This is a big area for improvement, and what's implemented is more of a stopgap. Sides are drawn first, in order of distance to the camera. Then all the rooves are drawn, in order of height. This does mean that visual artefacts can easily be found when zoomed in (when a roof is below and behind a side).
+
+**Future**: I currently do not plan to integrate Three.JS or any other 3D library into this project to properly create and render 3D buildings. I'm more tempted to create a separate application that takes city geometry and produces a 3D model, like Watabou's [CityViewer](https://watabou.itch.io/city-viewer). I would quite like to develop a shape grammar for the building generation.
+
+| Here's one I made earlier |
+| :----------: |
+| ![Shape Grammar](images/implementation/sg.png) |
 
 <!-- - roughjs
 - colour schemes
@@ -59,7 +70,7 @@ Everything is put together in `src/ts/ui/main_gui.ts` and drawn on the canvas.
 
 ## Detailed Overview
 
-
+> This section is under construction
 
 <!-- #### Latex test:
 
