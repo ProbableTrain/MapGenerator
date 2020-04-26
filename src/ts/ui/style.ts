@@ -120,7 +120,7 @@ export default abstract class Style {
 }
 
 export class DefaultStyle extends Style {
-    constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme) {
+    constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme, private heightmap=false) {
         super(dragController, colourScheme);
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
@@ -160,7 +160,7 @@ export class DefaultStyle extends Style {
         // River
         canvas.setFillStyle(this.colourScheme.seaColour);
         canvas.setStrokeStyle(this.colourScheme.seaColour);
-        canvas.setLineWidth(0.1);
+        canvas.setLineWidth(1);
         canvas.drawPolygon(this.river);
 
         // Road outline
@@ -193,24 +193,37 @@ export class DefaultStyle extends Style {
         for (const s of this.mainRoads) canvas.drawPolyline(s);
         for (const s of this.coastlineRoads) canvas.drawPolyline(s);
 
-        canvas.setLineWidth(1);
-        // Buildings
-        if (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2) {
-            canvas.setFillStyle(this.colourScheme.buildingColour);
-            canvas.setStrokeStyle(this.colourScheme.buildingStroke);
-            for (const b of this.lots) canvas.drawPolygon(b);
-        }
 
-        // Pseudo-3D
-        if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
-            canvas.setFillStyle(this.colourScheme.buildingSideColour);
-            canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
+        canvas.setLineWidth(1);
+
+        if (this.heightmap) {
             for (const b of this.buildingModels) {
-                for (const s of b.sides) canvas.drawPolygon(s);
+                // Colour based on height
+
+                const parsedRgb = Util.parseCSSColor(this.colourScheme.bgColour).map(v => Math.min(255, v + (b.height * 3.5)));
+                canvas.setFillStyle(`rgb(${parsedRgb[0]},${parsedRgb[1]},${parsedRgb[2]})`);
+                canvas.setStrokeStyle(`rgb(${parsedRgb[0]},${parsedRgb[1]},${parsedRgb[2]})`);
+                canvas.drawPolygon(b.lotScreen);
             }
-            canvas.setFillStyle(this.colourScheme.buildingColour);
-            canvas.setStrokeStyle(this.colourScheme.buildingStroke);
-            for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
+        } else {
+            // Buildings
+            if (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2) {
+                canvas.setFillStyle(this.colourScheme.buildingColour);
+                canvas.setStrokeStyle(this.colourScheme.buildingStroke);
+                for (const b of this.lots) canvas.drawPolygon(b);
+            }
+
+            // Pseudo-3D
+            if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
+                canvas.setFillStyle(this.colourScheme.buildingSideColour);
+                canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
+                for (const b of this.buildingModels) {
+                    for (const s of b.sides) canvas.drawPolygon(s);
+                }
+                canvas.setFillStyle(this.colourScheme.buildingColour);
+                canvas.setStrokeStyle(this.colourScheme.buildingStroke);
+                for (const b of this.buildingModels) canvas.drawPolygon(b.roof);
+            }
         }
 
         if (this.showFrame) {

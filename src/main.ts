@@ -131,7 +131,7 @@ class Main {
         if (scheme.startsWith("Drawn")) {
             this._style = new RoughStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
         } else {
-            this._style = new DefaultStyle(this.canvas, this.dragController, Object.assign({}, colourScheme));
+            this._style = new DefaultStyle(this.canvas, this.dragController, Object.assign({}, colourScheme), scheme.startsWith("Heightmap"));
         }
         this._style.showFrame = this.showFrame;
         this.changeCanvasScale(this.highDPI);
