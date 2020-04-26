@@ -1,6 +1,7 @@
 // bgColour: string;
 // bgColourIn?: string;
 // buildingColour?: string;
+// buildingSideColour?: string;
 // buildingStroke?: string;
 // seaColour: string;
 // grassColour?: string;
@@ -11,9 +12,14 @@
 // mainRoadColour?: string;
 // mainRoadOutline?: string;  // Be careful, inherits majorRoadOutline, not mainRoadColour
 // outlineSize?: number;      // Cascade semantics in style.ts
+// minorWidth?: number;
+// majorWidth?: number;
+// mainWidth?: number;
 // zoomBuildings?: boolean;
+// buildingModels?: boolean;
 // 
 // Scheme name startsWith 'Drawn' means scheme will use RoughJS canvas
+// // Scheme name startsWith 'Heightmap' draws heightmap
 
 {
     "Default": {
@@ -113,6 +119,13 @@
         "zoomBuildings": false,
         "buildingModels": true,
         "outlineSize": 2,
+    },
+    "Heightmap": { // Using 0 as sea level
+        "bgColour": "rgb(30,30,30)",
+        "seaColour": "rgb(20,20,20)",
+        "minorRoadColour": "rgb(28,28,28)",
+        "zoomBuildings": false, 
+        "buildingModels": true,
     },
     "Paper": {
         "bgColour": "white",
