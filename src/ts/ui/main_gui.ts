@@ -16,7 +16,8 @@ import WaterGenerator from '../impl/water_generator';
 import Style from './style';
 import {DefaultStyle, RoughStyle} from './style';
 import CanvasWrapper from './canvas_wrapper';
-import Buildings from './buildings';
+import Buildings, {BuildingModel} from './buildings';
+import PolygonUtil from '../impl/polygon_util';
 
 export default class MainGUI {
     private numBigParks: number = 2;
@@ -49,7 +50,7 @@ export default class MainGUI {
         pathIterations: 1000,
         seedTries: 300,
         simplifyTolerance: 0.5,
-        collideEarly: 0.7,
+        collideEarly: 0,
     };
 
     private redraw: boolean = true;
@@ -221,22 +222,6 @@ export default class MainGUI {
         this.tensorField.parks.push(...this.smallParks);
     }
 
-    // async simpleBenchMark() {
-    //     log.info(`Starting Benchmark...`);
-    //     const tries = 10;
-    //     let sum = 0;
-    //     for (let i = 0; i < tries; i++) {
-    //         const start = performance.now();
-    //         await this.mainRoads.generateRoads();
-    //         await this.majorRoads.generateRoads();
-    //         await this.minorRoads.generateRoads();
-    //         await this.addBuildings();
-    //         sum += performance.now() - start;
-    //     }
-
-    //     log.info(`Generated ${tries} cities with average ${sum/tries}ms`);
-    // }
-
     async generateEverything() {
         this.coastline.generateRoads();
         await this.mainRoads.generateRoads();
@@ -294,5 +279,35 @@ export default class MainGUI {
             && this.minorRoads.roadsEmpty()
             && this.mainRoads.roadsEmpty()
             && this.coastline.roadsEmpty();
+    }
+
+    // OBJ Export methods
+
+    public get seaPolygon(): Vector[] {
+        return this.coastline.seaPolygon;
+    }
+
+    public get riverPolygon(): Vector[] {
+        return this.coastline.river;
+    }
+
+    public get buildingModels(): BuildingModel[] {
+        return this.buildings.models;
+    }
+
+    public get minorRoadPolygons(): Vector[][] {
+        return this.minorRoads.roads.map(r => PolygonUtil.resizeGeometry(r, 1 * this.domainController.zoom, false));
+    }
+
+    public get majorRoadPolygons(): Vector[][] {
+        return this.majorRoads.roads.concat([this.coastline.secondaryRiver]).map(r => PolygonUtil.resizeGeometry(r, 2 * this.domainController.zoom, false));
+    }
+
+    public get mainRoadPolygons(): Vector[][] {
+        return this.mainRoads.roads.concat(this.coastline.roads).map(r => PolygonUtil.resizeGeometry(r, 2.5 * this.domainController.zoom, false));
+    }
+
+    public get coastlinePolygon(): Vector[] {
+        return PolygonUtil.resizeGeometry(this.coastline.coastline, 15 * this.domainController.zoom, false);
     }
 }

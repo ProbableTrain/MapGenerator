@@ -13,6 +13,7 @@ import {ColourScheme, DefaultStyle, RoughStyle} from './ts/ui/style';
 import * as ColourSchemes from './colour_schemes.json';
 import Vector from './ts/vector';
 import { SVG } from '@svgdotjs/svg.js';
+import ModelGenerator from './ts/model_generator';
 
 class Main {
     private domainController = DomainController.getInstance();
@@ -107,10 +108,13 @@ class Main {
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'download');
         optionsFolder.add(this, 'downloadSVG');
+        optionsFolder.add(this, 'downloadObj');
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
         requestAnimationFrame(this.update.bind(this));
+
+        const modelGenerator = new ModelGenerator();
     }
 
     generate() {
@@ -145,6 +149,38 @@ class Main {
 
     setCameraDirection(): void {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
+    }
+
+    downloadObj(): void {
+        // All in screen space
+
+        const extendScreenX = this.domainController.screenDimensions.x * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
+        const extendScreenY = this.domainController.screenDimensions.y * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
+        const ground: Vector[] = [
+            new Vector(-extendScreenX, -extendScreenY),
+            new Vector(-extendScreenX, this.domainController.screenDimensions.y + extendScreenY),
+            new Vector(this.domainController.screenDimensions.x + extendScreenX, this.domainController.screenDimensions.y + extendScreenY),
+            new Vector(this.domainController.screenDimensions.x + extendScreenX, -extendScreenY),
+        ];
+
+        const file: any = ModelGenerator.getOBJ(
+            ground,
+            this.mainGui.seaPolygon,
+            this.mainGui.coastlinePolygon,
+            this.mainGui.riverPolygon,
+            this.mainGui.mainRoadPolygons,
+            this.mainGui.majorRoadPolygons,
+            this.mainGui.minorRoadPolygons,
+            this.mainGui.buildingModels);
+
+        const filename = 'model.obj';
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(file));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
     }
 
     /**

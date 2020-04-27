@@ -7,7 +7,7 @@ export default class PolygonUtil {
     private static geometryFactory = new jsts.geom.GeometryFactory();
 
     /**
-     * Slices rectangle by line, returning largest polygon
+     * Slices rectangle by line, returning smallest polygon
      */
     public static sliceRectangle(origin: Vector, worldDimensions: Vector, p1: Vector, p2: Vector): Vector[] {
         const rectangle = [
@@ -19,10 +19,44 @@ export default class PolygonUtil {
         const sliced = PolyK.Slice(rectangle, p1.x, p1.y, p2.x, p2.y).map(p => PolygonUtil.polygonArrayToPolygon(p));
         const minArea = PolygonUtil.calcPolygonArea(sliced[0]);
 
+        let smallestPolygon;
         if (sliced.length > 1 && PolygonUtil.calcPolygonArea(sliced[1]) < minArea) {
             return sliced[1];
-        } 
+        }
+
         return sliced[0];
+    }
+
+    /**
+     * Used to create sea polygon
+     */
+    public static lineRectanglePolygonIntersection(origin: Vector, worldDimensions: Vector, line: Vector[]): Vector[] {
+        const jstsLine = PolygonUtil.lineToJts(line);
+        const bounds = [
+            origin,
+            new Vector(origin.x + worldDimensions.x, origin.y),
+            new Vector(origin.x + worldDimensions.x, origin.y + worldDimensions.y),
+            new Vector(origin.x, origin.y + worldDimensions.y),
+        ];
+        const boundingPoly = PolygonUtil.polygonToJts(bounds);
+        const union = boundingPoly.getExteriorRing().union(jstsLine);
+        const polygonizer = new (jsts.operation as any).polygonize.Polygonizer();
+        polygonizer.add(union);
+        const polygons = polygonizer.getPolygons();
+
+        let smallestArea = Infinity;
+        let smallestPoly;
+        for (let i = polygons.iterator(); i.hasNext();) {
+            const polygon = i.next();
+            const area = polygon.getArea();
+            if (area < smallestArea) {
+                smallestArea = area;
+                smallestPoly = polygon;
+            }
+        }
+
+        if (!smallestPoly) return [];
+        return smallestPoly.getCoordinates().map((c: any) => new Vector(c.x, c.y));
     }
 
     public static calcPolygonArea(polygon: Vector[]): number {
@@ -102,7 +136,7 @@ export default class PolygonUtil {
     public static resizeGeometry(geometry: Vector[], spacing: number, isPolygon=true): Vector[] {
         try {
             const jstsGeometry = isPolygon? PolygonUtil.polygonToJts(geometry) : PolygonUtil.lineToJts(geometry);
-            const resized = jstsGeometry.buffer(spacing, undefined, undefined);
+            const resized = jstsGeometry.buffer(spacing, undefined, (jsts as any).operation.buffer.BufferParameters.CAP_FLAT);
             if (!resized.isSimple()) {
                 return [];
             }
