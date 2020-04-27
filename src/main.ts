@@ -14,6 +14,7 @@ import * as ColourSchemes from './colour_schemes.json';
 import Vector from './ts/vector';
 import { SVG } from '@svgdotjs/svg.js';
 import ModelGenerator from './ts/model_generator';
+import { saveAs } from 'file-saver';
 
 class Main {
     private domainController = DomainController.getInstance();
@@ -106,9 +107,10 @@ class Main {
         const canvasScaleController = optionsFolder.add(this, 'highDPI');
         canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
-        optionsFolder.add(this, 'download');
+        optionsFolder.add(this, 'downloadPng');
         optionsFolder.add(this, 'downloadSVG');
-        optionsFolder.add(this, 'downloadObj');
+        optionsFolder.add({"downloadOBJ": () => this.downloadObj()}, 'downloadOBJ');
+        optionsFolder.add({"downloadOBJ(slow)": () => this.downloadObj(false)}, 'downloadOBJ(slow)');
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
@@ -151,9 +153,8 @@ class Main {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
-    downloadObj(): void {
+    downloadObj(zip=true): void {
         // All in screen space
-
         const extendScreenX = this.domainController.screenDimensions.x * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
         const extendScreenY = this.domainController.screenDimensions.y * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
         const ground: Vector[] = [
@@ -163,31 +164,41 @@ class Main {
             new Vector(this.domainController.screenDimensions.x + extendScreenX, -extendScreenY),
         ];
 
-        const file: any = ModelGenerator.getOBJ(
-            ground,
-            this.mainGui.seaPolygon,
-            this.mainGui.coastlinePolygon,
-            this.mainGui.riverPolygon,
-            this.mainGui.mainRoadPolygons,
-            this.mainGui.majorRoadPolygons,
-            this.mainGui.minorRoadPolygons,
-            this.mainGui.buildingModels);
+        if (zip) {
+            const file = ModelGenerator.getOBJSeparate(
+                ground,
+                this.mainGui.seaPolygon,
+                this.mainGui.coastlinePolygon,
+                this.mainGui.riverPolygon,
+                this.mainGui.mainRoadPolygons,
+                this.mainGui.majorRoadPolygons,
+                this.mainGui.minorRoadPolygons,
+                this.mainGui.buildingModels).then((base64: any) => {
+                    this.downloadFile('model.zip', base64);
+                });
+        } else {
+            const file = ModelGenerator.getOBJ(
+                ground,
+                this.mainGui.seaPolygon,
+                this.mainGui.coastlinePolygon,
+                this.mainGui.riverPolygon,
+                this.mainGui.mainRoadPolygons,
+                this.mainGui.majorRoadPolygons,
+                this.mainGui.minorRoadPolygons,
+                this.mainGui.buildingModels);
+            this.downloadFile('model.obj', file);
+        }
+    }
 
-        const filename = 'model.obj';
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(file));
-        element.setAttribute('download', filename);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+    private downloadFile(filename: string, file: any): void {
+        saveAs(file, filename);
     }
 
     /**
      * Downloads image of map
      * Draws onto hidden canvas at requested resolution
      */
-    download(): void {
+    downloadPng(): void {
         const c = document.getElementById(Util.IMG_CANVAS_ID) as HTMLCanvasElement;
 
         // Draw

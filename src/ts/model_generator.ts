@@ -8,40 +8,69 @@ import {BuildingModel} from './ui/buildings';
 export default class ModelGenerator {
     private static readonly exporter = new OBJExporter();
 
-    constructor() {
-        // const groundPoly = [
-        //     new Vector(0,0),
-        //     new Vector(10,0),
-        //     new Vector(10,10),
-        //     new Vector(0,10),
-        // ];
+    /**
+     * Get .zip of .obj files
+     */
+    public static getOBJSeparate(ground: Vector[],
+                         sea: Vector[],
+                         coastline: Vector[],
+                         river: Vector[],
+                         mainRoads: Vector[][],
+                         majorRoads: Vector[][],
+                         minorRoads: Vector[][],
+                         buildings: BuildingModel[],): any {
+        const JSZip = require("jszip");
+        const zip = new JSZip();
+        zip.file("model/README.txt", "Instructions here blah");
 
-        // const ground = ModelGenerator.polygonToMesh(groundPoly, 5);
+        const defaultHeight = 10;
 
-        // const riverPoly = [
-        //     new Vector(2.5,0),
-        //     new Vector(2.5,10),
-        //     new Vector(7.5,10),
-        //     new Vector(7.5,0),
-        // ];
+        // GROUND
 
-        // const river = ModelGenerator.polygonToMesh(riverPoly, 5);
-        // river.position.add(new THREE.Vector3(0, 0, 2.5));
+        // SEA AND RIVER
+        // const seaMesh = ModelGenerator.polygonToMesh(sea, defaultHeight);
+        // const seaBsp = CSG.fromMesh(seaMesh);
 
-        // river.updateMatrix();
-        // // meshB.updateMatrix();
+        // const coastlineMesh = ModelGenerator.polygonToMesh(coastline, defaultHeight);
+        // const coastlineBsp = CSG.fromMesh(coastlineMesh);
 
-        // // Create a bsp tree from each of the meshes
-        // const bspA = CSG.fromMesh(ground);
-        // const bspB = CSG.fromMesh(river);
+        // const riverMesh = ModelGenerator.polygonToMesh(river, defaultHeight);
+        // const riverBsp = CSG.fromMesh(riverMesh);
 
-        // // Subtract one bsp from the other via .subtract... other supported modes are .union and .intersect
-        // const bspResult = bspA.subtract(bspB);
+        // const waterMesh = CSG.toMesh((seaBsp.subtract(coastlineBsp)).union(riverBsp), seaMesh.matrix);
+        // ModelGenerator.threeToBlender(waterMesh);
+        // const waterObj = ModelGenerator.exporter.parse(waterMesh);
+        // zip.file("model/water.obj", waterObj);
 
-        // // Get the resulting mesh from the result bsp
-        // const meshResult = CSG.toMesh(bspResult, ground.matrix);
+        // ROADS
+        const roadGroup = new THREE.Group();
+        for (const road of minorRoads.concat(majorRoads).concat(mainRoads)) {
+            if (road.length > 3) {
+                const roadMesh = ModelGenerator.polygonToMesh(road, 0);
+                roadGroup.add(roadMesh)
+            }
+        }
+        ModelGenerator.threeToBlender(roadGroup);
+        const roadObj = ModelGenerator.exporter.parse(roadGroup);
+        zip.file("model/roads.obj", roadObj);
 
-        // this.download('model.obj', ModelGenerator.exporter.parse(meshResult));
+        // BUILDINGS
+        const buildingGroup = new THREE.Group();
+        for (const b of buildings) {
+            const buildingMesh = ModelGenerator.polygonToMesh(b.lotScreen, b.height);
+            buildingGroup.add(buildingMesh);
+        }
+        ModelGenerator.threeToBlender(buildingGroup);
+        const buildingObj = ModelGenerator.exporter.parse(buildingGroup);
+        zip.file("model/buildings.obj", buildingObj);
+
+        return zip.generateAsync({type:"blob"});
+    }
+
+    private static threeToBlender(mesh: THREE.Object3D) {
+        mesh.rotateX(Math.PI/2);
+        mesh.scale.multiplyScalar(0.02);
+        mesh.updateMatrixWorld(true);
     }
 
     public static getOBJ(ground: Vector[],
@@ -116,11 +145,9 @@ export default class ModelGenerator {
 
         buildingGroup.translateZ(-groundLevel);
         buildingGroup.updateMatrixWorld(true);
+        
         cityGroup.add(buildingGroup);
-        cityGroup.rotateX(Math.PI/2);
-        cityGroup.scale.multiplyScalar(0.02);
-        cityGroup.updateMatrixWorld(true);
-
+        ModelGenerator.threeToBlender(cityGroup);
         const obj = ModelGenerator.exporter.parse(cityGroup);
 
         for (const child of buildingGroup.children) {
@@ -146,8 +173,12 @@ export default class ModelGenerator {
         }
         shape.lineTo(polygon[0].x, polygon[0].y);
 
+        if (height === 0) {
+            return new THREE.Mesh(new THREE.ShapeGeometry(shape));
+        }
+
         const extrudeSettings = {
-            steps: 3,
+            steps: 1,
             depth: height,
             bevelEnabled: false,
         };
