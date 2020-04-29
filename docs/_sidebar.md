@@ -3,6 +3,7 @@
 * [Home](/)
 * [Usage Guide](usageguide.md)
 * [Implementation Details](algorithmoverview.md)
+* [3D Model](stl.md)
 * [Heightmap](heightmap.md)
 - **Links**
 - [![Generator](https://icongr.am/feather/map.svg?size=16&color=808080)Generator](https://probabletrain.itch.io/city-generator)
