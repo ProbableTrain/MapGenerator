@@ -164,17 +164,21 @@ class Main {
             new Vector(this.domainController.screenDimensions.x + extendScreenX, -extendScreenY),
         ];
 
-        this.modelGenerator = new ModelGenerator(ground,
-            this.mainGui.seaPolygon,
-            this.mainGui.coastlinePolygon,
-            this.mainGui.riverPolygon,
-            this.mainGui.mainRoadPolygons,
-            this.mainGui.majorRoadPolygons,
-            this.mainGui.minorRoadPolygons,
-            this.mainGui.buildingModels
-        );
+        this.mainGui.getBlocks().then((blocks) => {
+            this.modelGenerator = new ModelGenerator(ground,
+                this.mainGui.seaPolygon,
+                this.mainGui.coastlinePolygon,
+                this.mainGui.riverPolygon,
+                this.mainGui.mainRoadPolygons,
+                this.mainGui.majorRoadPolygons,
+                this.mainGui.minorRoadPolygons,
+                this.mainGui.buildingModels,
+                blocks,
+            );
 
-        this.modelGenerator.getSTL().then(blob => this.downloadFile('model.zip', blob));
+            this.modelGenerator.getSTL().then(blob => this.downloadFile('model.zip', blob));
+        });
+
 
         // if (zip) {
         //     const file = ModelGenerator.getOBJSeparate(

@@ -13,6 +13,7 @@ enum ModelGeneratorStates {
     SUBTRACT_RIVER,
     // ADD_BRIDGES,
     ADD_ROADS,
+    ADD_BLOCKS,
     ADD_BUILDINGS,
     CREATE_ZIP,
 }
@@ -32,6 +33,7 @@ export default class ModelGenerator {
     private groundBsp: CSG;
     private polygonsToProcess: Vector[][] = [];
     private roadsGeometry = new THREE.Geometry();
+    private blocksGeometry = new THREE.Geometry();
     private roadsBsp: CSG;
     private buildingsGeometry = new THREE.Geometry();
     private buildingsToProcess: BuildingModel[];
@@ -44,7 +46,9 @@ export default class ModelGenerator {
                 private mainRoads: Vector[][],
                 private majorRoads: Vector[][],
                 private minorRoads: Vector[][],
-                private buildings: BuildingModel[]) {}
+                private buildings: BuildingModel[],
+                private blocks: Vector[][]) {
+    }
 
     public async getSTL(): Promise<any> {
         return new Promise<any>(resolve => {
@@ -102,41 +106,10 @@ export default class ModelGenerator {
                 this.threeToBlender(riverMesh);
                 const riverSTL = this.exportSTL.fromMesh(riverMesh);
                 this.zip.file("model/river.stl", riverSTL);
-                // const riverBsp = CSG.fromMesh(riverMesh);
-                // this.groundBsp = this.groundBsp.subtract(riverBsp);
-                // const terrainMesh = CSG.toMesh(this.groundBsp, this.groundMesh.matrix);
-                // this.threeToBlender(terrainMesh);
-                // const terrainSTL = this.exportSTL.fromMesh(terrainMesh);
-                // this.zip.file("model/terrain.stl", terrainSTL);
-
                 this.setState(ModelGeneratorStates.ADD_ROADS);
                 this.polygonsToProcess = this.minorRoads.concat(this.majorRoads).concat(this.mainRoads);
                 break;
             }
-            // case ModelGeneratorStates.ADD_ROADS: {
-            //     if (this.polygonsToProcess.length === 0) {
-            //         const mesh = CSG.toMesh(this.roadsBsp, this.groundMesh.matrix);
-            //         this.threeToBlender(mesh);
-            //         const buildingsSTL = this.exportSTL.fromMesh(mesh);
-            //         this.zip.file("model/roads.stl", buildingsSTL);
-                    
-            //         this.setState(ModelGeneratorStates.ADD_BUILDINGS);
-            //         this.buildingsToProcess = [...this.buildings];
-            //         break;
-            //     }
-
-            //     const road = this.polygonsToProcess.pop();
-            //     const roadsMesh = this.polygonToMesh(road, 1);
-            //     const roadBsp = CSG.fromMesh(roadsMesh);
-            //     if (!this.roadsBsp) {
-            //         this.roadsBsp = roadBsp;
-            //     } else {
-            //         this.roadsBsp = this.roadsBsp.union(roadBsp);
-            //     }
-            //     break;
-            // }
-
-
             case ModelGeneratorStates.ADD_ROADS: {
                 if (this.polygonsToProcess.length === 0) {
                     const mesh = new THREE.Mesh(this.roadsGeometry);
@@ -144,8 +117,8 @@ export default class ModelGenerator {
                     const buildingsSTL = this.exportSTL.fromMesh(mesh);
                     this.zip.file("model/roads.stl", buildingsSTL);
                     
-                    this.setState(ModelGeneratorStates.ADD_BUILDINGS);
-                    this.buildingsToProcess = [...this.buildings];
+                    this.setState(ModelGeneratorStates.ADD_BLOCKS);
+                    this.polygonsToProcess = [...this.blocks];
                     break;
                 }
 
@@ -154,46 +127,23 @@ export default class ModelGenerator {
                 this.roadsGeometry.merge(roadsMesh.geometry as THREE.Geometry, this.groundMesh.matrix);
                 break;
             }
-            
+            case ModelGeneratorStates.ADD_BLOCKS: {
+                if (this.polygonsToProcess.length === 0) {
+                    const mesh = new THREE.Mesh(this.blocksGeometry);
+                    this.threeToBlender(mesh);
+                    const blocksSTL = this.exportSTL.fromMesh(mesh);
+                    this.zip.file("model/blocks.stl", blocksSTL);
 
-            // case ModelGeneratorStates.SUBTRACT_ROADS: {
-            //     if (this.polygonsToProcess.length === 0) {
-            //         this.setState(ModelGeneratorStates.SUBTRACT_RIVER);
-            //         break;
-            //     }
+                    this.setState(ModelGeneratorStates.ADD_BUILDINGS);
+                    this.buildingsToProcess = [...this.buildings];
+                    break; 
+                }
 
-            //     const road = this.polygonsToProcess.pop();
-            //     if (road.length > 3) {
-            //         const minorRoadsMesh = this.polygonToMesh(road, this.groundLevel);
-            //         minorRoadsMesh.position.add(new THREE.Vector3(0, 0, this.roadLevel));
-            //         minorRoadsMesh.updateMatrix();
-            //         const minorRoadsBsp = CSG.fromMesh(minorRoadsMesh);
-            //         this.groundBsp = this.groundBsp.subtract(minorRoadsBsp);
-            //     }
-            //     break;
-            // }
-           
-            // case ModelGeneratorStates.ADD_BRIDGES: {
-            //     if (this.polygonsToProcess.length === 0) {
-            //         this.setState(ModelGeneratorStates.ADD_BUILDINGS);
-            //         const terrainMesh = CSG.toMesh(this.groundBsp, this.groundMesh.matrix);
-            //         this.threeToBlender(terrainMesh);
-            //         const terrainSTL = this.exportSTL.fromMesh(terrainMesh);
-            //         this.zip.file("model/terrain.stl", terrainSTL);
-            //         this.buildingsToProcess = [...this.buildings];
-            //         break;
-            //     }
-            //     const road = this.polygonsToProcess.pop();
-            //     if (road.length > 3) {
-            //         const minorRoadsMesh = this.polygonToMesh(road, this.bridgeHeight);
-            //         minorRoadsMesh.position.add(new THREE.Vector3(0, 0, this.roadLevel - this.bridgeHeight));
-            //         minorRoadsMesh.updateMatrix();
-            //         const minorRoadsBsp = CSG.fromMesh(minorRoadsMesh);
-            //         this.groundBsp = this.groundBsp.union(minorRoadsBsp);
-            //     }
-            //     break;
-            // }
-
+                const block = this.polygonsToProcess.pop();
+                const blockMesh = this.polygonToMesh(block, 1);
+                this.blocksGeometry.merge(blockMesh.geometry as THREE.Geometry, this.groundMesh.matrix);
+                break;
+            }
             case ModelGeneratorStates.ADD_BUILDINGS: {
                 if (this.buildingsToProcess.length === 0) {
                     const mesh = new THREE.Mesh(this.buildingsGeometry);

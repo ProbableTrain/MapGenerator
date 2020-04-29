@@ -84,6 +84,7 @@ export default class Buildings {
     private preGenerateCallback: () => any = () => {};
     private postGenerateCallback: () => any = () => {};
     private _models: BuildingModels = new BuildingModels([]);
+    private _blocks: Vector[][] = [];
 
     private buildingParams: PolygonParams = {
         maxLength: 20,
@@ -112,6 +113,15 @@ export default class Buildings {
         return this.polygonFinder.polygons.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
     }
 
+    getBlocks(): Promise<Vector[][]> {
+        const g = new Graph(this.allStreamlines, this.dstep, true);
+        const blockParams = Object.assign({}, this.buildingParams);
+        blockParams.shrinkSpacing = blockParams.shrinkSpacing/2;
+        const polygonFinder = new PolygonFinder(g.nodes, blockParams, this.tensorField);
+        polygonFinder.findPolygons();
+        return polygonFinder.shrink(false).then(() => polygonFinder.polygons.map(p => p.map(v => this.domainController.worldToScreen(v.clone()))));
+    }
+
     get models(): BuildingModel[] {
         this._models.setBuildingProjections();
         return this._models.buildingModels;
@@ -134,6 +144,7 @@ export default class Buildings {
         this.preGenerateCallback();
         this._models = new BuildingModels([]);
         const g = new Graph(this.allStreamlines, this.dstep, true);
+
         this.polygonFinder = new PolygonFinder(g.nodes, this.buildingParams, this.tensorField);
         this.polygonFinder.findPolygons();
         await this.polygonFinder.shrink(animate);

@@ -21,7 +21,7 @@ import PolygonUtil from '../impl/polygon_util';
 
 export default class MainGUI {
     private numBigParks: number = 2;
-    private numSmallParks: number = 5;
+    private numSmallParks: number = 0;
 
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
@@ -293,6 +293,10 @@ export default class MainGUI {
 
     public get buildingModels(): BuildingModel[] {
         return this.buildings.models;
+    }
+
+    public getBlocks(): Promise<Vector[][]> {
+        return this.buildings.getBlocks();
     }
 
     public get minorRoadPolygons(): Vector[][] {
