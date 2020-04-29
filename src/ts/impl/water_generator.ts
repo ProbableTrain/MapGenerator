@@ -169,28 +169,31 @@ export default class WaterGenerator extends StreamlineGenerator {
      * Might reverse input array
      */
     private getSeaPolygon(polyline: Vector[]): Vector[] {
-        const seaPolygon = PolygonUtil.sliceRectangle(this.origin, this.worldDimensions,
-            polyline[0], polyline[polyline.length - 1]);
+        // const seaPolygon = PolygonUtil.sliceRectangle(this.origin, this.worldDimensions,
+        //     polyline[0], polyline[polyline.length - 1]);
 
-        // Replace the longest side with coastline
-        let longestIndex = 0;
-        let longestLength = 0;
-        for (let i = 0; i < seaPolygon.length; i++) {
-            const next = (i + 1) % seaPolygon.length;
-            const d = seaPolygon[i].distanceToSquared(seaPolygon[next]);
-            if (d > longestLength) {
-                longestLength = d;
-                longestIndex = i;
-            }
-        }
+        // // Replace the longest side with coastline
+        // let longestIndex = 0;
+        // let longestLength = 0;
+        // for (let i = 0; i < seaPolygon.length; i++) {
+        //     const next = (i + 1) % seaPolygon.length;
+        //     const d = seaPolygon[i].distanceToSquared(seaPolygon[next]);
+        //     if (d > longestLength) {
+        //         longestLength = d;
+        //         longestIndex = i;
+        //     }
+        // }
 
-        const insertBackwards = seaPolygon[longestIndex].distanceToSquared(polyline[0]) > seaPolygon[longestIndex].distanceToSquared(polyline[polyline.length - 1]);
-        if (insertBackwards) {
-            polyline.reverse();
-        }
+        // const insertBackwards = seaPolygon[longestIndex].distanceToSquared(polyline[0]) > seaPolygon[longestIndex].distanceToSquared(polyline[polyline.length - 1]);
+        // if (insertBackwards) {
+        //     polyline.reverse();
+        // }
 
-        seaPolygon.splice((longestIndex + 1) % seaPolygon.length, 0, ...polyline);
-        return seaPolygon;
+        // seaPolygon.splice((longestIndex + 1) % seaPolygon.length, 0, ...polyline);
+        
+        return PolygonUtil.lineRectanglePolygonIntersection(this.origin, this.worldDimensions, polyline);
+
+        // return PolygonUtil.boundPolyToScreen(this.origin, this.worldDimensions, seaPolygon);
     }
 
     /**
@@ -237,50 +240,3 @@ export default class WaterGenerator extends StreamlineGenerator {
             toOrigin.x >= this.worldDimensions.x || toOrigin.y >= this.worldDimensions.y;
     }
 }
-
-// createCoastStreamline(): Vector[][] {
-//         let coastStreamline;
-//         let riverStreamline;
-//         let seed;
-//         let major;
-
-//         const extendStreamline = (streamline: Vector[]) => {
-//             streamline.unshift(streamline[0].clone().add(
-//                 streamline[0].clone().sub(streamline[1]).setLength(this.params.dstep * 5)));
-//             streamline.push(streamline[streamline.length - 1].clone().add(
-//                 streamline[streamline.length - 1].clone().sub(streamline[streamline.length - 2]).setLength(this.params.dstep * 5)));
-//             return streamline;
-//         }
-
-//         const reachesEdges = (streamline: Vector[]) => {
-//             return this.vectorOffScreen(streamline[0]) && this.vectorOffScreen(streamline[streamline.length - 1]);
-//         }
-
-//         for (let i = 0; i < 100; i++) {
-//             // TODO
-//             major = true;
-//             // major = Math.random() < 0.5;
-//             seed = this.getSeed(major);
-//             coastStreamline = extendStreamline(this.integrateStreamline(seed, major));
-//             riverStreamline = extendStreamline(this.integrateStreamline(seed, !major));
-
-//             if (reachesEdges(coastStreamline) && reachesEdges(riverStreamline)) {
-//                 break;
-//             }
-//         }
-
-//         // Streamline is coastal = noisy
-//         const road = this.simplifyStreamline(coastStreamline);
-//         this.allStreamlinesSimple.push(road);
-
-//         // Create intermediate samples
-//         const complex = this.complexifyStreamline(road);
-//         this.grid(major).addPolyline(complex);
-//         this.streamlines(major).push(complex);
-//         this.allStreamlines.push(complex);
-
-//         this.tensorField.addWater(this.getSeaPolygon(road));
-
-//         // Return unsimplified streamlines
-//         return [coastStreamline, riverStreamline];
-//     }

@@ -32,7 +32,7 @@ var watchedBrowserify = watchify(browserify({
     packageCache: {},
 })
     .plugin(tsify)
-    .transform('babelify', babelconfig).on('error', (err) => { log("babel error: " + err); })
+    .transform('babelify', babelconfig).on('error', fancy_log)
 );
 
 gulp.task('copy-html', function () {

@@ -13,6 +13,8 @@ import {ColourScheme, DefaultStyle, RoughStyle} from './ts/ui/style';
 import * as ColourSchemes from './colour_schemes.json';
 import Vector from './ts/vector';
 import { SVG } from '@svgdotjs/svg.js';
+import ModelGenerator from './ts/model_generator';
+import { saveAs } from 'file-saver';
 
 class Main {
     private domainController = DomainController.getInstance();
@@ -47,6 +49,8 @@ class Main {
 
     private readonly STARTING_WIDTH = 1440;
     private firstGenerate = true;
+
+    private modelGenerator: ModelGenerator;
 
     constructor() {
         // Canvas setup
@@ -105,8 +109,10 @@ class Main {
         const canvasScaleController = optionsFolder.add(this, 'highDPI');
         canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
-        optionsFolder.add(this, 'download');
+        optionsFolder.add(this, 'downloadPng');
         optionsFolder.add(this, 'downloadSVG');
+        optionsFolder.add(this, 'downloadSTL');
+        // optionsFolder.add({"downloadOBJ(slow)": () => this.downloadObj(false)}, 'downloadOBJ(slow)');
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
@@ -147,11 +153,68 @@ class Main {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
+    downloadSTL(zip=true): void {
+        // All in screen space
+        const extendScreenX = this.domainController.screenDimensions.x * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
+        const extendScreenY = this.domainController.screenDimensions.y * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
+        const ground: Vector[] = [
+            new Vector(-extendScreenX, -extendScreenY),
+            new Vector(-extendScreenX, this.domainController.screenDimensions.y + extendScreenY),
+            new Vector(this.domainController.screenDimensions.x + extendScreenX, this.domainController.screenDimensions.y + extendScreenY),
+            new Vector(this.domainController.screenDimensions.x + extendScreenX, -extendScreenY),
+        ];
+
+        this.mainGui.getBlocks().then((blocks) => {
+            this.modelGenerator = new ModelGenerator(ground,
+                this.mainGui.seaPolygon,
+                this.mainGui.coastlinePolygon,
+                this.mainGui.riverPolygon,
+                this.mainGui.mainRoadPolygons,
+                this.mainGui.majorRoadPolygons,
+                this.mainGui.minorRoadPolygons,
+                this.mainGui.buildingModels,
+                blocks,
+            );
+
+            this.modelGenerator.getSTL().then(blob => this.downloadFile('model.zip', blob));
+        });
+
+
+        // if (zip) {
+        //     const file = ModelGenerator.getOBJSeparate(
+        //         ground,
+        //         this.mainGui.seaPolygon,
+        //         this.mainGui.coastlinePolygon,
+        //         this.mainGui.riverPolygon,
+        //         this.mainGui.mainRoadPolygons,
+        //         this.mainGui.majorRoadPolygons,
+        //         this.mainGui.minorRoadPolygons,
+        //         this.mainGui.buildingModels).then((base64: any) => {
+        //             this.downloadFile('model.zip', base64);
+        //         });
+        // } else {
+        //     const file = ModelGenerator.getOBJ(
+        //         ground,
+        //         this.mainGui.seaPolygon,
+        //         this.mainGui.coastlinePolygon,
+        //         this.mainGui.riverPolygon,
+        //         this.mainGui.mainRoadPolygons,
+        //         this.mainGui.majorRoadPolygons,
+        //         this.mainGui.minorRoadPolygons,
+        //         this.mainGui.buildingModels);
+        //     this.downloadFile('model.obj', file);
+        // }
+    }
+
+    private downloadFile(filename: string, file: any): void {
+        saveAs(file, filename);
+    }
+
     /**
      * Downloads image of map
      * Draws onto hidden canvas at requested resolution
      */
-    download(): void {
+    downloadPng(): void {
         const c = document.getElementById(Util.IMG_CANVAS_ID) as HTMLCanvasElement;
 
         // Draw
@@ -237,6 +300,14 @@ class Main {
     }
 
     update(): void {
+        if (this.modelGenerator) {
+            let continueUpdate = true;
+            const start = performance.now();
+            while (continueUpdate && performance.now() - start < 100) {
+                continueUpdate = this.modelGenerator.update();
+            }
+        }
+
         this._style.update();
         this.mainGui.update();
         this.draw();
