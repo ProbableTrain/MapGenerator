@@ -50,6 +50,8 @@ class Main {
     private readonly STARTING_WIDTH = 1440;
     private firstGenerate = true;
 
+    private modelGenerator: ModelGenerator;
+
     constructor() {
         // Canvas setup
         this.canvas = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
@@ -109,14 +111,12 @@ class Main {
         optionsFolder.add(this, 'imageScale', 1, 5).step(1);
         optionsFolder.add(this, 'downloadPng');
         optionsFolder.add(this, 'downloadSVG');
-        optionsFolder.add({"downloadOBJ": () => this.downloadObj()}, 'downloadOBJ');
-        optionsFolder.add({"downloadOBJ(slow)": () => this.downloadObj(false)}, 'downloadOBJ(slow)');
+        optionsFolder.add(this, 'downloadSTL');
+        // optionsFolder.add({"downloadOBJ(slow)": () => this.downloadObj(false)}, 'downloadOBJ(slow)');
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
         requestAnimationFrame(this.update.bind(this));
-
-        const modelGenerator = new ModelGenerator();
     }
 
     generate() {
@@ -153,7 +153,7 @@ class Main {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
-    downloadObj(zip=true): void {
+    downloadSTL(zip=true): void {
         // All in screen space
         const extendScreenX = this.domainController.screenDimensions.x * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
         const extendScreenY = this.domainController.screenDimensions.y * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
@@ -164,30 +164,42 @@ class Main {
             new Vector(this.domainController.screenDimensions.x + extendScreenX, -extendScreenY),
         ];
 
-        if (zip) {
-            const file = ModelGenerator.getOBJSeparate(
-                ground,
-                this.mainGui.seaPolygon,
-                this.mainGui.coastlinePolygon,
-                this.mainGui.riverPolygon,
-                this.mainGui.mainRoadPolygons,
-                this.mainGui.majorRoadPolygons,
-                this.mainGui.minorRoadPolygons,
-                this.mainGui.buildingModels).then((base64: any) => {
-                    this.downloadFile('model.zip', base64);
-                });
-        } else {
-            const file = ModelGenerator.getOBJ(
-                ground,
-                this.mainGui.seaPolygon,
-                this.mainGui.coastlinePolygon,
-                this.mainGui.riverPolygon,
-                this.mainGui.mainRoadPolygons,
-                this.mainGui.majorRoadPolygons,
-                this.mainGui.minorRoadPolygons,
-                this.mainGui.buildingModels);
-            this.downloadFile('model.obj', file);
-        }
+        this.modelGenerator = new ModelGenerator(ground,
+            this.mainGui.seaPolygon,
+            this.mainGui.coastlinePolygon,
+            this.mainGui.riverPolygon,
+            this.mainGui.mainRoadPolygons,
+            this.mainGui.majorRoadPolygons,
+            this.mainGui.minorRoadPolygons,
+            this.mainGui.buildingModels
+        );
+
+        this.modelGenerator.getSTL().then(blob => this.downloadFile('model.zip', blob));
+
+        // if (zip) {
+        //     const file = ModelGenerator.getOBJSeparate(
+        //         ground,
+        //         this.mainGui.seaPolygon,
+        //         this.mainGui.coastlinePolygon,
+        //         this.mainGui.riverPolygon,
+        //         this.mainGui.mainRoadPolygons,
+        //         this.mainGui.majorRoadPolygons,
+        //         this.mainGui.minorRoadPolygons,
+        //         this.mainGui.buildingModels).then((base64: any) => {
+        //             this.downloadFile('model.zip', base64);
+        //         });
+        // } else {
+        //     const file = ModelGenerator.getOBJ(
+        //         ground,
+        //         this.mainGui.seaPolygon,
+        //         this.mainGui.coastlinePolygon,
+        //         this.mainGui.riverPolygon,
+        //         this.mainGui.mainRoadPolygons,
+        //         this.mainGui.majorRoadPolygons,
+        //         this.mainGui.minorRoadPolygons,
+        //         this.mainGui.buildingModels);
+        //     this.downloadFile('model.obj', file);
+        // }
     }
 
     private downloadFile(filename: string, file: any): void {
@@ -284,6 +296,14 @@ class Main {
     }
 
     update(): void {
+        if (this.modelGenerator) {
+            let continueUpdate = true;
+            const start = performance.now();
+            while (continueUpdate && performance.now() - start < 100) {
+                continueUpdate = this.modelGenerator.update();
+            }
+        }
+
         this._style.update();
         this.mainGui.update();
         this.draw();

@@ -37,7 +37,8 @@
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
     "three": "^0.115.0",
-    "three-csg-ts": "^1.0.4"
+    "three-csg-ts": "^1.0.4",
+    "threejs-export-stl": "0.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
