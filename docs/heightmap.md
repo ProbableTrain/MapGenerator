@@ -1,6 +1,6 @@
 # Heightmap
 
-To download a heightmap, select the 'Heightmap' style from the Style folder, and download an image as usual.
+To download a heightmap, click `Downlad -> Heightmap`. Alternatively, select the 'Heightmap' style from the Style folder, and download an image as usual.
 The heightmap resolution is controlled relative to the canvas resolution by `imageScale`.
 
 ## Brief 3D Model Instructions
@@ -18,7 +18,7 @@ I plan on implementing a `.obj` export feature which will be better-suited to th
 | :----------: | :----------: |
 | ![Heightmap](images/heightmap/map(65).png) | ![Map](images/heightmap/map(66).png) |
 
-Set the style to 'Heightmap' and download the `.png` image using `Download` in the `Options` folder. 
+Click `Downlad -> Heightmap`.
 
 ?> **Tip** Higher heightmap resolution result in 'better' 3D models but they'll take longer to generate and render. I'm using an `imageScale` of 2 for this example.
 

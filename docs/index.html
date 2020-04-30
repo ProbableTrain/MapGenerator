@@ -1,8 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-165026752-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-165026752-1');
+  </script>
+
   <meta charset="UTF-8">
-  <title>mapgenerator</title>
+  <title>City Map Generator</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -19,9 +28,9 @@
   <div id="app"></div>
   <script>
     window.$docsify = {
-      coverpage: true,
+      coverpage: false,
       loadSidebar: true,
-      name: 'mapgenerator',
+      name: 'City Map Generator',
       repo: 'https://github.com/ProbableTrain/MapGenerator',
       subMaxLevel: 2
     }

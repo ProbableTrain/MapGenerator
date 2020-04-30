@@ -5,7 +5,8 @@
 > Create procedural American-style cities
 
 - Run in browser
-- Multiple themes
+- PNG, SVG download
+- STL download
 
 [Launch](https://probabletrain.itch.io/city-generator)
 [GitHub](https://github.com/probabletrain/mapgenerator)

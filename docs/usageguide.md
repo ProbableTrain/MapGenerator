@@ -12,7 +12,7 @@
 Tick `highDPI` under the `options` folder to increase the resolution of the canvas. This will impact pan+zoom performance.
 
 ### Download City
-You can download the city as a `.png`, `.svg`, or as a heightmap. The download buttons are in the `options` folder. The downloaded image will contain what's on screen, so if you're zoomed in, that's all that will be contained in the image.
+You can download the city as a `.png`, `.svg`, `.stl`, or as a heightmap. The downloaded image will contain what's on screen, so if you're zoomed in, that's all that will be contained in the image.
 Use `imageScale` to control the resolution of the downloaded `.png` - higher imageScale for higher resolution.
 
 To download a heightmap, select the 'Heightmap' style from the Style folder, and download an image as usual.

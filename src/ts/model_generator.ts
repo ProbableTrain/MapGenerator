@@ -1,6 +1,5 @@
 import * as log from 'loglevel';
 import * as THREE from 'three'
-import OBJExporter from './OBJExporter';
 import Vector from './vector';
 import { CSG } from 'three-csg-ts';
 import {BuildingModel} from './ui/buildings';
@@ -9,9 +8,7 @@ enum ModelGeneratorStates {
     WAITING,
     SUBTRACT_OCEAN,
     ADD_COASTLINE,
-    // SUBTRACT_ROADS,
     SUBTRACT_RIVER,
-    // ADD_BRIDGES,
     ADD_ROADS,
     ADD_BLOCKS,
     ADD_BUILDINGS,
@@ -55,7 +52,7 @@ export default class ModelGenerator {
             this.resolve = resolve;
             const JSZip = require("jszip");
             this.zip = new JSZip();
-            this.zip.file("model/README.txt", "Instructions here blah");
+            this.zip.file("model/README.txt", "For a tutorial on putting these models together to create a city, go to https://maps.probabletrain.com/#/stl");
 
             this.groundMesh = this.polygonToMesh(this.ground, this.groundLevel);
             this.groundBsp = CSG.fromMesh(this.groundMesh);
@@ -171,7 +168,7 @@ export default class ModelGenerator {
         return true;
     }
 
-    private threeToBlender(mesh: THREE.Object3D) {
+    private threeToBlender(mesh: THREE.Object3D): void {
         mesh.scale.multiplyScalar(0.02);
         mesh.updateMatrixWorld(true);
     }
