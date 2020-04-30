@@ -108,11 +108,13 @@ class Main {
         optionsFolder.add(this.tensorField, 'drawCentre');
         const canvasScaleController = optionsFolder.add(this, 'highDPI');
         canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
-        optionsFolder.add(this, 'imageScale', 1, 5).step(1);
-        optionsFolder.add(this, 'downloadPng');
-        optionsFolder.add(this, 'downloadSVG');
-        optionsFolder.add(this, 'downloadSTL');
-        // optionsFolder.add({"downloadOBJ(slow)": () => this.downloadObj(false)}, 'downloadOBJ(slow)');
+
+        const downloadsFolder = this.gui.addFolder('Download');
+        downloadsFolder.add(this, 'imageScale', 1, 5).step(1);
+        downloadsFolder.add({"PNG": () => this.downloadPng()}, 'PNG');
+        downloadsFolder.add({"SVG": () => this.downloadSVG()}, 'SVG');
+        downloadsFolder.add({"STL": () => this.downloadSTL()}, 'STL');
+        downloadsFolder.add({"Heightmap": () => this.downloadHeightmap()}, 'Heightmap');
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
@@ -178,32 +180,6 @@ class Main {
 
             this.modelGenerator.getSTL().then(blob => this.downloadFile('model.zip', blob));
         });
-
-
-        // if (zip) {
-        //     const file = ModelGenerator.getOBJSeparate(
-        //         ground,
-        //         this.mainGui.seaPolygon,
-        //         this.mainGui.coastlinePolygon,
-        //         this.mainGui.riverPolygon,
-        //         this.mainGui.mainRoadPolygons,
-        //         this.mainGui.majorRoadPolygons,
-        //         this.mainGui.minorRoadPolygons,
-        //         this.mainGui.buildingModels).then((base64: any) => {
-        //             this.downloadFile('model.zip', base64);
-        //         });
-        // } else {
-        //     const file = ModelGenerator.getOBJ(
-        //         ground,
-        //         this.mainGui.seaPolygon,
-        //         this.mainGui.coastlinePolygon,
-        //         this.mainGui.riverPolygon,
-        //         this.mainGui.mainRoadPolygons,
-        //         this.mainGui.majorRoadPolygons,
-        //         this.mainGui.minorRoadPolygons,
-        //         this.mainGui.buildingModels);
-        //     this.downloadFile('model.obj', file);
-        // }
     }
 
     private downloadFile(filename: string, file: any): void {
@@ -229,6 +205,13 @@ class Main {
         link.download = 'map.png';
         link.href = (document.getElementById(Util.IMG_CANVAS_ID) as any).toDataURL();
         link.click();
+    }
+
+    downloadHeightmap(): void {
+        const oldColourScheme = this.colourScheme;
+        this.changeColourScheme("Heightmap");
+        this.downloadPng();
+        this.changeColourScheme(oldColourScheme);
     }
 
     /**
