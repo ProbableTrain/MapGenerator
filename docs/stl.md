@@ -5,16 +5,16 @@ This does, however, give you more control over the final 3D model.
 
 | STL Files |
 | :----------: |
-| ![STL_files](images/stl/model_preview.png) |
+| ![STL_files](images/STL/model_preview.png) |
 | From top to bottom: buildings, blocks, roads, river, sea, domain |
 
 | Finished Render |
 | :----------: |
-| ![Finished_render](images/stl/model_finished.png) |
+| ![Finished_render](images/STL/model_finished.png) |
 
 | Map |
 | :----------: |
-| ![Map](images/stl/map(79).png) |
+| ![Map](images/STL/map(79).png) |
 
 
 To download the STL files, click `downloadSTL` from the `Options` folder.
@@ -55,7 +55,7 @@ In this order select `Difference`, `Carve`, then set the object to `Sea`.
 
 | Extruded Sea and Domain | Domain-Sea Boolean Settings |
 | :----------: | :----------: |
-| ![Extruded Sea and Domain](images/stl/0.png) | ![Domain-Sea Boolean Settings](images/stl/1.png) |
+| ![Extruded Sea and Domain](images/STL/0.png) | ![Domain-Sea Boolean Settings](images/STL/1.png) |
 
 
 
@@ -63,7 +63,7 @@ Click `Apply`. You should see that the sea has been subtracted from the domain. 
 
 | Land |
 | :----------: |
-| ![Land](images/stl/2.png) |
+| ![Land](images/STL/2.png) |
 
 
 
@@ -75,14 +75,14 @@ Press `Apply`. You can now delete the `coastline` object.
 
 | Combine faces into one | Extrude coastline |
 | :----------: | :----------: |
-| ![Combine faces into one](images/stl/3.png) | ![Extrude coastline](images/stl/4.png) |
+| ![Combine faces into one](images/STL/3.png) | ![Extrude coastline](images/STL/4.png) |
 
 
 Use similar steps to subtract `river.stl` from the `domain`. Make sure to 'Apply' the modifiers. You can delete the river object now.
 
 | Import and extrude river | River boolean settings | Subtracted river |
 | :----------: | :----------: | :----------: |
-| ![Import and extrude river](images/stl/5.png) | ![River boolean settings](images/stl/6.png) | ![Subtracted river](images/stl/7.png) |
+| ![Import and extrude river](images/STL/5.png) | ![River boolean settings](images/STL/6.png) | ![Subtracted river](images/STL/7.png) |
 
 
 
@@ -94,7 +94,7 @@ Skip ahead to the 'Add Sea' section.
 
 | Import and place blocks | Import and place buildings | No paths through park |
 | :----------: | :----------: | :----------: |
-| ![Import and place blocks](images/stl/8.png) | ![Import and place buildings](images/stl/9.png) | ![No paths through park](images/stl/10.png) |
+| ![Import and place blocks](images/STL/8.png) | ![Import and place buildings](images/STL/9.png) | ![No paths through park](images/STL/10.png) |
 
 
 
@@ -110,7 +110,7 @@ Select all, press `p -> By loose parts`. This will separate each individual road
 
 | Import roads | Extrude | Separate |
 | :----------: | :----------: | :----------: |
-| ![Import roads](images/stl/11.png) | ![Extrude roads](images/stl/12.png) | ![Extrude roads](images/stl/13.png) |
+| ![Import roads](images/STL/11.png) | ![Extrude roads](images/STL/12.png) | ![Extrude roads](images/STL/13.png) |
 
 
 We're going to apply the boolean difference modifier between the domain object and each road in turn, but doing this manually would be madness.
@@ -122,12 +122,12 @@ Go to `Bool tools` in the tool bar on the left and click `Difference`.
 
 | Translate in Z | Select all, Domain active object | Difference |
 | :----------: | :----------: | :----------: |
-| ![Translate in Z](images/stl/14.png) | ![Select all, Domain active object](images/stl/15.png) | ![Difference](images/stl/16.png) |
+| ![Translate in Z](images/STL/14.png) | ![Select all, Domain active object](images/STL/15.png) | ![Difference](images/STL/16.png) |
 
 
 | Resulting Domain |
 | :----------: |
-| ![Resulting Domain](images/stl/17.png) |
+| ![Resulting Domain](images/STL/17.png) |
 
 This may have produced a clean mesh, but it doesn't always. Here's what to do if your mesh is missing faces like the one below.
 
@@ -139,11 +139,11 @@ This may have produced a clean mesh, but it doesn't always. Here's what to do if
 
 | Mesh missing faces | Select top face | Select all top faces |
 | :----------: | :----------: | :----------: |
-| ![Mesh missing faces](images/stl/18.png) | ![Select top face](images/stl/19.png) | ![Select all top faces](images/stl/20.png) |
+| ![Mesh missing faces](images/STL/18.png) | ![Select top face](images/STL/19.png) | ![Select all top faces](images/STL/20.png) |
 
 | Select all top faces | To new object | Resulting object |
 | :----------: | :----------: | :----------: |
-| ![Select all top faces](images/stl/21.png) | ![To new object](images/stl/22.png) | ![Resulting object](images/stl/23.png) |
+| ![Select all top faces](images/STL/21.png) | ![To new object](images/STL/22.png) | ![Resulting object](images/STL/23.png) |
 
 
 Import `roads.stl` again and extrude in `z`. Place inside `domain` to create the roads. Use the `z` value to control the depth of the roads.
@@ -151,7 +151,7 @@ Import `buildings.stl` and place them at the correct `z` value.
 
 | Extrude roads | Control road depth | Add buildings |
 | :----------: | :----------: | :----------: |
-| ![Extrude roads](images/stl/24.png) | ![Control road depth](images/stl/25.png) | ![Add buildings](images/stl/26.png) |
+| ![Extrude roads](images/STL/24.png) | ![Control road depth](images/STL/25.png) | ![Add buildings](images/STL/26.png) |
 
 
 ### Add Sea
@@ -161,7 +161,7 @@ Add materials to the different objects. You can select the faces that make up th
 
 | Add sea and river | Select grass | Add materials |
 | :----------: | :----------: | :----------: |
-| ![Add sea and river](images/stl/27.png) | ![Select Grass](images/stl/28.png) | ![Add materials](images/stl/29.png) |
+| ![Add sea and river](images/STL/27.png) | ![Select Grass](images/STL/28.png) | ![Add materials](images/STL/29.png) |
 
 
 ## Extra Details
@@ -173,8 +173,8 @@ Add materials to the different objects. You can select the faces that make up th
 
 Some of my renders:
 
-![Render](images/stl/30.jpg)
+![Render](images/STL/30.jpg)
 
-![Render](images/stl/31.png)
+![Render](images/STL/31.png)
 
-![Render](images/stl/32.png)
+![Render](images/STL/32.png)
