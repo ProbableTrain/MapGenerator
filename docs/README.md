@@ -4,109 +4,61 @@
       <img src="images/logo.png" alt="Logo" width="125" height="125">
   </a>
 
-  <h3 align="center">Map Generator</h3>
+  <h3 align="center">City Map Generator</h3>
 
   <p align="center">
-    Create procedural American-style cities
+    Create procedural American-style cities right in the browser
     <br />
-    <a href="https://probabletrain.itch.io/city-generator"><strong>Open Generator »</strong></a>
+    <a href="https://probabletrain.itch.io/city-generator"><strong>Launch Generator »</strong></a>
     <br />
     <br />
     <a href="https://github.com/probabletrain/mapgenerator/issues">Report Bug</a>
     ·
     <a href="https://github.com/probabletrain/mapgenerator/issues">Request Feature</a>
+    <br />
+    <a href="https://twitter.com/probabletrain">Twitter</a>
+    ·
+    <a href="https://ko-fi.com/probabletrain">Support the project</a>
+
   </p>
 </p>
 
 <!-- TODO Changelog https://github.com/anikethsaha/docsify-plugin/tree/master/packages/docsify-changelog-plugin -->
 <!-- TODO top announcement banner https://github.com/anikethsaha/docsify-plugin/tree/master/packages/docsify-top-banner-plugin -->
 
+## About the project
+
+![Map Generator Screen Shot](images/styles.gif)
+
+- Create procedural maps
+- Download the map as a `.png`
+- Download a heightmap as a `.png`
+- Download the map as a `.svg`
+- Download the 3D model as a `.stl`
+
+See the sidebar for instructions and details.
 
 
-## Table of Contents
-
-* [About the Project](#about-the-project)
-  * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
-
-
-
-## About The Project
-
-![Map Generator Screen Shot](images/screenshot.png)
-
-This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output. Generated cities can be downloaded as a `.png` or an `.svg`. There are a few choices for drawing style, ranging from colour themes similar to Google or Apple maps, to a hand-drawn sketch.
-
-
-### Built With
-
-* [Typescript](https://www.typescriptlang.org/)
-* [Gulp](https://gulpjs.com/)
-
-
-## Getting Started
-
-To get a local copy up and running follow these steps.
-
-### Prerequisites
-
-
-* npm
-```sh
-npm install npm@latest -g
-```
-
-* Gulp
-```
-npm install --global gulp-cli
-```
-
-### Installation
- 
-1. Clone the mapgenerator
-```sh
-git clone https://github.com/probabletrain/mapgenerator.git
-```
-2. Install NPM packages
-```sh
-cd mapgenerator
-npm install
-```
-3. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
-```
-gulp
-```
-4. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
-
-## Roadmap
-
-See the [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
-
-
-
-
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**. For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## Contact
 
-Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
+Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com 
 
-Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
+Support the project: https://ko-fi.com/probabletrain 
 
-## License
+Project Github: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
 
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
+## Gallery
+
+### STL and Heightmap Renders
+
+![Map Generator Screen Shot](images/stl/31.png)
+![Map Generator Screen Shot](images/stl/32.png)
+![Map Generator Screen Shot](images/stl/model_finished.png)
+![Map Generator Screen Shot](images/stl/30.jpg)
+![Map Generator Screen Shot](images/heightmap/heightmap_render.png)
+
+### Maps
+
+![Map Generator Screen Shot](images/stl/map(79).png)
+![Map Generator Screen Shot](images/heightmap/map(66).png)
