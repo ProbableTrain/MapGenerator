@@ -52,13 +52,13 @@ Project Github: [https://github.com/probabletrain/mapgenerator](https://github.c
 
 ### STL and Heightmap Renders
 
-![Map Generator Screen Shot](images/stl/31.png)
-![Map Generator Screen Shot](images/stl/32.png)
-![Map Generator Screen Shot](images/stl/model_finished.png)
-![Map Generator Screen Shot](images/stl/30.jpg)
+![Map Generator Screen Shot](images/STL/31.png)
+![Map Generator Screen Shot](images/STL/32.png)
+![Map Generator Screen Shot](images/STL/model_finished.png)
+![Map Generator Screen Shot](images/STL/30.jpg)
 ![Map Generator Screen Shot](images/heightmap/heightmap_render.png)
 
 ### Maps
 
-![Map Generator Screen Shot](images/stl/map(79).png)
+![Map Generator Screen Shot](images/STL/map(79).png)
 ![Map Generator Screen Shot](images/heightmap/map(66).png)
