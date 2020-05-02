@@ -5,7 +5,7 @@ export default class Tensor {
     private _theta: number;
 
     constructor(private r: number, private matrix: number[]) {
-        // Matrix is 2 element list
+        // Represent the matrix as a 2 element list
         // [ 0, 1
         //   1, -0 ]
         this.oldTheta = false;

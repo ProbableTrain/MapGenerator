@@ -37,7 +37,10 @@ export default class DragController {
         this.disabled = disable;
     }
 
-    getCursor(action: any, interactable: any, element: any, interacting: boolean) {
+    /**
+     * Change cursor style
+     */
+    getCursor(action: any, interactable: any, element: any, interacting: boolean): string {
         if (interacting) return 'grabbing';
         return 'grab';
     }

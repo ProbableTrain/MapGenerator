@@ -8,6 +8,9 @@ import {BasisField} from '../impl/basis_field';
 import Util from '../util';
 import Vector from '../vector';
 
+/**
+ * Extension of TensorField that handles interaction with dat.GUI
+ */
 export default class TensorFieldGUI extends TensorField {
     private TENSOR_LINE_DIAMETER = 20;
     private TENSOR_SPAWN_SCALE = 0.7;  // How much to shrink worldDimensions to find spawn point

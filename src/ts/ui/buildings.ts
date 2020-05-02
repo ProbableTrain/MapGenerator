@@ -1,22 +1,11 @@
 import * as log from 'loglevel';
 import DomainController from './domain_controller';
 import TensorField from '../impl/tensor_field';
-import {RK4Integrator} from '../impl/integrator';
-import FieldIntegrator from '../impl/integrator';
-import {StreamlineParams} from '../impl/streamlines';
-import {WaterParams} from '../impl/water_generator';
 import Graph from '../impl/graph';
-import RoadGUI from './road_gui';
-import WaterGUI from './water_gui';
 import Vector from '../vector';
 import PolygonFinder from '../impl/polygon_finder';
-import PolygonUtil from '../impl/polygon_util';
 import {PolygonParams} from '../impl/polygon_finder';
-import StreamlineGenerator from '../impl/streamlines';
-import WaterGenerator from '../impl/water_generator';
-import Style from './style';
-import CanvasWrapper from './canvas_wrapper';
-import Util from '../util';
+
 
 export interface BuildingModel {
     height: number;
@@ -26,6 +15,9 @@ export interface BuildingModel {
     sides: Vector[][]; // In screen space
 }
 
+/**
+ * Pseudo 3D buildings
+ */
 class BuildingModels {
     private domainController = DomainController.getInstance();
     private _buildingModels: BuildingModel[] = [];
@@ -47,6 +39,9 @@ class BuildingModels {
         return this._buildingModels;
     }
 
+    /**
+     * Recalculated when the camera moves
+     */
     setBuildingProjections(): void {
         const d = 1000 / this.domainController.zoom;
         const cameraPos = this.domainController.getCameraPosition();
@@ -57,7 +52,7 @@ class BuildingModels {
         }
     }
 
-    private heightVectorToScreen(v: Vector, h: number, d: number, camera: Vector) {
+    private heightVectorToScreen(v: Vector, h: number, d: number, camera: Vector): Vector {
         const scale = (d / (d - h)); // 0.1
         if (this.domainController.orthographic) {
             const diff = this.domainController.cameraDirection.multiplyScalar(-h * scale);
@@ -67,6 +62,9 @@ class BuildingModels {
         }
     }
 
+    /**
+     * Get sides of buildings by joining corresponding edges between the roof and ground
+     */
     private getBuildingSides(b: BuildingModel): Vector[][] {
         const polygons: Vector[][] = [];
         for (let i = 0; i < b.lotScreen.length; i++) {
@@ -77,6 +75,9 @@ class BuildingModels {
     }
 }
 
+/**
+ * Finds building lots and optionally pseudo3D buildings
+ */
 export default class Buildings {
     private polygonFinder: PolygonFinder;
     private allStreamlines: Vector[][] = [];
@@ -113,6 +114,9 @@ export default class Buildings {
         return this.polygonFinder.polygons.map(p => p.map(v => this.domainController.worldToScreen(v.clone())));
     }
 
+    /**
+     * Only used when creating the 3D model to 'fake' the roads
+     */
     getBlocks(): Promise<Vector[][]> {
         const g = new Graph(this.allStreamlines, this.dstep, true);
         const blockParams = Object.assign({}, this.buildingParams);
@@ -127,7 +131,7 @@ export default class Buildings {
         return this._models.buildingModels;
     }
 
-    setAllStreamlines(s: Vector[][]) {
+    setAllStreamlines(s: Vector[][]): void {
         this.allStreamlines = s;
     }
 
@@ -140,6 +144,9 @@ export default class Buildings {
         return this.polygonFinder.update();
     }
 
+    /**
+     * Finds blocks, shrinks and divides them to create building lots
+     */
     async generate(animate: boolean): Promise<void> {
         this.preGenerateCallback();
         this._models = new BuildingModels([]);
@@ -155,11 +162,11 @@ export default class Buildings {
         this.postGenerateCallback();
     }
 
-    setPreGenerateCallback(callback: () => any) {
+    setPreGenerateCallback(callback: () => any): void {
         this.preGenerateCallback = callback;
     }
 
-    setPostGenerateCallback(callback: () => any) {
+    setPostGenerateCallback(callback: () => any): void {
         this.postGenerateCallback = callback;
     }
 }

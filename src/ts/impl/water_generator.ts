@@ -1,7 +1,5 @@
 import * as log from 'loglevel';
-import * as simplify from 'simplify-js';
 import Vector from '../vector';
-import GridStorage from './grid_storage';
 import FieldIntegrator from './integrator';
 import StreamlineGenerator from './streamlines';
 import {StreamlineParams} from './streamlines';
@@ -21,6 +19,9 @@ export interface NoiseStreamlineParams {
     noiseAngle: number;
 }
 
+/**
+ * Integrates polylines to create coastline and river, with controllable noise
+ */
 export default class WaterGenerator extends StreamlineGenerator {
     private readonly TRIES = 100;
     private coastlineMajor = true;
@@ -200,7 +201,7 @@ export default class WaterGenerator extends StreamlineGenerator {
      * Insert samples in streamline until separated by dstep
      */
     private complexifyStreamline(s: Vector[]): Vector[] {
-        let out: Vector[] = [];
+        const out: Vector[] = [];
         for (let i = 0; i < s.length - 1; i++) {
             out.push(...this.complexifyStreamlineRecursive(s[i], s[i+1]));
         }

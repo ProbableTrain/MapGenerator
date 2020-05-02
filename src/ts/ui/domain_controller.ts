@@ -52,6 +52,10 @@ export default class DomainController {
 
     }
 
+    /**
+     * Used to stop drawing buildings while scrolling for certain styles
+     * to keep the framerate up
+     */
     get isScrolling(): boolean {
         return Date.now() - this.lastScrolltime < this.SCROLL_DELAY;
     }
@@ -77,6 +81,9 @@ export default class DomainController {
         this._origin.sub(delta);
     }
 
+    /**
+     * Screen origin in world space
+     */
     get origin(): Vector {
         return this._origin.clone();
     }

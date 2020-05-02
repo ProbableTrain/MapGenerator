@@ -1,10 +1,10 @@
 export interface RandomRange {
-    min?: number,
-    max: number,
+    min?: number;
+    max: number;
 }
 
 export default class Util {
-    // Must match style.css
+    // Must match style.css and index.html
     static readonly CANVAS_ID = 'map-canvas';
     static readonly IMG_CANVAS_ID = 'img-canvas';
     static readonly SVG_ID = 'map-svg';
@@ -12,28 +12,32 @@ export default class Util {
     // How far to integrate streamlines beyond screen - for making buildings reach the edge
     static readonly DRAW_INFLATE_AMOUNT = 1.2;
 
+    // Refresh dat.GUI values
     static updateGui(gui: dat.GUI): void {
         if (gui.__controllers) {
             gui.__controllers.forEach(c => c.updateDisplay());    
         }
         if (gui.__folders) {
-            for (let folderName in gui.__folders) {
+            for (const folderName in gui.__folders) {
                 this.updateGui(gui.__folders[folderName]);
             }
         }
     }
 
-    static removeAllFolders(gui: dat.GUI) {
+    static removeAllFolders(gui: dat.GUI): void {
         if (gui.__folders) {
-            for (let folderName in gui.__folders) {
+            for (const folderName in gui.__folders) {
                 gui.removeFolder(gui.__folders[folderName]);
             }
         }
     }
 
-    static randomRange(max: number, min=0) {
+    static randomRange(max: number, min=0): number {
         return (Math.random() * (max - min)) + min;
     }
+
+
+    // CSS colour parser
 
     // (c) Dean McNamee <dean@gmail.com>, 2012.
     //
