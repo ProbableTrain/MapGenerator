@@ -135,17 +135,20 @@ export default class TensorFieldGUI extends TensorField {
         
         // Function to deregister from drag controller
         const deregisterDrag = this.dragController.register(
-            () => field.centre, field.dragMoveListener.bind(field));
-        const removeFieldObj = {remove: (): void => this.removeFieldGUI.bind(this)(field, folder, deregisterDrag)};
+            () => field.centre,
+            field.dragMoveListener.bind(field),
+            field.dragStartListener.bind(field)
+        );
+        const removeFieldObj = {remove: () => this.removeFieldGUI(field, deregisterDrag)};
         
         // Give dat gui removeField button
         folder.add(removeFieldObj, 'remove');
-        field.setGui(folder);
+        field.setGui(this.guiFolder, folder);
     }
 
-    private removeFieldGUI(field: BasisField, folder: dat.GUI, deregisterDrag: (() => void)): void {
+    private removeFieldGUI(field: BasisField, deregisterDrag: (() => void)): void {
         super.removeField(field);
-        this.guiFolder.removeFolder(folder);
+        field.removeFolderFromParent();
         // Deregister from drag controller
         deregisterDrag();
     }

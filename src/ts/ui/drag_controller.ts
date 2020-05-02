@@ -6,7 +6,8 @@ import DomainController from './domain_controller';
 
 interface Draggable {
     getCentre: (() => Vector);
-    callbackFn: ((v: Vector) => void);
+    startListener: (() => void);
+    moveListener: ((v: Vector) => void);
 }
 
 /**
@@ -64,7 +65,11 @@ export default class DragController {
 
         if (closestDistance > scaledDragDistance) {
             this.currentlyDragging = null;
+        } else {
+            this.currentlyDragging.startListener();
         }
+
+
     }
 
     dragMove(event: any): void {
@@ -73,7 +78,7 @@ export default class DragController {
 
         if (!this.disabled && this.currentlyDragging !== null) {
             // Drag field
-            this.currentlyDragging.callbackFn(delta);
+            this.currentlyDragging.moveListener(delta);
         } else {
             // Move map
             this.domainController.pan(delta);
@@ -94,13 +99,17 @@ export default class DragController {
     /**
      * @param {(() => Vector)} Gets centre point
      * @param {((v: Vector) => void)} Called on move with delta vector
+     * @param {(() => void)} Called on start
      * @returns {(() => void)} Function to deregister callback
      */
     register(getCentre: (() => Vector),
-             onMove: ((v: Vector) => void)): (() => void) {
+             onMove: ((v: Vector) => void),
+             onStart: (() => void),
+             ): (() => void) {
         const draggable: Draggable = {
             getCentre: getCentre,
-            callbackFn: onMove,
+            moveListener: onMove,
+            startListener: onStart,
         };
 
         this.draggables.push(draggable);

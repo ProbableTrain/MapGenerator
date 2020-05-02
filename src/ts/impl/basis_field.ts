@@ -7,6 +7,8 @@ import Vector from '../vector';
 export abstract class BasisField {
     abstract readonly FOLDER_NAME: string;
     protected static folderNameIndex: number = 0;
+    protected parentFolder: dat.GUI;
+    protected folder: dat.GUI;
     protected _centre: Vector;
 
     constructor(centre: Vector, protected _size: number, protected _decay: number) {
@@ -29,6 +31,10 @@ export abstract class BasisField {
         this._size = size;
     }
 
+    dragStartListener(): void {
+        this.setFolder();
+    }
+
     dragMoveListener(delta: Vector): void {
         // Delta assumed to be in world space (only relevant when zoomed)
         this._centre.add(delta);
@@ -40,14 +46,31 @@ export abstract class BasisField {
         return this.getTensor(point).scale(this.getTensorWeight(point));
     }
 
+    setFolder(): void {
+        if (this.parentFolder.__folders) {
+            for (const folderName in this.parentFolder.__folders) {
+                this.parentFolder.__folders[folderName].close();
+            }
+            this.folder.open();
+        }
+    }
+
+    removeFolderFromParent(): void {
+        if (this.parentFolder.__folders && Object.values(this.parentFolder.__folders).indexOf(this.folder) >= 0) {
+            this.parentFolder.removeFolder(this.folder);
+        }
+    }
+
     /**
      * Creates a folder and adds it to the GUI to control params
      */
-    setGui(gui: dat.GUI): void {
-        gui.add(this._centre, 'x');
-        gui.add(this._centre, 'y');
-        gui.add(this, '_size');
-        gui.add(this, '_decay', 0, 50);
+    setGui(parent: dat.GUI, folder: dat.GUI): void {
+        this.parentFolder = parent;
+        this.folder = folder;
+        folder.add(this._centre, 'x');
+        folder.add(this._centre, 'y');
+        folder.add(this, '_size');
+        folder.add(this, '_decay', 0, 50);
     }
 
     /**
@@ -75,12 +98,12 @@ export class Grid extends BasisField {
         this._theta = theta;
     }
 
-    setGui(gui: dat.GUI): void {
-        super.setGui(gui);
+    setGui(parent: dat.GUI, folder: dat.GUI): void {
+        super.setGui(parent, folder);
 
         // GUI in degrees, convert to rads
         const thetaProp = {theta: this._theta * 180 / Math.PI};
-        const thetaController = gui.add(thetaProp, 'theta', -90, 90);
+        const thetaController = folder.add(thetaProp, 'theta', -90, 90);
         thetaController.onChange(theta => this._theta = theta * (Math.PI / 180));
     }
 
