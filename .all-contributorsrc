@@ -13,6 +13,15 @@
       "contributions": [
         "infra"
       ]
+    },
+    {
+      "login": "ProbableTrain",
+      "name": "Keir",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/33726340?v=4",
+      "profile": "https://github.com/ProbableTrain",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
