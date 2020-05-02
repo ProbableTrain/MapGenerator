@@ -19,6 +19,9 @@ import CanvasWrapper from './canvas_wrapper';
 import Buildings, {BuildingModel} from './buildings';
 import PolygonUtil from '../impl/polygon_util';
 
+/**
+ * Handles Map folder, glues together impl
+ */
 export default class MainGUI {
     private numBigParks: number = 2;
     private numSmallParks: number = 0;

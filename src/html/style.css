@@ -4,6 +4,7 @@ html, body {
     overflow: hidden;
 }
 
+/* Must match util.ts and index.html */
 #map-canvas {
     position:fixed;
     left:0;

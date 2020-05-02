@@ -11,6 +11,9 @@ export interface PolygonParams {
     chanceNoDivide: number;
 }
 
+/**
+ * Finds polygons in a graph, used for finding lots and parks
+ */
 export default class PolygonFinder {
     private _polygons: Vector[][] = [];
     private _shrunkPolygons: Vector[][] = [];
@@ -34,7 +37,7 @@ export default class PolygonFinder {
         return this._polygons;
     }
 
-    reset() {
+    reset(): void {
         this.toShrink = [];
         this.toDivide = [];
         this._polygons = [];
@@ -45,7 +48,7 @@ export default class PolygonFinder {
     update(): boolean {
         let change = false;
         if (this.toShrink.length > 0) {
-            let resolve = this.toShrink.length === 1;
+            const resolve = this.toShrink.length === 1;
             if (this.stepShrink(this.toShrink.pop())) {
                 change = true;
             }
@@ -54,21 +57,19 @@ export default class PolygonFinder {
         }
 
         if (this.toDivide.length > 0) {
-            let resolve = this.toDivide.length === 1;
+            const resolve = this.toDivide.length === 1;
             if (this.stepDivide(this.toDivide.pop())) {
                 change = true;
             }
-            // const divided = PolygonUtil.subdividePolygon(this.toDivide.pop(), this.params.minArea);
 
-            // if (divided.length > 0) {
-            //     this._dividedPolygons.push(...divided);
-            //     change = true;    
-            // }
             if (resolve) this.resolveDivide();
         }
         return change;
     }
 
+    /**
+     * Properly shrink polygon so the edges are all the same distance from the road
+     */
     async shrink(animate=false): Promise<void> {
         return new Promise<void>(resolve => {
             if (this._polygons.length === 0) {
@@ -98,7 +99,7 @@ export default class PolygonFinder {
         if (shrunk.length > 0) {
             this._shrunkPolygons.push(shrunk)
             return true;
-        };
+        }
         return false;
     }
 
@@ -159,9 +160,9 @@ export default class PolygonFinder {
         this._dividedPolygons = [];
         const polygons = [];
 
-        for (let node of this.nodes) {
+        for (const node of this.nodes) {
             if (node.adj.length < 2) continue;
-            for (let nextNode of node.adj) {
+            for (const nextNode of node.adj) {
                 const polygon = this.recursiveWalk([node, nextNode]);
                 if (polygon !== null && polygon.length < this.params.maxLength) {
                     this.removePolygonAdjacencies(polygon);
@@ -223,7 +224,7 @@ export default class PolygonFinder {
         let rightmostNode = null;
         let smallestTheta = Math.PI * 2;
 
-        for (let nextNode of nodeTo.adj) {
+        for (const nextNode of nodeTo.adj) {
             if (nextNode !== nodeFrom) {
                 const nextVector = nextNode.value.clone().sub(nodeTo.value);
                 let nextAngle = Math.atan2(nextVector.y, nextVector.x) - transformAngle;

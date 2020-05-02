@@ -3,8 +3,7 @@ import * as dat from 'dat.gui';
 import TensorFieldGUI from './ts/ui/tensor_field_gui';
 import {NoiseParams} from './ts/impl/tensor_field';
 import MainGUI from './ts/ui/main_gui';
-import CanvasWrapper from './ts/ui/canvas_wrapper';
-import {DefaultCanvasWrapper, RoughCanvasWrapper} from './ts/ui/canvas_wrapper';
+import {DefaultCanvasWrapper} from './ts/ui/canvas_wrapper';
 import Util from './ts/util';
 import DragController from './ts/ui/drag_controller';
 import DomainController from './ts/ui/domain_controller';
@@ -17,57 +16,67 @@ import ModelGenerator from './ts/model_generator';
 import { saveAs } from 'file-saver';
 
 class Main {
-    private domainController = DomainController.getInstance();
+    private readonly STARTING_WIDTH = 1440;  // Initially zooms in if width > STARTING_WIDTH
+
+    // UI
     private gui: dat.GUI = new dat.GUI({width: 300});
-    private tensorField: TensorFieldGUI;
-    private mainGui: MainGUI;
-    private dragController = new DragController(this.gui);
-
-    // Options
-    private imageScale = 3;
-
-    // Folders
     private tensorFolder: dat.GUI;
     private roadsFolder: dat.GUI;
+    private styleFolder: dat.GUI;
+    private optionsFolder: dat.GUI;
+    private downloadsFolder: dat.GUI;
 
-    // To force draw if needed
-    private previousFrameDrawTensor = true;
+    private domainController = DomainController.getInstance();
+    private dragController = new DragController(this.gui);
+    private tensorField: TensorFieldGUI;
+    private mainGui: MainGUI;  // In charge of glueing everything together
 
+    // Options
+    private imageScale = 3;  // Multiplier for res of downloaded image
+    public highDPI = false;  // Increases resolution for hiDPI displays
+
+    // Style options
     private canvas: HTMLCanvasElement;
     private tensorCanvas: DefaultCanvasWrapper;
     private _style: Style;
-    private styleFolder: dat.GUI;
-    private colourScheme: string = "Default";
-    private zoomBuildings: boolean = false;
-    private buildingModels: boolean = false;
+    private colourScheme: string = "Default";  // See colour_schemes.json
+    private zoomBuildings: boolean = false;  // Show buildings only when zoomed in?
+    private buildingModels: boolean = false;  // Draw pseudo-3D buildings?
     private showFrame: boolean = false;
-    public highDPI = false;
 
-    // 3D settings
+    // Force redraw of roads when switching from tensor vis to map vis
+    private previousFrameDrawTensor = true;
+
+    // 3D camera position
     private cameraX = 0;
     private cameraY = 0;
 
-    private readonly STARTING_WIDTH = 1440;
-    private firstGenerate = true;
-
+    private firstGenerate = true;  // Don't randomise tensor field on first generate
     private modelGenerator: ModelGenerator;
 
     constructor() {
+        // GUI Setup
+        const zoomController = this.gui.add(this.domainController, 'zoom');
+        this.domainController.setZoomUpdate(() => zoomController.updateDisplay());
+        this.gui.add(this, 'generate');
+
+        this.tensorFolder = this.gui.addFolder('Tensor Field');
+        this.roadsFolder = this.gui.addFolder('Map');
+        this.styleFolder = this.gui.addFolder('Style');
+        this.optionsFolder = this.gui.addFolder('Options');
+        this.downloadsFolder = this.gui.addFolder('Download');
+
         // Canvas setup
         this.canvas = document.getElementById(Util.CANVAS_ID) as HTMLCanvasElement;
         this.tensorCanvas = new DefaultCanvasWrapper(this.canvas);
-        const zoomController = this.gui.add(this.domainController, 'zoom');
-        this.domainController.setZoomUpdate(() => zoomController.updateDisplay());
-
+        
         // Make sure we're not too zoomed out for large resolutions
         const screenWidth = this.domainController.screenDimensions.x;
         if (screenWidth > this.STARTING_WIDTH) {
             this.domainController.zoom = screenWidth / this.STARTING_WIDTH;
         }
 
-        // GUI Setup
-        this.gui.add(this, 'generate');
-        this.styleFolder = this.gui.addFolder('Style');
+        // Style setup
         this.styleFolder.add(this, 'colourScheme', Object.keys(ColourSchemes)).onChange((val: string) => this.changeColourScheme(val));
 
         this.styleFolder.add(this, 'zoomBuildings').onChange((val: boolean) => {
@@ -91,7 +100,8 @@ class Main {
         this.styleFolder.add(this, 'cameraX', -15, 15).step(1).onChange(() => this.setCameraDirection());
         this.styleFolder.add(this, 'cameraY', -15, 15).step(1).onChange(() => this.setCameraDirection());
 
-        const noiseParams: NoiseParams = {
+
+        const noiseParamsPlaceholder: NoiseParams = {  // Placeholder values for park + water noise
             globalNoise: false,
             noiseSizePark: 20,
             noiseAnglePark: 90,
@@ -99,29 +109,27 @@ class Main {
             noiseAngleGlobal: 20
         };
 
-        this.tensorFolder = this.gui.addFolder('Tensor Field');
-        this.tensorField = new TensorFieldGUI(this.tensorFolder, this.dragController, true, noiseParams);
-        this.roadsFolder = this.gui.addFolder('Map');
+        this.tensorField = new TensorFieldGUI(this.tensorFolder, this.dragController, true, noiseParamsPlaceholder);
         this.mainGui = new MainGUI(this.roadsFolder, this.tensorField, () => this.tensorFolder.close());
 
-        const optionsFolder = this.gui.addFolder('Options');
-        optionsFolder.add(this.tensorField, 'drawCentre');
-        const canvasScaleController = optionsFolder.add(this, 'highDPI');
-        canvasScaleController.onChange((high: boolean) => this.changeCanvasScale(high));
-
-        const downloadsFolder = this.gui.addFolder('Download');
-        downloadsFolder.add(this, 'imageScale', 1, 5).step(1);
-        downloadsFolder.add({"PNG": () => this.downloadPng()}, 'PNG');
-        downloadsFolder.add({"SVG": () => this.downloadSVG()}, 'SVG');
-        downloadsFolder.add({"STL": () => this.downloadSTL()}, 'STL');
-        downloadsFolder.add({"Heightmap": () => this.downloadHeightmap()}, 'Heightmap');
+        this.optionsFolder.add(this.tensorField, 'drawCentre');
+        this.optionsFolder.add(this, 'highDPI').onChange((high: boolean) => this.changeCanvasScale(high));
+        
+        this.downloadsFolder.add(this, 'imageScale', 1, 5).step(1);
+        this.downloadsFolder.add({"PNG": () => this.downloadPng()}, 'PNG');  // This allows custom naming of button
+        this.downloadsFolder.add({"SVG": () => this.downloadSVG()}, 'SVG');
+        this.downloadsFolder.add({"STL": () => this.downloadSTL()}, 'STL');
+        this.downloadsFolder.add({"Heightmap": () => this.downloadHeightmap()}, 'Heightmap');
 
         this.changeColourScheme(this.colourScheme);
         this.tensorField.setRecommended();
-        requestAnimationFrame(this.update.bind(this));
+        requestAnimationFrame(() => this.update());
     }
 
-    generate() {
+    /**
+     * Generate an entire map with no control over the process
+     */
+    generate(): void {
         if (!this.firstGenerate) {
             this.tensorField.setRecommended();
         } else {
@@ -131,7 +139,10 @@ class Main {
         this.mainGui.generateEverything();
     }
 
-    changeColourScheme(scheme: string) {
+    /**
+     * @param {string} scheme Matches a scheme name in colour_schemes.json
+     */
+    changeColourScheme(scheme: string): void {
         const colourScheme: ColourScheme = (ColourSchemes as any)[scheme];
         this.zoomBuildings = colourScheme.zoomBuildings;
         this.buildingModels = colourScheme.buildingModels;
@@ -145,17 +156,23 @@ class Main {
         this.changeCanvasScale(this.highDPI);
     }
 
+    /**
+     * Scale up canvas resolution for hiDPI displays
+     */
     changeCanvasScale(high: boolean): void {
         const value = high ? 2 : 1;
         this._style.canvasScale = value;
         this.tensorCanvas.canvasScale = value;
     }
 
+    /**
+     * Change camera position for pseudo3D buildings
+     */
     setCameraDirection(): void {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
-    downloadSTL(zip=true): void {
+    downloadSTL(): void {
         // All in screen space
         const extendScreenX = this.domainController.screenDimensions.x * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
         const extendScreenY = this.domainController.screenDimensions.y * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
@@ -207,6 +224,9 @@ class Main {
         link.click();
     }
 
+    /**
+     * Same as downloadPng but uses Heightmap style
+     */
     downloadHeightmap(): void {
         const oldColourScheme = this.colourScheme;
         this.changeColourScheme("Heightmap");
@@ -298,6 +318,7 @@ class Main {
     }
 }
 
+// Add log to window so we can use log.setlevel from the console
 (window as any).log = log;
 window.addEventListener('load', (): void => {
     new Main();

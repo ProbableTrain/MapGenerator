@@ -16,10 +16,7 @@ enum ModelGeneratorStates {
 }
 
 export default class ModelGenerator {
-    private readonly groundLevel = 20;
-    private readonly  seaLevel = 14;
-    private readonly  roadLevel = 18;
-    private readonly bridgeHeight = (this.roadLevel - this.seaLevel) / 2;
+    private readonly groundLevel = 20;  // Thickness of groundMesh
 
     private readonly exportSTL = require('threejs-export-stl');
     private resolve: (blob: any) => void = b => {};
@@ -67,6 +64,7 @@ export default class ModelGenerator {
 
     /**
      * Return true if processing a model
+     * Work done in update loop so main thread isn't swamped
      */
     public update(): boolean {
         switch(this.state) {
@@ -80,8 +78,6 @@ export default class ModelGenerator {
                 this.zip.file("model/domain.stl", seaLevelSTL);
 
                 const seaMesh = this.polygonToMesh(this.sea, 0);
-                // const seaBsp = CSG.fromMesh(seaMesh);
-                // this.groundBsp = this.groundBsp.subtract(seaBsp);
                 this.threeToBlender(seaMesh);
                 const seaMeshSTL = this.exportSTL.fromMesh(seaMesh);
                 this.zip.file("model/sea.stl", seaMeshSTL);
@@ -93,8 +89,6 @@ export default class ModelGenerator {
                 this.threeToBlender(coastlineMesh);
                 const coastlineSTL = this.exportSTL.fromMesh(coastlineMesh);
                 this.zip.file("model/coastline.stl", coastlineSTL);
-                // const coastlineBsp = CSG.fromMesh(coastlineMesh);
-                // this.groundBsp = this.groundBsp.union(coastlineBsp);
                 this.setState(ModelGeneratorStates.SUBTRACT_RIVER);
                 break;
             }
@@ -168,11 +162,17 @@ export default class ModelGenerator {
         return true;
     }
 
+    /**
+     * Rotate and scale mesh so up is in the right direction
+     */
     private threeToBlender(mesh: THREE.Object3D): void {
         mesh.scale.multiplyScalar(0.02);
         mesh.updateMatrixWorld(true);
     }
 
+    /**
+     * Extrude a polygon into a THREE.js mesh
+     */
     private polygonToMesh(polygon: Vector[], height: number): THREE.Mesh {
         if (polygon.length < 3) {
             log.error("Tried to export empty polygon as OBJ");

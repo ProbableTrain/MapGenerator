@@ -19,7 +19,6 @@ export default class PolygonUtil {
         const sliced = PolyK.Slice(rectangle, p1.x, p1.y, p2.x, p2.y).map(p => PolygonUtil.polygonArrayToPolygon(p));
         const minArea = PolygonUtil.calcPolygonArea(sliced[0]);
 
-        let smallestPolygon;
         if (sliced.length > 1 && PolygonUtil.calcPolygonArea(sliced[1]) < minArea) {
             return sliced[1];
         }
@@ -63,10 +62,10 @@ export default class PolygonUtil {
         let total = 0;
 
         for (let i = 0; i < polygon.length; i++) {
-          let addX = polygon[i].x;
-          let addY = polygon[i == polygon.length - 1 ? 0 : i + 1].y;
-          let subX = polygon[i == polygon.length - 1 ? 0 : i + 1].x;
-          let subY = polygon[i].y;
+          const addX = polygon[i].x;
+          const addY = polygon[i == polygon.length - 1 ? 0 : i + 1].y;
+          const subX = polygon[i == polygon.length - 1 ? 0 : i + 1].x;
+          const subY = polygon[i].y;
 
           total += (addX * addY * 0.5);
           total -= (subX * subY * 0.5);
@@ -75,12 +74,15 @@ export default class PolygonUtil {
         return Math.abs(total);
     }
 
+    /**
+     * Recursively divide a polygon by its longest side until the minArea stopping condition is met
+     */
     public static subdividePolygon(p: Vector[], minArea: number): Vector[][] {
         const area = PolygonUtil.calcPolygonArea(p);
         if (area < 0.5 * minArea) {
             return [];
         }
-        let divided: Vector[][] = [];  // Array of polygons
+        const divided: Vector[][] = [];  // Array of polygons
 
         let longestSideLength = 0;
         let longestSide = [p[0], p[1]];
@@ -133,6 +135,9 @@ export default class PolygonUtil {
         }
     }
 
+    /**
+     * Shrink or expand polygon
+     */
     public static resizeGeometry(geometry: Vector[], spacing: number, isPolygon=true): Vector[] {
         try {
             const jstsGeometry = isPolygon? PolygonUtil.polygonToJts(geometry) : PolygonUtil.lineToJts(geometry);
@@ -166,10 +171,10 @@ export default class PolygonUtil {
 
         let inside = false;
         for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-            var xi = polygon[i].x, yi = polygon[i].y;
-            var xj = polygon[j].x, yj = polygon[j].y;
+            const xi = polygon[i].x, yi = polygon[i].y;
+            const xj = polygon[j].x, yj = polygon[j].y;
 
-            var intersect = ((yi > point.y) != (yj > point.y))
+            const intersect = ((yi > point.y) != (yj > point.y))
                 && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
             if (intersect) inside = !inside;
         }
@@ -177,7 +182,7 @@ export default class PolygonUtil {
         return inside;
     }
 
-    public static pointInRectangle(point: Vector, origin: Vector, dimensions: Vector) {
+    public static pointInRectangle(point: Vector, origin: Vector, dimensions: Vector): boolean {
         return point.x >= origin.x && point.y >= origin.y && point.x <= dimensions.x && point.y <= dimensions.y;
     }
 

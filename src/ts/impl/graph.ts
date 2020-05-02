@@ -21,6 +21,9 @@ interface Intersection {
     segments: Segment[];
 }
 
+/**
+ * Node located along any intersection or point along the simplified road polylines 
+ */
 export class Node {
     public segments = new Set<Segment>();
     public adj: Node[];
@@ -43,6 +46,10 @@ export default class Graph {
     public nodes: Node[];
     public intersections: Vector[];
 
+    /**
+     * Create a graph from a set of streamlines
+     * Finds all intersections, and creates a list of Nodes
+     */
     constructor(streamlines: Vector[][], dstep: number, deleteDangling=false) {
         const intersections = isect.bush(this.streamlinesToSegment(streamlines)).run();
         const quadtree = (d3.quadtree() as d3.Quadtree<Node>).x(n => n.value.x).y(n => n.value.y);
@@ -100,6 +107,9 @@ export default class Graph {
         for (const i of intersections) this.intersections.push(new Vector(i.point.x, i.point.y));
     }
 
+    /**
+     * Remove dangling edges from graph to facilitate polygon finding
+     */
     private deleteDanglingNodes(n: Node, quadtree: d3.Quadtree<Node>) {
         if (n.neighbors.size === 1) {
             quadtree.remove(n);
@@ -110,6 +120,9 @@ export default class Graph {
         }
     }
 
+    /**
+     * Given a segment, step along segment and find all nodes along it
+     */
     private getNodesAlongSegment(segment: Segment, quadtree: d3.Quadtree<Node>, radius: number, step: number): Node[] {
         // Walk dstep along each streamline, adding nodes within dstep/2
         // and connected to this streamline (fuzzy - nodeAddRadius) to list, removing from

@@ -13,6 +13,9 @@ import RoadGUI from './road_gui';
 import {NoiseParams} from '../impl/tensor_field';
 import TensorField from '../impl/tensor_field';
 
+/**
+ * Handles generation of river and coastline
+ */
 export default class WaterGUI extends RoadGUI {
     protected streamlines: WaterGenerator;
 
@@ -68,6 +71,9 @@ export default class WaterGUI extends RoadGUI {
         return new Promise<void>(resolve => resolve());
     }
 
+    /**
+     * Secondary road runs along other side of river
+     */
     get streamlinesWithSecondaryRoad(): Vector[][] {
         const withSecondary = this.streamlines.allStreamlinesSimple.slice();
         withSecondary.push(this.streamlines.riverSecondaryRoad);

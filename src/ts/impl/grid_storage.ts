@@ -1,6 +1,10 @@
 import * as log from 'loglevel';
 import Vector from '../vector';
 
+/**
+ * Cartesian grid accelerated data structure
+ * Grid of cells, each containing a list of vectors
+ */
 export default class GridStorage {
 
     private gridDimensions: Vector;

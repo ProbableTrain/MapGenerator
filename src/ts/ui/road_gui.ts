@@ -7,6 +7,9 @@ import {StreamlineParams} from '../impl/streamlines';
 import StreamlineGenerator from '../impl/streamlines';
 import Vector from '../vector';
 
+/**
+ * Handles creation of roads
+ */
 export default class RoadGUI {
     protected streamlines: StreamlineGenerator;
     private existingStreamlines: RoadGUI[] = [];

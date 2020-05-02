@@ -35,6 +35,9 @@ export interface ColourScheme {
     frameTextColour?: string;
 }
 
+/**
+ * Controls how screen-space data is drawn
+ */
 export default abstract class Style {
     protected canvas: CanvasWrapper;
     protected domainController: DomainController = DomainController.getInstance();
@@ -217,6 +220,9 @@ export class DefaultStyle extends Style {
             if (this.colourScheme.buildingModels && (!this.colourScheme.zoomBuildings || this.domainController.zoom >= 2.5)) {
                 canvas.setFillStyle(this.colourScheme.buildingSideColour);
                 canvas.setStrokeStyle(this.colourScheme.buildingSideColour);
+
+                // This is a cheap approximation that often creates visual artefacts
+                // Draws building sides, then rooves instead of properly clipping polygons etc.
                 for (const b of this.buildingModels) {
                     for (const s of b.sides) canvas.drawPolygon(s);
                 }

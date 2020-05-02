@@ -13,7 +13,7 @@ export default abstract class FieldIntegrator {
         return tensor.getMinor();
     }
 
-    onLand(point: Vector) {
+    onLand(point: Vector): boolean {
         return this.field.onLand(point);
     }
 }

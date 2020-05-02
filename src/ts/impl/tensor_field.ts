@@ -14,6 +14,10 @@ export interface NoiseParams {
     noiseAngleGlobal: number;
 }
 
+/**
+ * Combines basis fields
+ * Noise added when sampling a point in a park
+ */
 export default class TensorField {
     private basisFields: BasisField[] = [];
     private noise: SimplexNoise;
@@ -27,6 +31,9 @@ export default class TensorField {
         this.noise = new SimplexNoise();
     }
 
+    /**
+     * Used when integrating coastline and river
+     */
     enableGlobalNoise(angle: number, size: number): void {
         this.noiseParams.globalNoise = true;
         this.noiseParams.noiseAngleGlobal = angle;

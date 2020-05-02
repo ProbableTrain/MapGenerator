@@ -1,6 +1,9 @@
 import Tensor from './tensor';
 import Vector from '../vector';
 
+/**
+ * Grid or Radial field to be combined with others to create the tensor field
+ */
 export abstract class BasisField {
     abstract readonly FOLDER_NAME: string;
     protected static folderNameIndex: number = 0;

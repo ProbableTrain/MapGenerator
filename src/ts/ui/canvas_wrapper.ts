@@ -19,6 +19,9 @@ export interface RoughOptions {
     zigzagOffset?: number;
 }
 
+/**
+ * Thin wrapper around HTML canvas, abstracts drawing functions so we can use the RoughJS canvas or the default one
+ */
 export default abstract class CanvasWrapper {
     protected svgNode: any;
     protected _width: number;
@@ -42,7 +45,7 @@ export default abstract class CanvasWrapper {
         }
     }
 
-    createSVG(svgElement: any) {
+    createSVG(svgElement: any): void {
         this.svgNode = svgElement;
     }
 
@@ -121,7 +124,7 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         this.drawRectangle(0, this._height/this._scale - down, this._width/this._scale, down);
     }
 
-    drawCityName() {
+    drawCityName(): void {
         const fontSize = 50 * this._scale;
         this.ctx.font = `small-caps ${fontSize}px Verdana`;
         this.ctx.textAlign = "center";
@@ -151,7 +154,7 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         }
     }
 
-    drawPolygon(polygon: Vector[]) {
+    drawPolygon(polygon: Vector[]): void {
         if (polygon.length === 0) {
             return;
         }
@@ -180,7 +183,7 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         }
     }
 
-    drawSquare(centre: Vector, radius: number) {
+    drawSquare(centre: Vector, radius: number): void {
         this.drawRectangle(centre.x - radius, centre.y - radius, 2 * radius, 2 * radius);
     }
 
@@ -240,7 +243,7 @@ export class RoughCanvasWrapper extends CanvasWrapper {
         this.rc = this.r.canvas(canvas);
     }
 
-    createSVG(svgElement: any) {
+    createSVG(svgElement: any): void {
         super.createSVG(svgElement);
         this.rc = this.r.svg(this.svgNode);
     }
@@ -277,7 +280,7 @@ export class RoughCanvasWrapper extends CanvasWrapper {
         this.appendSvgNode(this.rc.rectangle(x, y, width, height, this.options));
     }
 
-    drawPolygon(polygon: Vector[]) {
+    drawPolygon(polygon: Vector[]): void {
         if (polygon.length === 0) {
             return;
         }
@@ -289,7 +292,7 @@ export class RoughCanvasWrapper extends CanvasWrapper {
         this.appendSvgNode(this.rc.polygon(polygon.map(v => [v.x, v.y]), this.options));
     }
 
-    drawSquare(centre: Vector, radius: number) {
+    drawSquare(centre: Vector, radius: number): void {
         const prevStroke = this.options.stroke;
         this.options.stroke = 'none';
         this.drawRectangle(centre.x - radius, centre.y - radius, 2 * radius, 2 * radius);

@@ -27,6 +27,10 @@ export interface StreamlineParams {
     collideEarly: number;  // Chance of early collision 0-1
 }
 
+/**
+ * Creates polylines that make up the roads by integrating the tensor field
+ * See the paper 'Interactive Procedural Street Modeling' for a thorough explanation
+ */
 export default class StreamlineGenerator {
     protected readonly SEED_AT_ENDPOINTS = false;
     protected readonly NEAR_EDGE = 3;  // Sample near edge
