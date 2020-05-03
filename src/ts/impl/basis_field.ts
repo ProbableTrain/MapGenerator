@@ -70,20 +70,15 @@ export abstract class BasisField {
         folder.add(this._centre, 'x');
         folder.add(this._centre, 'y');
         folder.add(this, '_size');
-        folder.add(this, '_decay', 0, 50);
+        folder.add(this, '_decay', -50, 50);
     }
 
     /**
      * Interpolates between (0 and 1)^decay
      */
-    protected getTensorWeight(point: Vector): number {        
+    protected getTensorWeight(point: Vector): number {
         const normDistanceToCentre = point.clone().sub(this._centre).length() / this._size;
-        
-        // Stop (** 0) turning weight into 1, filling screen even when outside 'size'
-        if (this._decay === 0 && normDistanceToCentre >= 1) {
-            return 0;
-        }
-        return Math.max(0, (1 - normDistanceToCentre)) ** this._decay;
+        return normDistanceToCentre ** -this._decay;
     }
 }
 
