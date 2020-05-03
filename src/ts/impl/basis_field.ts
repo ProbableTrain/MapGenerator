@@ -108,9 +108,7 @@ export class Grid extends BasisField {
     }
 
     getTensor(point: Vector): Tensor {
-        const cos = Math.cos(2 * this._theta);
-        const sin = Math.sin(2 * this._theta);
-        return new Tensor(1, [cos, sin]);
+        return Tensor.fromAngle(this._theta);
     }
 }
 
@@ -122,8 +120,6 @@ export class Radial extends BasisField {
 
     getTensor(point: Vector): Tensor {
         const t = point.clone().sub(this._centre);
-        const t1 = t.y**2 - t.x**2;
-        const t2 = -2 * t.x * t.y;
-        return new Tensor(1, [t1, t2]);
+        return Tensor.fromVector(t);
     }
 }
