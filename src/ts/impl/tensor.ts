@@ -39,7 +39,8 @@ export default class Tensor {
 
     add(tensor: Tensor): Tensor {
         this.matrix = this.matrix.map((v, i) => v * this.r + tensor.matrix[i] * tensor.r);
-        this.r = 2;
+        this.r = Math.hypot(...this.matrix);
+        this.matrix = this.matrix.map(v => v / this.r);
         this.oldTheta = true;
         return this;
     }
