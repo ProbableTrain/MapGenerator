@@ -18,9 +18,9 @@ export default class Tensor {
 
     static fromVector(vector: Vector): Tensor {
         const t1 = vector.x ** 2 - vector.y ** 2;
-        const t2 = -2 * vector.x * vector.y;
+        const t2 = 2 * vector.x * vector.y;
         const t3 = t1 ** 2 - t2 ** 2;
-        const t4 = -2 * t1 * t2;
+        const t4 = 2 * t1 * t2;
         return new Tensor(1, [t3, t4]);
     }
 
@@ -92,6 +92,6 @@ export default class Tensor {
         if (this.r === 0) {
             return 0;
         }
-        return Math.atan2(this.matrix[1] / this.r, this.matrix[0] / this.r) / 2;
+        return Math.atan2(this.matrix[1] / this.r, this.matrix[0] / this.r) / 4;
     }
 }

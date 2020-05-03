@@ -114,7 +114,7 @@ export class Radial extends BasisField {
     }
 
     getTensor(point: Vector): Tensor {
-        const t = point.clone().sub(this._centre);
+        const t = point.clone().sub(this._centre).normalize();
         return Tensor.fromVector(t);
     }
 }
