@@ -12,6 +12,22 @@ export default class Tensor {
         this._theta = this.calculateTheta();
     }
 
+    static fromAngle(angle: number): Tensor {
+        return new Tensor(1, [Math.cos(angle * 4), Math.sin(angle * 4)]);
+    }
+
+    static fromVector(vector: Vector): Tensor {
+        const t1 = vector.x ** 2 - vector.y ** 2;
+        const t2 = 2 * vector.x * vector.y;
+        const t3 = t1 ** 2 - t2 ** 2;
+        const t4 = 2 * t1 * t2;
+        return new Tensor(1, [t3, t4]);
+    }
+
+    static get zero(): Tensor {
+        return new Tensor(0, [0, 0]);
+    }
+
     get theta(): number {
         if (this.oldTheta) {
             this._theta = this.calculateTheta();
@@ -23,7 +39,8 @@ export default class Tensor {
 
     add(tensor: Tensor): Tensor {
         this.matrix = this.matrix.map((v, i) => v * this.r + tensor.matrix[i] * tensor.r);
-        this.r = 2;
+        this.r = Math.hypot(...this.matrix);
+        this.matrix = this.matrix.map(v => v / this.r);
         this.oldTheta = true;
         return this;
     }
@@ -48,8 +65,8 @@ export default class Tensor {
             newTheta -= Math.PI;
         }
 
-        this.matrix[0] = Math.cos(2 * newTheta) * this.r;
-        this.matrix[1] = Math.sin(2 * newTheta) * this.r;
+        this.matrix[0] = Math.cos(4 * newTheta) * this.r;
+        this.matrix[1] = Math.sin(4 * newTheta) * this.r;
         this._theta = newTheta;
         return this;
     }
@@ -75,6 +92,6 @@ export default class Tensor {
         if (this.r === 0) {
             return 0;
         }
-        return Math.atan2(this.matrix[1] / this.r, this.matrix[0] / this.r) / 2;
+        return Math.atan2(this.matrix[1] / this.r, this.matrix[0] / this.r) / 4;
     }
 }

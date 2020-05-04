@@ -52,8 +52,8 @@ export default class TensorFieldGUI extends TensorField {
     addRadialRandom(): void {
         const width = this.domainController.worldDimensions.x;
         this.addRadial(this.randomLocation(),
-            Util.randomRange(width/10, width/5),  // Size
-            Util.randomRange(50));  // Decay
+            Util.randomRange(width / 10, width / 2),  // Size
+            Util.randomRange(-2, 50));  // Decay
     }
 
     addGridRandom(): void {
@@ -63,9 +63,9 @@ export default class TensorFieldGUI extends TensorField {
     private addGridAtLocation(location: Vector): void {
         const width = this.domainController.worldDimensions.x;
         this.addGrid(location,
-            Util.randomRange(width/4, width),  // Size
-            Util.randomRange(50),  // Decay
-            Util.randomRange(Math.PI/2));
+            Util.randomRange(width / 4, width),  // Size
+            Util.randomRange(-2, 50),  // Decay
+            Util.randomRange(Math.PI / 2));
     }
 
     /**
