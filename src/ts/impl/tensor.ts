@@ -12,6 +12,22 @@ export default class Tensor {
         this._theta = this.calculateTheta();
     }
 
+    static fromAngle(angle: number): Tensor {
+        return new Tensor(1, [Math.cos(angle * 4), Math.sin(angle * 4)]);
+    }
+
+    static fromVector(vector: Vector): Tensor {
+        const t1 = vector.x ** 2 - vector.y ** 2;
+        const t2 = 2 * vector.x * vector.y;
+        const t3 = t1 ** 2 - t2 ** 2;
+        const t4 = 2 * t1 * t2;
+        return new Tensor(1, [t3, t4]);
+    }
+
+    static get zero(): Tensor {
+        return new Tensor(0, [0, 0]);
+    }
+
     get theta(): number {
         if (this.oldTheta) {
             this._theta = this.calculateTheta();
@@ -21,9 +37,16 @@ export default class Tensor {
         return this._theta;
     }
 
-    add(tensor: Tensor): Tensor {
+    add(tensor: Tensor, smooth: boolean): Tensor {
         this.matrix = this.matrix.map((v, i) => v * this.r + tensor.matrix[i] * tensor.r);
-        this.r = 2;
+
+        if (smooth) {
+            this.r = Math.hypot(...this.matrix);
+            this.matrix = this.matrix.map(v => v / this.r);
+        } else {
+            this.r = 2;
+        }
+
         this.oldTheta = true;
         return this;
     }
