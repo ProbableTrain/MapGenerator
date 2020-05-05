@@ -37,10 +37,16 @@ export default class Tensor {
         return this._theta;
     }
 
-    add(tensor: Tensor): Tensor {
+    add(tensor: Tensor, smooth: boolean): Tensor {
         this.matrix = this.matrix.map((v, i) => v * this.r + tensor.matrix[i] * tensor.r);
-        this.r = Math.hypot(...this.matrix);
-        this.matrix = this.matrix.map(v => v / this.r);
+
+        if (smooth) {
+            this.r = Math.hypot(...this.matrix);
+            this.matrix = this.matrix.map(v => v / this.r);
+        } else {
+            this.r = 2;
+        }
+
         this.oldTheta = true;
         return this;
     }
@@ -65,8 +71,8 @@ export default class Tensor {
             newTheta -= Math.PI;
         }
 
-        this.matrix[0] = Math.cos(4 * newTheta) * this.r;
-        this.matrix[1] = Math.sin(4 * newTheta) * this.r;
+        this.matrix[0] = Math.cos(2 * newTheta) * this.r;
+        this.matrix[1] = Math.sin(2 * newTheta) * this.r;
         this._theta = newTheta;
         return this;
     }
@@ -92,6 +98,6 @@ export default class Tensor {
         if (this.r === 0) {
             return 0;
         }
-        return Math.atan2(this.matrix[1] / this.r, this.matrix[0] / this.r) / 4;
+        return Math.atan2(this.matrix[1] / this.r, this.matrix[0] / this.r) / 2;
     }
 }

@@ -27,6 +27,8 @@ export default class TensorField {
     public river: Vector[] = [];
     public ignoreRiver = false;
 
+    public smooth = false;
+
     constructor(public noiseParams: NoiseParams) {
         this.noise = new SimplexNoise();
     }
@@ -88,7 +90,7 @@ export default class TensorField {
         }
 
         const tensorAcc = Tensor.zero;
-        this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point)));
+        this.basisFields.forEach(field => tensorAcc.add(field.getWeightedTensor(point, this.smooth), this.smooth));
 
         // Add rotational noise for parks - range -pi/2 to pi/2
         if (this.parks.some(p => PolygonUtil.insidePolygon(point, p))) {

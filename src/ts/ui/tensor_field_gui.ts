@@ -28,6 +28,7 @@ export default class TensorFieldGUI extends TensorField {
         };
 
         this.guiFolder.add(tensorFieldGuiObj, 'reset');
+        this.guiFolder.add(this, 'smooth');
         this.guiFolder.add(tensorFieldGuiObj, 'setRecommended');
         this.guiFolder.add(tensorFieldGuiObj, 'addRadial');
         this.guiFolder.add(tensorFieldGuiObj, 'addGrid');
@@ -52,8 +53,8 @@ export default class TensorFieldGUI extends TensorField {
     addRadialRandom(): void {
         const width = this.domainController.worldDimensions.x;
         this.addRadial(this.randomLocation(),
-            Util.randomRange(width / 10, width / 2),  // Size
-            Util.randomRange(-2, 50));  // Decay
+            Util.randomRange(width / 10, width / 5),  // Size
+            Util.randomRange(50));  // Decay
     }
 
     addGridRandom(): void {
@@ -64,7 +65,7 @@ export default class TensorFieldGUI extends TensorField {
         const width = this.domainController.worldDimensions.x;
         this.addGrid(location,
             Util.randomRange(width / 4, width),  // Size
-            Util.randomRange(-2, 50),  // Decay
+            Util.randomRange(50),  // Decay
             Util.randomRange(Math.PI / 2));
     }
 
