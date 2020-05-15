@@ -25,6 +25,7 @@ import PolygonUtil from '../impl/polygon_util';
 export default class MainGUI {
     private numBigParks: number = 2;
     private numSmallParks: number = 0;
+    private clusterBigParks: boolean = false;
 
     private domainController = DomainController.getInstance();
     private intersections: Vector[] = [];
@@ -108,6 +109,7 @@ export default class MainGUI {
             this.addParks();
             this.redraw = true;
         }}, 'Generate');
+        parks.add(this, 'clusterBigParks');
         parks.add(this, 'numBigParks');
         parks.add(this, 'numSmallParks');
 
@@ -200,13 +202,21 @@ export default class MainGUI {
         const polygons = p.polygons;
 
         if (this.minorRoads.allStreamlines.length === 0) {
-            // Big parks - add consecutive polygons
+            // Big parks
             this.bigParks = [];
             this.smallParks = [];
             if (polygons.length > this.numBigParks) {
-                const parkIndex = Math.floor(Math.random() * (polygons.length - this.numBigParks));
-                for (let i = parkIndex; i < parkIndex + this.numBigParks; i++) {
-                    this.bigParks.push(polygons[i]);    
+                if (this.clusterBigParks) {
+                    // Group in adjacent polygons 
+                    const parkIndex = Math.floor(Math.random() * (polygons.length - this.numBigParks));
+                    for (let i = parkIndex; i < parkIndex + this.numBigParks; i++) {
+                        this.bigParks.push(polygons[i]);    
+                    }
+                } else {
+                    for (let i = 0; i < this.numBigParks; i++) {
+                        const parkIndex = Math.floor(Math.random() * polygons.length);
+                        this.bigParks.push(polygons[parkIndex]);
+                    }
                 }
             } else {
                 this.bigParks.push(...polygons);
