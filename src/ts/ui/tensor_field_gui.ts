@@ -4,7 +4,7 @@ import DomainController from './domain_controller';
 import DragController from './drag_controller';
 import TensorField from '../impl/tensor_field';
 import {NoiseParams} from '../impl/tensor_field';
-import {BasisField} from '../impl/basis_field';
+import {BasisField, FIELD_TYPE} from '../impl/basis_field';
 import Util from '../util';
 import Vector from '../vector';
 
@@ -125,8 +125,10 @@ export default class TensorFieldGUI extends TensorField {
         // Draw centre points of fields
         if (this.drawCentre) {
             canvas.setFillStyle('red');
-            this.getCentrePoints().forEach(v =>
-                canvas.drawSquare(this.domainController.worldToScreen(v), 7));
+            this.getBasisFields().forEach(field => 
+                field.FIELD_TYPE === FIELD_TYPE.Grid ?
+                canvas.drawSquare(this.domainController.worldToScreen(field.centre), 7) :
+                canvas.drawCircle(this.domainController.worldToScreen(field.centre), 7))
         }
     }
 

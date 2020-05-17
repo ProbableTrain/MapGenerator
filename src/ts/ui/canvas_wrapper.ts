@@ -183,6 +183,13 @@ export class DefaultCanvasWrapper extends CanvasWrapper {
         }
     }
 
+    drawCircle(centre: Vector, radius: number): void {
+        const TAU = 2 * Math.PI;
+        this.ctx.beginPath();
+        this.ctx.arc(centre.x, centre.y, radius, 0, TAU);
+        this.ctx.fill();
+    }
+
     drawSquare(centre: Vector, radius: number): void {
         this.drawRectangle(centre.x - radius, centre.y - radius, 2 * radius, 2 * radius);
     }

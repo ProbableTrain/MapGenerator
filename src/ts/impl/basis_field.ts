@@ -1,11 +1,17 @@
 import Tensor from './tensor';
 import Vector from '../vector';
 
+export const enum FIELD_TYPE {
+    Radial,
+    Grid,
+};
+
 /**
  * Grid or Radial field to be combined with others to create the tensor field
  */
 export abstract class BasisField {
     abstract readonly FOLDER_NAME: string;
+    abstract readonly FIELD_TYPE: number;
     protected static folderNameIndex: number = 0;
     protected parentFolder: dat.GUI;
     protected folder: dat.GUI;
@@ -91,6 +97,7 @@ export abstract class BasisField {
 
 export class Grid extends BasisField {
     readonly FOLDER_NAME = `Grid ${Grid.folderNameIndex++}`;
+    readonly FIELD_TYPE = FIELD_TYPE.Grid;
 
     constructor(centre: Vector, size: number, decay: number, private _theta: number) {
         super(centre, size, decay);
@@ -118,6 +125,8 @@ export class Grid extends BasisField {
 
 export class Radial extends BasisField {
     readonly FOLDER_NAME = `Radial ${Radial.folderNameIndex++}`;
+    readonly FIELD_TYPE = FIELD_TYPE.Radial;
+
     constructor(centre: Vector, size: number, decay: number) {
         super(centre, size, decay);
     }

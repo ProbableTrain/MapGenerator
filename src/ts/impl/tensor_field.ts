@@ -78,6 +78,10 @@ export default class TensorField {
         return this.basisFields.map(field => field.centre);
     }
 
+    getBasisFields(): BasisField[] {
+        return this.basisFields;
+    }
+
     samplePoint(point: Vector): Tensor {
         if (!this.onLand(point)) {
             // Degenerate point
