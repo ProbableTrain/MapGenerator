@@ -36,7 +36,7 @@
     "roughjs": "^4.2.0",
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
-    "three": "^0.115.0",
+    "three": "^0.125.0",
     "three-csg-ts": "^1.0.4",
     "threejs-export-stl": "0.0.4"
   },
