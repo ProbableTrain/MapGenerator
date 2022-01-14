@@ -150,4 +150,4 @@ Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com
 
 ## License
 
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
+Distributed under the LGPL-3.0 License. See `COPYING` and `COPYING.LESSER` for more information.
