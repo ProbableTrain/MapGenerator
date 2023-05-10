@@ -12,7 +12,7 @@
   <h3 align="center">Map Generator</h3>
 
   <p align="center">
-    Create procedural American-style cities
+    Create procedural Fablab cities
     <br />
     <a href="https://probabletrain.itch.io/city-generator"><strong>Open Generator »</strong></a>
     <br />
