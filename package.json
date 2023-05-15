@@ -27,6 +27,7 @@
     "d3-quadtree": "^1.0.7",
     "dat.gui": "^0.7.6",
     "file-saver": "^2.0.2",
+    "fs-extra": "^11.1.1",
     "interactjs": "^1.9.8",
     "isect": "^3.0.0",
     "jsts": "^2.1.2",
@@ -38,7 +39,7 @@
     "roughjs": "^4.2.0",
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
-    "three": "^0.115.0",
+    "three": "^0.152.2",
     "three-csg-ts": "^1.0.4",
     "threejs-export-stl": "0.0.4"
   },
