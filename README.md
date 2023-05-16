@@ -14,7 +14,7 @@
   <p align="center">
     Create procedural Fab City
     <br />
-    <a href="https://probabletrain.itch.io/city-generator"><strong>Open Generator »</strong></a>
+    <a href=""><strong>Open Generator »</strong></a>
     <br />
     <br />
     <a href="https://maps.probabletrain.com" target="_blank">Read the Docs</a>
