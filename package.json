@@ -1,0 +1,69 @@
+{
+  "name": "mapgenerator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main.js",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm install jsts@2.7.1 --save --include=dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProbableTrain/MapGenerator.git"
+  },
+  "contribution": "universalbit-dev",
+  "author": "Keir ProbableTrain",
+  "license": "LGPL-3.0-only",
+  "info": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
+  "bugs": {
+    "url": "https://github.com/ProbableTrain/MapGenerator/issues"
+  },
+  "homepage": "https://github.com/ProbableTrain/MapGenerator#readme",
+  "dependencies": {
+    "@interactjs/types": "^1.9.8",
+    "@svgdotjs/svg.js": "^3.0.16",
+    "@types/d3-quadtree": "^1.0.7",
+    "@types/dat.gui": "^0.7.5",
+    "@types/file-saver": "^2.0.1",
+    "@types/jsts": "^0.17.2",
+    "@types/three": "^0.149.0",
+    "d3-quadtree": "^1.0.7",
+    "dat.gui": "^0.7.6",
+    "file-saver": "^2.0.2",
+    "fs-extra": "^11.1.1",
+    "interactjs": "^1.9.8",
+    "isect": "^3.0.0",
+    "jsts": "^2.7.1",
+    "jszip": "^3.4.0",
+    "lodash": "^3.10.1",
+    "lodash.bindall": "^3.1.0",
+    "lodash.noop": "^3.0.1",
+    "loglevel": "^1.6.7",
+    "polyk": "^0.24.0",
+    "roughjs": "^4.2.0",
+    "simplex-noise": "^2.4.0",
+    "simplify-js": "^1.2.4",
+    "three": "^0.149.0",
+    "three-csg-ts": "^1.0.4",
+    "threejs-export-stl": "0.0.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@types/node": "^13.11.0",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.1",
+    "eslint": "^6.8.0",
+    "fancy-log": "^1.3.3",
+    "gulp": "^4.0.0",
+    "gulp-notify": "^3.2.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "tsify": "^4.0.1",
+    "typescript": "^4.5.x",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^3.11.1"
+  }
+}
