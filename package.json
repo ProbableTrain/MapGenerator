@@ -14,7 +14,7 @@
   },
   "contribution": "universalbit-dev",
   "contributors": "trees-and-airlines,metro,Keir,computer,Ersagun Kuruca,computerJason-Patrick",
-  "license": "LGPL-3.0-only",
+  "license": "LGPL-3.0",
   "info": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
   "bugs": {
     "url": "https://github.com/ProbableTrain/MapGenerator/issues"
