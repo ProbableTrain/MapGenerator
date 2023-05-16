@@ -33,7 +33,6 @@
     "fs-extra": "^11.1.1",
     "interactjs": "^1.9.8",
     "isect": "^3.0.0",
-    "jsts": "^2.7.1",
     "jszip": "^3.4.0",
     "lodash": "^3.10.1",
     "lodash.bindall": "^3.1.0",
@@ -61,7 +60,8 @@
     "gulp-notify": "^3.2.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "tsify": "^4.0.1",
-    "typescript": "^4.5.x",
+    "jsts": "^2.7.1",
+    "typescript": "^4.5.4",
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^3.11.1"
   }
