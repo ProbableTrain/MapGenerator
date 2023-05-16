@@ -12,8 +12,10 @@
     "type": "git",
     "url": "git+https://github.com/ProbableTrain/MapGenerator.git"
   },
-  "author": "",
+  "contribution":"universalbit-dev",
+  "author": "Keir ProbableTrain",
   "license": "LGPL-3.0-only",
+  "info": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
   "bugs": {
     "url": "https://github.com/ProbableTrain/MapGenerator/issues"
   },
