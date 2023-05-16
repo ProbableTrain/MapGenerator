@@ -36,7 +36,7 @@
 * [Usage](#usage)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
-* [License](#license)
+* [License](https://www.gnu.org/licenses/lgpl-3.0.txt)
 * [Contact](#contact)
 
 
