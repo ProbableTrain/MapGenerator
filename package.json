@@ -13,7 +13,7 @@
     "url": "git+https://github.com/ProbableTrain/MapGenerator.git"
   },
   "contribution": "universalbit-dev",
-  "author": "Keir ProbableTrain",
+  "contributors": "trees-and-airlines,metro,Keir,computer,Ersagun Kuruca,computerJason-Patrick",
   "license": "LGPL-3.0-only",
   "info": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
   "bugs": {
