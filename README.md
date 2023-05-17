@@ -8,7 +8,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/probabletrain/mapgenerator">
-      <img src="docs/images/logo.png" alt="Logo" width="125" height="125">
+      <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/docs/images/STL/model_preview.png" alt="model preview" width="480" height="320">
   </a>
 
   <h3 align="center">Map Generator</h3>
