@@ -2,7 +2,7 @@
   "name": "mapgenerator",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/main.js",
+  "main": "main.js",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/ProbableTrain/MapGenerator.git"
   },
   "contribution": "universalbit-dev",
-  "author":"@probabletrain",
+  "author": "@probabletrain",
   "contributors": "trees-and-airlines,Keir,Ersagun Kuruca,Jason-Patrick",
   "license": "LGPL-3.0",
   "info": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
@@ -46,9 +46,9 @@
     "roughjs": "^4.2.0",
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
-    "three": "^0.149.0",
-    "three-csg-ts": "^1.0.4",
-    "threejs-export-stl": "0.0.4"
+    "three": "^0.152.2",
+    "three-addons": "^1.2.0",
+    "three-csg-ts": "^1.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
