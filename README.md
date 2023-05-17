@@ -19,6 +19,9 @@
 
 
 ## About The Project
+#### [WebSite](https://maps.probabletrain.com/#/)
+#### [Support](https://ko-fi.com/probabletrain)
+
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
 3D models of generated cities can be downloaded as a `.stl`. //*
 
@@ -79,7 +82,7 @@ Contributions are what make the open source community such an amazing place to b
 ##### Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
 ##### Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
 #### [Contributors](https://github.com/ProbableTrain/MapGenerator#contributors-)
-#### [WebSite](https://maps.probabletrain.com/#/)
+
 
 ## License
 Distributed under the LGPL-3.0 License. See [lgpl-3.0.txt](https://www.gnu.org/licenses/lgpl-3.0.txt)
