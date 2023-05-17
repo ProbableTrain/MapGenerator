@@ -27,21 +27,11 @@ This tool procedurally generates images of city maps. The process can be automat
 
 #### [Building Tools](https://github.com/universalbit-dev/building_tools)
 
-The download is a `zip` containing multiple `.stl` files for different components of the map.
-Images of generated cities can be downloaded as a `.png` or an `.svg`. There are a few choices for drawing style, ranging from colour themes similar to Google or Apple maps, to a hand-drawn sketch.
-
-
-### Built With
-* [Typescript](https://www.typescriptlang.org/)
-* [Gulp](https://gulpjs.com/)
-
-
 ## Getting Started
 To get a local copy up and running follow these steps.
-
 ### [Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
 
-* Gulp
+* [Gulp](https://www.npmjs.com/package/gulp)
 ```
 npm install --global gulp-cli
 ```
@@ -69,7 +59,6 @@ See the [documentation](https://github.com/universalbit-dev/CityGenerator/blob/m
 See the [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
 
 ## Contributing
-
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**. For major changes, please open an issue first to discuss what you would like to change.
 
 1. Fork the Project
