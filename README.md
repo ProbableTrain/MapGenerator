@@ -1,33 +1,4 @@
 ##### [Support UniversalBit Project](https://github.com/universalbit-dev/universalbit-dev/tree/main/support)
-
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-<br />
-<p align="center">
-  <a href="https://github.com/probabletrain/mapgenerator">
-      <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/docs/images/STL/model_preview.png" alt="model preview" width="480" height="320">
-  </a>
-
-  <h3 align="center">Map Generator</h3>
-
-  <p align="center">
-    Create procedural Fab City
-    <br />
-    <a href=""><strong>Open Generator »</strong></a>
-    <br />
-    <br />
-    <a href="https://maps.probabletrain.com" target="_blank">Read the Docs</a>
-    ·
-    <a href="https://github.com/probabletrain/mapgenerator/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/probabletrain/mapgenerator/issues">Request Feature</a>
-  </p>
-</p>
-
-
 ## Table of Contents
 
 * [About the Project](#about-the-project)
