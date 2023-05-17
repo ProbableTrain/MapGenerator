@@ -1,15 +1,11 @@
 <br />
 <p align="center">
-  <a href="https://github.com/probabletrain/mapgenerator">
-      <img src="images/logo.png" alt="Logo" width="125" height="125">
-  </a>
 
   <h3 align="center">City Map Generator</h3>
 
   <p align="center">
-    Create procedural American-style cities right in the browser
+    Create procedural Fab City
     <br />
-    <a href="https://probabletrain.itch.io/city-generator"><strong>Launch Generator »</strong></a>
     <br />
     <br />
     <a href="https://github.com/probabletrain/mapgenerator/issues">Report Bug</a>
@@ -43,19 +39,10 @@ See the sidebar for instructions and details.
 ## Contact
 
 Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com 
-
 Support the project: https://ko-fi.com/probabletrain 
+[WebSite](https://maps.probabletrain.com/#/)
 
-Project Github: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
-
-## Gallery
-
-### STL and Heightmap Renders
-
-![Map Generator Screen Shot](images/STL/31.png)
-![Map Generator Screen Shot](images/STL/32.png)
-![Map Generator Screen Shot](images/STL/model_finished.png)
-![Map Generator Screen Shot](images/STL/30.jpg)
+### STL and Heightmap Renders //*
 ![Map Generator Screen Shot](images/heightmap/heightmap_render.png)
 
 ### Maps
