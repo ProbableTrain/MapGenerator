@@ -59,13 +59,7 @@ Images of generated cities can be downloaded as a `.png` or an `.svg`. There are
 
 To get a local copy up and running follow these steps.
 
-### Prerequisites
-[Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
-
-* npm
-```sh
-npm install npm@latest -g
-```
+### [Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
 
 * Gulp
 ```
@@ -74,14 +68,14 @@ npm install --global gulp-cli
 
 ### Installation
  
-1. Clone the mapgenerator
-```sh
+1. Clone the project
+```
 git clone https://github.com/universalbit-dev/CityGenerator.git
 ```
 2. Install NPM packages
-```sh
+```
 cd CityGenerator
-npm install
+npm i
 ```
 3. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
 ```
