@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as log from 'loglevel';
 import * as PolyK from 'polyk';
 import Vector from '../vector';
