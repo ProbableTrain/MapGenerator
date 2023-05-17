@@ -32,7 +32,7 @@ Cities are generated using  tensor field. If you open the `Tensor Field` folder 
 Click `setRecommended` in the tensor field folder to have the tool place 4 grids and one radial field in the scene. These have random parameters, so click multiple times until you find one you like.
 Alternatively, add radial or grid fields manually. You can drag them to set their positions, and edit their parameters in the folders that appear.
 
-!> **Important** The `generate` button in the top level of the menu randomises the tensor field. To work with your edited tensor field, you need to open the `Maps` folder and use the various generate buttons there.
+**Important** The `generate` button in the top level of the menu randomises the tensor field. To work with your edited tensor field, you need to open the `Maps` folder and use the various generate buttons there.
 
 ### Maps
 
