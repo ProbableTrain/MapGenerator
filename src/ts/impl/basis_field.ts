@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import Tensor from './tensor';
 import Vector from '../vector';
 
