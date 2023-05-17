@@ -36,32 +36,10 @@ export default class Util {
         return (Math.random() * (max - min)) + min;
     }
 
-
-    // CSS colour parser
-
-    // (c) Dean McNamee <dean@gmail.com>, 2012.
-    //
-    // https://github.com/deanm/css-color-parser-js
-    //
-    // Permission is hereby granted, free of charge, to any person obtaining a copy
-    // of this software and associated documentation files (the "Software"), to
-    // deal in the Software without restriction, including without limitation the
-    // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    // sell copies of the Software, and to permit persons to whom the Software is
-    // furnished to do so, subject to the following conditions:
-    //
-    // The above copyright notice and this permission notice shall be included in
-    // all copies or substantial portions of the Software.
-    //
-    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    // IN THE SOFTWARE.
-
+    // CSS colour parser:https://github.com/deanm/css-color-parser-js
+    //(c) Dean McNamee <dean@gmail.com>, 2012.
     // http://www.w3.org/TR/css3-color/
+        
     private static kCSSColorTable: any = {
         "transparent": [0,0,0,0], "aliceblue": [240,248,255,1],
         "antiquewhite": [250,235,215,1], "aqua": [0,255,255,1],
