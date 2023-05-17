@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as log from 'loglevel';
 import DomainController from './domain_controller';
 import TensorField from '../impl/tensor_field';
