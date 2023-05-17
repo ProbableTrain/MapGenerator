@@ -80,11 +80,11 @@ npm install --global gulp-cli
  
 1. Clone the mapgenerator
 ```sh
-git clone https://github.com/probabletrain/mapgenerator.git
+git clone https://github.com/universalbit-dev/CityGenerator.git
 ```
 2. Install NPM packages
 ```sh
-cd mapgenerator
+cd CityGenerator
 npm install
 ```
 3. Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command. [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
@@ -92,12 +92,8 @@ npm install
 gulp
 ```
 4. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
-
-
-
 ## Usage
-
-See the [documentation](https://maps.probabletrain.com).
+See the [documentation](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/README.md).
 
 
 
