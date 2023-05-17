@@ -8,8 +8,7 @@
 - You can turn 3D buildings on/off for any style with `buildingModels`
 - When `zoomBuildings` is enabled, buildings are only shown when zoomed in
 
-?> **Tip** Mac users and other users with high-DPI displays: 
-Tick `highDPI` under the `options` folder to increase the resolution of the canvas. This will impact pan+zoom performance.
+High-DPI displays: This will impact pan+zoom performance.
 
 ### Download City
 You can download the city as a `.png`, `.svg`, `.stl`, or as a heightmap. The downloaded image will contain what's on screen, so if you're zoomed in, that's all that will be contained in the image.
