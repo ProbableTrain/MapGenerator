@@ -1,6 +1,6 @@
 import * as log from 'loglevel';
 //https://threejs.org/manual/#en/fundamentals
-import * as THREE from 'three'
+import * as THREE from 'three';
 import Vector from './vector';
 import { CSG } from 'three-csg-ts';
 import {BuildingModel} from './ui/buildings';
