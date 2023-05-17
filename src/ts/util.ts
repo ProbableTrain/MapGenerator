@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 export interface RandomRange {
     min?: number;
     max: number;
