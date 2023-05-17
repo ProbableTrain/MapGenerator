@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as log from 'loglevel';
 import * as dat from 'dat.gui';
 import TensorFieldGUI from './tensor_field_gui';
