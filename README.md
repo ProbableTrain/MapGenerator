@@ -60,7 +60,7 @@ gulp
 ```
 4. Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
 ## Usage
-See the [documentation](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/README.md).
+See the [documentation](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/usageguide.md).
 
 ## Roadmap
 See the [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
