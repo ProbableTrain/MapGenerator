@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import TensorField from './tensor_field';
 import Vector from '../vector';
 import {StreamlineParams} from './streamlines';
