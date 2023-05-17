@@ -1,4 +1,8 @@
 ##### [Support UniversalBit Project](https://github.com/universalbit-dev/universalbit-dev/tree/main/support)
+
+![FabCity](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/images/STL/model_preview.png?raw=true "Procedural City")
+
+
 ## Table of Contents
 
 * [About the Project](#about-the-project)
@@ -16,7 +20,8 @@
 
 ## About The Project
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
-3D models of generated cities can be downloaded as a `.stl`. 
+3D models of generated cities can be downloaded as a `.stl`. //*
+
 #### [Building Tools](https://github.com/universalbit-dev/building_tools)
 
 The download is a `zip` containing multiple `.stl` files for different components of the map.
