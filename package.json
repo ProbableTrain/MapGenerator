@@ -2,7 +2,7 @@
   "name": "mapgenerator",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main.ts",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
