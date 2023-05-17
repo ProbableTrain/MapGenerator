@@ -44,10 +44,6 @@
 
 
 ## About The Project
-
-![Map Generator Screen Shot](docs/images/screenshot.png)
-<!-- TODO YT video -->
-
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
 3D models of generated cities can be downloaded as a `.stl`. The download is a `zip` containing multiple `.stl` files for different components of the map.
 Images of generated cities can be downloaded as a `.png` or an `.svg`. There are a few choices for drawing style, ranging from colour themes similar to Google or Apple maps, to a hand-drawn sketch.
@@ -64,7 +60,7 @@ Images of generated cities can be downloaded as a `.png` or an `.svg`. There are
 To get a local copy up and running follow these steps.
 
 ### Prerequisites
-
+[Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
 
 * npm
 ```sh
@@ -95,15 +91,8 @@ gulp
 ## Usage
 See the [documentation](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/README.md).
 
-
-
-
 ## Roadmap
-
 See the [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
-
-
-
 
 ## Contributing
 
@@ -115,37 +104,10 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/trees-and-airlines"><img src="https://avatars3.githubusercontent.com/u/63573826?v=4" width="100px;" alt=""/><br /><sub><b>trees-and-airlines</b></sub></a><br /><a href="#infra-trees-and-airlines" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    <td align="center"><a href="https://github.com/ProbableTrain"><img src="https://avatars2.githubusercontent.com/u/33726340?v=4" width="100px;" alt=""/><br /><sub><b>Keir</b></sub></a><br /><a href="https://github.com/ProbableTrain/MapGenerator/commits?author=ProbableTrain" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/ersagunkuruca"><img src="https://avatars3.githubusercontent.com/u/8115002?v=4" width="100px;" alt=""/><br /><sub><b>Ersagun Kuruca</b></sub></a><br /><a href="https://github.com/ProbableTrain/MapGenerator/commits?author=ersagunkuruca" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/Jason-Patrick"><img src="https://avatars3.githubusercontent.com/u/65310110?v=4" width="100px;" alt=""/><br /><sub><b>Jason-Patrick</b></sub></a><br /><a href="https://github.com/ProbableTrain/MapGenerator/commits?author=Jason-Patrick" title="Code">💻</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-enable -->
-<!-- prettier-ignore-end -->
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-
 ## Contact
-
-Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
-
-Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
-
-
+##### Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
+##### Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
+#### [Contributors](https://github.com/ProbableTrain/MapGenerator#contributors-)
 
 ## License
-
 Distributed under the LGPL-3.0 License. See [lgpl-3.0.txt](https://www.gnu.org/licenses/lgpl-3.0.txt)
