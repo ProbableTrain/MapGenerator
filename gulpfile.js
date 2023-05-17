@@ -6,7 +6,7 @@ var notify = require("gulp-notify");
 var source = require('vinyl-source-stream');
 var tsify = require('tsify');
 var watchify = require('watchify');
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 
 var paths = {
