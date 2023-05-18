@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as THREE_ADDONS from 'three-addons';
 import * as log from 'loglevel';
 import * as dat from 'dat.gui';
 import TensorFieldGUI from './ts/ui/tensor_field_gui';
