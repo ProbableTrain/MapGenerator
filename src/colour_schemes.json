@@ -17,7 +17,7 @@
 // mainWidth?: number;
 // zoomBuildings?: boolean;
 // buildingModels?: boolean;
-// 
+//
 // Scheme name startsWith 'Drawn' means scheme will use RoughJS canvas
 // // Scheme name startsWith 'Heightmap' draws heightmap
 
@@ -31,6 +31,7 @@
         "minorRoadColour": "#F8F8F8",
         "mainRoadOutline": "#282828",
         "mainRoadColour": "#FAFA7A",
+        "buildingModels": true,
     },
     "Apple": {
         "bgColour": "rgb(248,245,238)",
@@ -45,6 +46,7 @@
         "mainRoadColour": "rgb(250,224,98)",
         "mainRoadOutline": "rgb(238,199,132)",
         "zoomBuildings": true,
+        "buildingModels": true,
         "outlineSize": 2,
     },
     "AppleDark": {
@@ -60,6 +62,7 @@
         "mainRoadColour": "rgb(149,108,62)",
         "mainRoadOutline": "rgb(51,51,51)",
         "zoomBuildings": true,
+        "buildingModels": true,
         "outlineSize": 1,
     },
     "Assassin": {
@@ -69,6 +72,7 @@
         "minorRoadColour": "rgb(127,141,137)",
         "mainRoadColour": "rgb(149,161,157)",
         "mainRoadOutline": "rgb(149,161,157)",
+        "buildingModels": true,
     },
     "Drawn (slow)": {  // Special canvas
         "bgColour": "rgb(242,236,222)",
@@ -78,6 +82,7 @@
         "mainRoadColour": "#222222",
         "buildingStroke": "#333333",
         "buildingColour": "rgb(242,236,222)",
+        "buildingModels": true,
     },
     "Drawn2 (slow)": {  // Special canvas
         "bgColour": "white",
@@ -87,6 +92,7 @@
         "mainRoadColour": "#222222",
         "buildingStroke": "#333333",
         "buildingColour": "rgb(242,236,222)",
+        "buildingModels": true,
     },
     "Google": {
         "bgColour": "rgb(236,236,236)",
@@ -100,7 +106,7 @@
         "minorRoadOutline": "rgb(193,197,214)",
         "mainRoadColour": "rgb(255,242,175)",
         "mainRoadOutline": "rgb(246,207,101)",
-        "zoomBuildings": true,
+        "zoomBuildings": false,
         "buildingModels": true,
         "outlineSize": 2,
     },
@@ -124,7 +130,7 @@
         "bgColour": "rgb(30,30,30)",
         "seaColour": "rgb(20,20,20)",
         "minorRoadColour": "rgb(28,28,28)",
-        "zoomBuildings": false, 
+        "zoomBuildings": false,
         "buildingModels": true,
     },
     "Paper": {
@@ -134,6 +140,7 @@
         "minorRoadColour": "white",
         "minorRoadOutline": "rgb(222,223,227)",
         "outlineSize": 2,
+        "buildingModels": true,
     },
     "SubtleGrey": {
         "bgColour": "rgb(247,247,247)",
@@ -146,11 +153,13 @@
         "mainRoadOutline": "rgb(208,208,208)",
         "mainRoadColour": "rgb(208,208,208)",
         "frameTextColour": "rgb(162,162,157)",
-    },
+        "buildingModels": true,
     "UltraLight": {
         "bgColour": "rgb(247,247,247)",
         "seaColour": "rgb(237,237,237)",
         "buildingStroke": "rgb(238,238,238)",
+        "buildingModels": true,
+      },
         "grassColour": "rgb(229,229,229)",
         "minorRoadColour": "white",
     },
@@ -160,5 +169,6 @@
         "buildingStroke": "rgb(238,238,238)",
         "minorRoadOutline": "rgb(190,190,190)",
         "minorRoadColour": "rgb(238,238,238)",
+        "buildingModels": true,
     }
 }
