@@ -2,7 +2,7 @@ import * as log from 'loglevel';
 //https://threejs.org/manual/#en/fundamentals
 import * as THREE from 'three';
 import { CSG } from 'three-csg-ts';
-import {STLExporter} from './exporter/STLExporter.js'.
+import {exportSTL} from './exporter/STLExporter.js';
 import Vector from './vector';
 import {BuildingModel} from './ui/buildings';
 
@@ -19,7 +19,7 @@ enum ModelGeneratorStates {
 
 export default class ModelGenerator {
     private readonly groundLevel = 20;  // Thickness of groundMesh
-    private exportSTL = new STLExporter() ;
+//https://stackoverflow.com/questions/48072408/how-to-convert-three-js-to-stl-files-for-3d-printing#48073036
     private resolve: (blob: any) => void = b => {};
     private zip: any;
     private state: ModelGeneratorStates = ModelGeneratorStates.WAITING;
@@ -74,12 +74,12 @@ export default class ModelGenerator {
             case ModelGeneratorStates.SUBTRACT_OCEAN: {
                 const seaLevelMesh = this.polygonToMesh(this.ground, 0);
                 this.threeToBlender(seaLevelMesh);
-                const seaLevelSTL = this.exportSTL.parse(seaLevelMesh);
+                const seaLevelSTL = this.exportSTL(seaLevelMesh);
                 this.zip.file("model/domain.stl", seaLevelSTL);
 
                 const seaMesh = this.polygonToMesh(this.sea, 0);
                 this.threeToBlender(seaMesh);
-                const seaMeshSTL = this.exportSTL.parse(seaMesh);
+                const seaMeshSTL = this.exportSTL(seaMesh);
                 this.zip.file("model/sea.stl", seaMeshSTL);
                 this.setState(ModelGeneratorStates.ADD_COASTLINE);
                 break;
@@ -87,7 +87,7 @@ export default class ModelGenerator {
             case ModelGeneratorStates.ADD_COASTLINE: {
                 const coastlineMesh = this.polygonToMesh(this.coastline, 0);
                 this.threeToBlender(coastlineMesh);
-                const coastlineSTL = this.exportSTL.parse(coastlineMesh);
+                const coastlineSTL = this.exportSTL(coastlineMesh);
                 this.zip.file("model/coastline.stl", coastlineSTL);
                 this.setState(ModelGeneratorStates.SUBTRACT_RIVER);
                 break;
@@ -95,7 +95,7 @@ export default class ModelGenerator {
             case ModelGeneratorStates.SUBTRACT_RIVER: {
                 const riverMesh = this.polygonToMesh(this.river, 0);
                 this.threeToBlender(riverMesh);
-                const riverSTL = this.exportSTL.parse(riverMesh);
+                const riverSTL = this.exportSTL(riverMesh);
                 this.zip.file("model/river.stl", riverSTL);
                 this.setState(ModelGeneratorStates.ADD_ROADS);
                 this.polygonsToProcess = this.minorRoads.concat(this.majorRoads).concat(this.mainRoads);
@@ -105,7 +105,7 @@ export default class ModelGenerator {
                 if (this.polygonsToProcess.length === 0) {
                     const mesh = new THREE.Mesh(this.roadsGeometry);
                     this.threeToBlender(mesh);
-                    const buildingsSTL = this.exportSTL.parse(mesh);
+                    const buildingsSTL = this.exportSTL(mesh);
                     this.zip.file("model/roads.stl", buildingsSTL);
 
                     this.setState(ModelGeneratorStates.ADD_BLOCKS);
@@ -122,7 +122,7 @@ export default class ModelGenerator {
                 if (this.polygonsToProcess.length === 0) {
                     const mesh = new THREE.Mesh(this.blocksGeometry);
                     this.threeToBlender(mesh);
-                    const blocksSTL = this.exportSTL.parse(mesh);
+                    const blocksSTL = this.exportSTL(mesh);
                     this.zip.file("model/blocks.stl", blocksSTL);
 
                     this.setState(ModelGeneratorStates.ADD_BUILDINGS);
