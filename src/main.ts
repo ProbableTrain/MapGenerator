@@ -34,7 +34,7 @@ class Main {
 
     // Options
     private imageScale = 3;  // Multiplier for res of downloaded image
-    public highDPI = false;  // Increases resolution for hiDPI displays
+    public highDPI = true;  // Increases resolution for hiDPI displays
 
     // Style options
     private canvas: HTMLCanvasElement;
