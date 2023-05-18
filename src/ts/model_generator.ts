@@ -19,7 +19,6 @@ enum ModelGeneratorStates {
 
 export default class ModelGenerator {
     private readonly groundLevel = 20;  // Thickness of groundMesh
-//https://stackoverflow.com/questions/48072408/how-to-convert-three-js-to-stl-files-for-3d-printing#48073036
     private exportSTL = new STLExporter() ;
     private resolve: (blob: any) => void = b => {};
     private zip: any;
