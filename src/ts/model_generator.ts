@@ -2,7 +2,7 @@ import * as log from 'loglevel';
 //https://threejs.org/manual/#en/fundamentals
 import * as THREE from 'three';
 import { CSG } from 'three-csg-ts';
-import * as exportSTL from './exporter/STLExporter';
+import {STLExporter } from './exporter/STLExporter.js';
 import Vector from './vector';
 import {BuildingModel} from './ui/buildings';
 
