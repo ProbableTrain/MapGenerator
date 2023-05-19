@@ -120,7 +120,6 @@ class Main {
         this.downloadsFolder.add(this, 'imageScale', 1, 5).step(1);
         this.downloadsFolder.add({"PNG": () => this.downloadPng()}, 'PNG');  // This allows custom naming of button
         this.downloadsFolder.add({"SVG": () => this.downloadSVG()}, 'SVG');
-        this.downloadsFolder.add({"STL": () => this.downloadSTL()}, 'STL');
         this.downloadsFolder.add({"Heightmap": () => this.downloadHeightmap()}, 'Heightmap');
 
         this.changeColourScheme(this.colourScheme);
