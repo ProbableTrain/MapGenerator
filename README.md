@@ -21,8 +21,7 @@
 #### [Support](https://ko-fi.com/probabletrain)
 
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
-#### Generated cities can be downloaded as a | '.png' | '.svg' | 'heightmap'| . #### [doc](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/algorithmoverview.md)
-
+#### [Generated](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/algorithmoverview.md) cities can be downloaded as a | '.png' | '.svg' | 'heightmap'| 
 
 #### [Blender City]
 #### [Building Tools](https://github.com/universalbit-dev/building_tools)
