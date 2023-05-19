@@ -19,7 +19,7 @@ var babelconfig = {
 };
 
 var files = [];
-var globFiles = glob.sync("./src/**/*.ts");
+var globFiles = glob.sync("./src/**/*.ts","./src/**/*.js");
 for (var i = 0; i < globFiles.length; i++) {
     files.push(globFiles[i]);
 }
