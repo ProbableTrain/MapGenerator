@@ -16,19 +16,19 @@
 * [License](https://www.gnu.org/licenses/lgpl-3.0.txt)
 * [Contact](#contact)
 
-
-
-## About The Project
+## About The Project: @probabletrain
 #### [WebSite](https://maps.probabletrain.com/#/)
 #### [Support](https://ko-fi.com/probabletrain)
 
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
-3D models of generated cities can be downloaded as a `.stl`. //*
-#### [Three](https://threejs.org/manual/#en/fundamentals)
+#### Generated cities can be downloaded as a | '.png' | '.svg' | 'heightmap'| . #### [doc](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/algorithmoverview.md)
 
+
+#### [Blender City]
 #### [Building Tools](https://github.com/universalbit-dev/building_tools)
 
 ## Getting Started
+#### [Three](https://threejs.org/manual/#en/fundamentals)
 To get a local copy up and running follow these steps.
 ### [Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
 
