@@ -17,7 +17,7 @@ export interface BuildingModel {
 }
 
 /**
- * Pseudo 3D buildings
+ * Pseudo 3D buildings //https://www.youtube.com/watch?v=h6cyNPe5kZg
  */
 class BuildingModels {
     private domainController = DomainController.getInstance();
