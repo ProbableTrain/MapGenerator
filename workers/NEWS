@@ -1,0 +1,307 @@
+Version 2.5.1 - Jun 25, 2020
+
+- Add support for bech32 addresses (BIP 173)
+
+Version 2.5.0 - Jun 22, 2017
+
+- Add Segwit support
+- Add support for 64-bit PowerPC
+
+Version 2.4.5 - Jun 10, 2016
+
+- Fix a memory leak affecting long polling
+
+Version 2.4.4 - Mar 24, 2016
+
+- Fix memory leaks affecting getblocktemplate
+
+Version 2.4.3 - Jan 24, 2016
+
+- Add support for the VIA PadLock Hash Engine on x86-64
+- Allow block version 4 when using getblocktemplate
+
+Version 2.4.2 - Apr 28, 2015
+
+- Add support for Stratum over TLS
+- Allow block version 3 when using getblocktemplate
+
+Version 2.4.1 - Feb 25, 2015
+
+- Add support for scrypt(N, 1, 1)
+- Add optimized PowerPC code for scrypt and SHA-256d
+- Allow use of getblocktemplate with merge-mined cryptocurrencies
+- Automatically switch to getwork if no payout address is provided
+- Fix CVE-2014-6251
+
+Version 2.4 - May 20, 2014
+
+- Add support for the getblocktemplate RPC method (BIP 22)
+- Allow tunnelling Stratum through HTTP proxies
+- Add a --no-redirect option to ignore redirection requests
+- Timeout for long polling is now disabled by default
+- Fix CPU affinity on Linux (kiyominer)
+- Add support for building under 64-bit Cygwin
+- Expand version information with build details
+
+Version 2.3.3 - Feb 27, 2014
+
+- The --url option is now mandatory
+- Do not switch to Stratum when using an HTTP proxy
+- Fix scheduling policy change on Linux (clbr)
+- Fix CPU affinity on FreeBSD (ache)
+- Compatibility fixes for various platforms, including Solaris 8
+  and old versions of OS X
+- A man page for minerd is now available
+
+Version 2.3.2 - Jul 10, 2013
+
+- Add optimizations for AVX2-capable x86-64 processors
+- Ensure that the output stream is flushed after every log message
+- Fix an undefined-behavior bug in the Stratum code
+
+Version 2.3.1 - Jun 18, 2013
+
+- Add a --cert option for specifying an SSL certificate (martinwguy)
+- Fix a bug that only made SHA-256d mining work at difficulty 1
+- Fix a couple of compatibility issues with some Stratum servers
+
+Version 2.3 - Jun 12, 2013
+
+- Add support for the Stratum mining protocol
+- Automatically switch to Stratum if the mining server supports
+  the X-Stratum extension, unless --no-stratum is used
+- Set CPU affinity on FreeBSD (lye)
+- Fix a bug in libcurl initialization (martinwguy)
+
+Version 2.2.3 - Aug 5, 2012
+
+- Add optimized ARM NEON code for scrypt and SHA-256d
+- Add a --benchmark option that allows offline testing
+- Support for the X-Reject-Reason extension
+
+Version 2.2.2 - Jun 7, 2012
+
+- Various performance improvements for x86 and x86-64
+- Optimize scrypt for ARMv5E and later processors
+- Set the priority of miner threads to idle on Windows
+- Add an option to start minerd as a daemon on POSIX systems
+
+Version 2.2.1 - May 2, 2012
+
+- Add optimized code for ARM processors
+- Support for building on NetBSD and OpenBSD
+- Various compatibility fixes for AIX (pontius)
+
+Version 2.2 - Apr 2, 2012
+
+- Add an optimized SHA-256d algorithm, with specialized code
+  for x86 and x86-64 and support for AVX and XOP instructions
+- Slight performance increase for scrypt on x86 and x86-64
+- The default timeout is now 270 seconds
+
+Version 2.1.5 - Mar 7, 2012
+
+- Add optimizations for AVX-capable x86-64 processors
+- Assume HTTP if no protocol is specified for the mining server
+- Fix MinGW compatibility issues and update build instructions
+- Add support for building on Solaris using gcc (pontius)
+
+Version 2.1.4 - Feb 28, 2012
+
+- Implement 4-way SHA-256 on x86-64
+- Add TCP keepalive to long polling connections
+- Support HTTP and SOCKS proxies via the --proxy option
+- Username and password are no longer mandatory
+- Add a script that makes assembly code compatible with old versions
+  of the GNU assembler that do not support macros
+
+Version 2.1.3 - Feb 12, 2012
+
+- Smart handling of long polling failures: switch to short scan time
+  if long polling fails, and only try to reactivate it if the server
+  continues to advertise the feature in HTTP headers
+- Add "X-Mining-Extensions: midstate" to HTTP headers (p2k)
+- Add support for the "submitold" extension, used by p2pool
+- It is now possible to specify username and password in the URL,
+  like this: http://username:password@host:port/
+- Add a --version option, and clean up --help output
+- Avoid division by zero when computing hash rates
+- Handle empty responses properly (TimothyA)
+- Eliminate the delay between starting threads
+
+Version 2.1.2 - Jan 26, 2012
+
+- Do not submit work that is known to be stale
+- Allow miner threads to ask for new work if the current one is at least
+  45 seconds old and long polling is enabled
+- Refresh work when long polling times out
+- Fix minor speed regression
+- Modify x86-64 code to make it compatible with older versions of binutils
+
+Version 2.1.1 - Jan 20, 2012
+
+- Handle network errors properly
+- Make scantime retargeting more accurate
+
+Version 2.1 - Jan 19, 2012
+
+- Share the same work among all threads
+- Do not ask for new work if the current one is not expired
+- Do not discard the work returned by long polling
+
+Version 2.0 - Jan 16, 2012
+
+- Change default port to 9332 for Litecoin and remove default credentials
+- Add 'scrypt' as the default algorithm and remove other algorithms (ArtForz)
+- Optimize scrypt for x86 and x86-64
+- Make scantime retargeting less granular (ArtForz)
+- Test the whole hash instead of just looking at the high 32 bits
+- Add configurable timeout, with a default of 180 seconds
+- Add share summary output (inlikeflynn)
+- Fix priority and CPU count detection on Windows
+- Fix parameters -u and -p, and add short options -o and -O
+
+Version 1.0.2 - Jun 13, 2011
+
+- Linux x86_64 optimisations - Con Kolivas
+- Optimise for x86_64 by default by using sse2_64 algo
+- Detects CPUs and sets number of threads accordingly
+- Uses CPU affinity for each thread where appropriate
+- Sets scheduling policy to lowest possible
+- Minor performance tweaks
+
+Version 1.0.1 - May 14, 2011
+
+- OSX support
+
+Version 1.0 - May 9, 2011
+
+- jansson 2.0 compatibility
+- correct off-by-one in date (month) display output
+- fix platform detection
+- improve yasm configure bits
+- support full URL, in X-Long-Polling header
+
+Version 0.8.1 - March 22, 2011
+
+- Make --user, --pass actually work
+
+- Add User-Agent HTTP header to requests, so that server operators may
+  more easily identify the miner client.
+
+- Fix minor bug in example JSON config file
+
+Version 0.8 - March 21, 2011
+
+- Support long polling: http://deepbit.net/longpolling.php
+
+- Adjust max workload based on scantime (default 5 seconds,
+  or 60 seconds for longpoll)
+
+- Standardize program output, and support syslog on Unix platforms
+
+- Suport --user/--pass options (and "user" and "pass" in config file),
+  as an alternative to the current --userpass
+
+Version 0.7.2 - March 14, 2011
+
+- Add port of ufasoft's sse2 assembly implementation (Linux only)
+  This is a substantial speed improvement on Intel CPUs.
+
+- Move all JSON-RPC I/O to separate thread.  This reduces the
+  number of HTTP connections from one-per-thread to one, reducing resource
+  usage on upstream bitcoind / pool server.
+
+Version 0.7.1 - March 2, 2011
+
+- Add support for JSON-format configuration file.  See example
+  file example-cfg.json.  Any long argument on the command line
+  may be stored in the config file.
+- Timestamp each solution found
+- Improve sha256_4way performance.  NOTE: This optimization makes
+  the 'hash' debug-print output for sha256_way incorrect.
+- Use __builtin_expect() intrinsic as compiler micro-optimization
+- Build on Intel compiler
+- HTTP library now follows HTTP redirects
+
+Version 0.7 - February 12, 2011
+
+- Re-use CURL object, thereby reuseing DNS cache and HTTP connections
+- Use bswap_32, if compiler intrinsic is not available
+- Disable full target validation (as opposed to simply H==0) for now
+
+Version 0.6.1 - February 4, 2011
+
+- Fully validate "hash < target", rather than simply stopping our scan
+  if the high 32 bits are 00000000.
+- Add --retry-pause, to set length of pause time between failure retries
+- Display proof-of-work hash and target, if -D (debug mode) enabled
+- Fix max-nonce auto-adjustment to actually work.  This means if your
+  scan takes longer than 5 seconds (--scantime), the miner will slowly
+  reduce the number of hashes you work on, before fetching a new work unit.
+
+Version 0.6 - January 29, 2011
+
+- Fetch new work unit, if scanhash takes longer than 5 seconds (--scantime)
+- BeeCee1's sha256 4way optimizations
+- lfm's byte swap optimization (improves via, cryptopp)
+- Fix non-working short options -q, -r
+
+Version 0.5 - December 28, 2010
+
+- Exit program, when all threads have exited
+- Improve JSON-RPC failure diagnostics and resilience
+- Add --quiet option, to disable hashmeter output.
+
+Version 0.3.3 - December 27, 2010
+
+- Critical fix for sha256_cryptopp 'cryptopp_asm' algo
+
+Version 0.3.2 - December 23, 2010
+
+- Critical fix for sha256_via
+
+Version 0.3.1 - December 19, 2010
+
+- Critical fix for sha256_via
+- Retry JSON-RPC failures (see --retry, under "minerd --help" output)
+
+Version 0.3 - December 18, 2010
+
+- Add crypto++ 32bit assembly implementation
+- show version upon 'minerd --help'
+- work around gcc 4.5.x bug that killed 4way performance
+
+Version 0.2.2 - December 6, 2010
+
+- VIA padlock implementation works now
+- Minor build and runtime fixes
+
+Version 0.2.1 - November 29, 2010
+
+- avoid buffer overflow when submitting solutions
+- add Crypto++ sha256 implementation (C only, ASM elided for now)
+- minor internal optimizations and cleanups
+
+Version 0.2 - November 27, 2010
+
+- Add script for building a Windows installer
+- improve hash performance (hashmeter) statistics
+- add tcatm 4way sha256 implementation
+- Add experimental VIA Padlock sha256 implementation
+
+Version 0.1.2 - November 26, 2010
+
+- many small cleanups and micro-optimizations
+- build win32 exe using mingw
+- RPC URL, username/password become command line arguments
+- remove unused OpenSSL dependency
+
+Version 0.1.1 - November 24, 2010
+
+- Do not build sha256_generic module separately from cpuminer.
+
+Version 0.1 - November 24, 2010
+
+- Initial release.
+
