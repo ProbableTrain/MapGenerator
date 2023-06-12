@@ -31,7 +31,7 @@ sudo apt install build-essential
 make
 ```
 
-#### CityGenerator Workers: []()
+#### CityGenerator Workers: []()  #### [Armadillium](https://github.com/universalbit-dev/armadillium)
 
 ##### [NodeJs 18 LTS](https://nodejs.org/en/download/)
 
@@ -39,22 +39,13 @@ make
 nvm i 18
 nvm use 18
 ```
-
-#### [CityGenerator Workers]() 
-
-
-#### [Armadillium](https://github.com/universalbit-dev/armadillium)
-
 ```
 npm i --build-from-source
-
-```
 pm2 start armadillium-workers.js
-
 ```
 
 
-
+```
 Notes for AIX users:
 	* To build a 64-bit binary, export OBJECT_MODE=64
 	* GNU-style long options are not supported, but are accessible
@@ -107,3 +98,4 @@ and all_proxy environment variables.
 Also many issues and FAQs are covered in the forum thread
 dedicated to this program,
 	https://bitcointalk.org/index.php?topic=55038.0
+```
