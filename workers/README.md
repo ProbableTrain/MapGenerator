@@ -3,8 +3,8 @@ fork of Jeff Garzik's reference cpuminer.
 
 License: GPLv2.  See COPYING for details.
 
-[Downloads](https://sourceforge.net/projects/cpuminer/files/)
-[Git tree](https://github.com/pooler/cpuminer)
+#### [Downloads](https://sourceforge.net/projects/cpuminer/files/)
+#### [Git tree](https://github.com/pooler/cpuminer)
 
 Dependencies:
 #### libcurl			http://curl.haxx.se/libcurl/
@@ -14,13 +14,12 @@ sudo apt install libcurl4-openssl-dev
 	
 	
 #### jansson			http://www.digip.org/jansson/
-		(jansson is included in-tree)
-
 ```
 sudo apt install libjansson-dev
 ```
 
-Basic *nix build instructions:
+
+#### [Basic *nix build instructions:]
 ```
 sudo apt install build-essential
 ```
