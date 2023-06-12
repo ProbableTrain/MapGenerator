@@ -38,18 +38,21 @@
 #include "miner.h"
 #include "elist.h"
 
+struct data_buffer {
+	void		*buf;
+	size_t		len;
+};
+
+struct upload_buffer {
+	const void	*buf;
+	size_t		len;
+	size_t		pos;
+};
+
 struct header_info {
 	char		*lp_path;
 	char		*reason;
 	char		*stratum_url;
-	size_t		content_length;
-};
-
-struct data_buffer {
-	void			*buf;
-	size_t			len;
-	size_t			allocated;
-	struct header_info	*headers;
 };
 
 struct tq_ent {
@@ -185,50 +188,64 @@ static size_t all_data_cb(const void *ptr, size_t size, size_t nmemb,
 {
 	struct data_buffer *db = user_data;
 	size_t len = size * nmemb;
-	size_t newalloc, reqalloc;
+	size_t oldlen, newlen;
 	void *newmem;
 	static const unsigned char zero = 0;
-	static const size_t max_realloc_increase = 8 * 1024 * 1024;
-	static const size_t initial_alloc = 16 * 1024;
 
-	/* minimum required allocation size */
-	reqalloc = db->len + len + 1;
+	oldlen = db->len;
+	newlen = oldlen + len;
 
-	if (reqalloc > db->allocated) {
-		if (db->len > 0) {
-			newalloc = db->allocated * 2;
-		} else {
-			if (db->headers->content_length > 0)
-				newalloc = db->headers->content_length + 1;
-			else
-				newalloc = initial_alloc;
-		}
+	newmem = realloc(db->buf, newlen + 1);
+	if (!newmem)
+		return 0;
 
-		if (db->headers->content_length == 0) {
-			/* limit the maximum buffer increase */
-			if (newalloc - db->allocated > max_realloc_increase)
-				newalloc = db->allocated + max_realloc_increase;
-		}
-
-		/* ensure we have a big enough allocation */
-		if (reqalloc > newalloc)
-			newalloc = reqalloc;
-
-		newmem = realloc(db->buf, newalloc);
-		if (!newmem)
-			return 0;
-
-		db->buf = newmem;
-		db->allocated = newalloc;
-	}
-
-	memcpy(db->buf + db->len, ptr, len); /* append new data */
-	memcpy(db->buf + db->len + len, &zero, 1); /* null terminate */
-
-	db->len += len;
+	db->buf = newmem;
+	db->len = newlen;
+	memcpy(db->buf + oldlen, ptr, len);
+	memcpy(db->buf + newlen, &zero, 1);	/* null terminate */
 
 	return len;
 }
+
+static size_t upload_data_cb(void *ptr, size_t size, size_t nmemb,
+			     void *user_data)
+{
+	struct upload_buffer *ub = user_data;
+	int len = size * nmemb;
+
+	if (len > ub->len - ub->pos)
+		len = ub->len - ub->pos;
+
+	if (len) {
+		memcpy(ptr, ub->buf + ub->pos, len);
+		ub->pos += len;
+	}
+
+	return len;
+}
+
+#if LIBCURL_VERSION_NUM >= 0x071200
+static int seek_data_cb(void *user_data, curl_off_t offset, int origin)
+{
+	struct upload_buffer *ub = user_data;
+	
+	switch (origin) {
+	case SEEK_SET:
+		ub->pos = offset;
+		break;
+	case SEEK_CUR:
+		ub->pos += offset;
+		break;
+	case SEEK_END:
+		ub->pos = ub->len + offset;
+		break;
+	default:
+		return 1; /* CURL_SEEKFUNC_FAIL */
+	}
+
+	return 0; /* CURL_SEEKFUNC_OK */
+}
+#endif
 
 static size_t resp_hdr_cb(void *ptr, size_t size, size_t nmemb, void *user_data)
 {
@@ -280,9 +297,6 @@ static size_t resp_hdr_cb(void *ptr, size_t size, size_t nmemb, void *user_data)
 		hi->stratum_url = val;	/* steal memory reference */
 		val = NULL;
 	}
-
-	if (!strcasecmp("Content-Length", key))
-		hi->content_length = strtoul(val, NULL, 10);
 
 out:
 	free(key);
@@ -342,14 +356,15 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 	int rc;
 	long http_rc;
 	struct data_buffer all_data = {0};
+	struct upload_buffer upload_data;
 	char *json_buf;
 	json_error_t err;
 	struct curl_slist *headers = NULL;
+	char len_hdr[64];
 	char curl_err_str[CURL_ERROR_SIZE];
 	long timeout = (flags & JSON_RPC_LONGPOLL) ? opt_timeout : 30;
 	struct header_info hi = {0};
 
-	all_data.headers = &hi;
 	/* it is assumed that 'curl' is freshly [re]initialized at this pt */
 
 	if (opt_protocol)
@@ -363,6 +378,12 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 	curl_easy_setopt(curl, CURLOPT_TCP_NODELAY, 1);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, all_data_cb);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &all_data);
+	curl_easy_setopt(curl, CURLOPT_READFUNCTION, upload_data_cb);
+	curl_easy_setopt(curl, CURLOPT_READDATA, &upload_data);
+#if LIBCURL_VERSION_NUM >= 0x071200
+	curl_easy_setopt(curl, CURLOPT_SEEKFUNCTION, &seek_data_cb);
+	curl_easy_setopt(curl, CURLOPT_SEEKDATA, &upload_data);
+#endif
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_err_str);
 	if (opt_redirect)
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -381,12 +402,19 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 	if (flags & JSON_RPC_LONGPOLL)
 		curl_easy_setopt(curl, CURLOPT_SOCKOPTFUNCTION, sockopt_keepalive_cb);
 #endif
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, rpc_req);
+	curl_easy_setopt(curl, CURLOPT_POST, 1);
 
 	if (opt_protocol)
 		applog(LOG_DEBUG, "JSON protocol request:\n%s\n", rpc_req);
 
+	upload_data.buf = rpc_req;
+	upload_data.len = strlen(rpc_req);
+	upload_data.pos = 0;
+	sprintf(len_hdr, "Content-Length: %lu",
+		(unsigned long) upload_data.len);
+
 	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, len_hdr);
 	headers = curl_slist_append(headers, "User-Agent: " USER_AGENT);
 	headers = curl_slist_append(headers, "X-Mining-Extensions: midstate");
 	headers = curl_slist_append(headers, "Accept:"); /* disable Accept hdr*/
@@ -508,42 +536,29 @@ char *abin2hex(const unsigned char *p, size_t len)
 
 bool hex2bin(unsigned char *p, const char *hexstr, size_t len)
 {
-	if(hexstr == NULL)
-		return false;
+	char hex_byte[3];
+	char *ep;
 
-	size_t hexstr_len = strlen(hexstr);
-	if((hexstr_len % 2) != 0) {
-		applog(LOG_ERR, "hex2bin str truncated");
-		return false;
-	}
+	hex_byte[2] = '\0';
 
-	size_t bin_len = hexstr_len / 2;
-	if (bin_len > len) {
-		applog(LOG_ERR, "hex2bin buffer too small");
-		return false;
-	}
-
-	memset(p, 0, len);
-
-	size_t i = 0;
-	while (i < hexstr_len) {
-		char c = hexstr[i];
-		unsigned char nibble;
-		if(c >= '0' && c <= '9') {
-			nibble = (c - '0');
-		} else if (c >= 'A' && c <= 'F') {
-			nibble = (10 + (c - 'A'));
-		} else if (c >= 'a' && c <= 'f') {
-			nibble = (10 + (c - 'a'));
-		} else {
-			applog(LOG_ERR, "hex2bin invalid hex");
+	while (*hexstr && len) {
+		if (!hexstr[1]) {
+			applog(LOG_ERR, "hex2bin str truncated");
 			return false;
 		}
-		p[(i / 2)] |= (nibble << ((1 - (i % 2)) * 4));
-		i++;
+		hex_byte[0] = hexstr[0];
+		hex_byte[1] = hexstr[1];
+		*p = (unsigned char) strtol(hex_byte, &ep, 16);
+		if (*ep) {
+			applog(LOG_ERR, "hex2bin failed on '%s'", hex_byte);
+			return false;
+		}
+		p++;
+		hexstr += 2;
+		len--;
 	}
 
-	return true;
+	return (len == 0 && *hexstr == 0) ? true : false;
 }
 
 int varint_encode(unsigned char *p, uint64_t n)

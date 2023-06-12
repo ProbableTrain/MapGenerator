@@ -1,0 +1,35 @@
+{
+  "name": "workers",
+  "version": "1.0.0",
+  "description": "citygenerator blockchain workers",
+  "main": "armadillium-worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/universalbit-dev/CityGenerator.git"
+  },
+  "keywords": [
+    "blockchain",
+    "workers",
+    "citygenerator",
+    "educational",
+    "cryptocurrency"
+  ],
+  "author": "UniversalBit",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@neurosity/reinforcejs": "^1.0.0",
+    "convnet": "^1.0.0",
+    "crypto-js": "^3.1.9-1",
+    "fs-extra": "^11.1.0",
+    "humanize-duration": "^3.20.1",
+    "lodash": "^4.17.21",
+    "pm2": "^5.3.0"
+  },
+  "bugs": {
+    "url": "https://github.com/universalbit-dev/CityGenerator/issues"
+  },
+  "homepage": "https://github.com/universalbit-dev/CityGenerator#readme"
+}
