@@ -2,7 +2,7 @@
   "name": "workers",
   "version": "1.0.0",
   "description": "citygenerator blockchain workers",
-  "main": "armadillium-worker.js",
+  "main": "armadillium-workers.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
