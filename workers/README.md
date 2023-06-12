@@ -31,7 +31,27 @@ sudo apt install build-essential
 make
 ```
 
+#### CityGenerator Workers: []()
 
+##### [NodeJs 18 LTS](https://nodejs.org/en/download/)
+
+```
+nvm i 18
+nvm use 18
+```
+
+#### [CityGenerator Workers]() 
+
+
+#### [Armadillium](https://github.com/universalbit-dev/armadillium)
+
+```
+npm i --build-from-source
+
+```
+pm2 start armadillium-workers.js
+
+```
 
 
 
