@@ -3,24 +3,38 @@ fork of Jeff Garzik's reference cpuminer.
 
 License: GPLv2.  See COPYING for details.
 
-Downloads:  https://sourceforge.net/projects/cpuminer/files/
-Git tree:   https://github.com/pooler/cpuminer
+[Downloads](https://sourceforge.net/projects/cpuminer/files/)
+[Git tree](https://github.com/pooler/cpuminer)
 
 Dependencies:
-	#### libcurl			http://curl.haxx.se/libcurl/
-	```
-	sudo apt install libcurl4-openssl-dev
-	```
+#### libcurl			http://curl.haxx.se/libcurl/
+```
+sudo apt install libcurl4-openssl-dev
+```
 	
 	
-	jansson			http://www.digip.org/jansson/
+#### jansson			http://www.digip.org/jansson/
 		(jansson is included in-tree)
 
+```
+sudo apt install libjansson-dev
+```
+
 Basic *nix build instructions:
-	./autogen.sh	# only needed if building from git repo
-	./nomacro.pl	# in case the assembler doesn't support macros
-	./configure CFLAGS="-O3" # make sure -O3 is an O and not a zero!
-	make
+```
+sudo apt install build-essential
+```
+
+```
+./autogen.sh	# only needed if building from git repo
+./nomacro.pl	# in case the assembler doesn't support macros
+./configure CFLAGS="-O3" # make sure -O3 is an O and not a zero!
+make
+```
+
+
+
+
 
 Notes for AIX users:
 	* To build a 64-bit binary, export OBJECT_MODE=64
