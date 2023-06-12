@@ -29,6 +29,7 @@
     "@types/file-saver": "^2.0.1",
     "@types/jsts": "^0.17.2",
     "@types/three": "^0.149.0",
+    "chokidar": "^3.5.3",
     "d3": "^7.8.4",
     "d3-quadtree": "^1.0.7",
     "dat.gui": "^0.7.6",
@@ -38,9 +39,7 @@
     "isect": "^3.0.0",
     "jsts": "^2.7.1",
     "jszip": "^3.4.0",
-    "lodash": "^3.10.1",
-    "lodash.bindall": "^3.1.0",
-    "lodash.noop": "^3.0.1",
+    "lodash": "^4.17.21",
     "loglevel": "^1.6.7",
     "polyk": "^0.24.0",
     "roughjs": "^4.2.0",
@@ -48,7 +47,8 @@
     "simplify-js": "^1.2.4",
     "three": "^0.152.2",
     "three-addons": "^1.2.0",
-    "three-csg-ts": "^1.0.4"
+    "three-csg-ts": "^1.0.4",
+    "typescript-parser": "^2.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
