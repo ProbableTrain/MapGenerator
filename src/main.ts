@@ -195,7 +195,7 @@ class Main {
                 blocks,
             );
 
-            this.modelGenerator.getSTL().then(blob => this.downloadFile('model.zip', blob));
+            
         });
     }
 
