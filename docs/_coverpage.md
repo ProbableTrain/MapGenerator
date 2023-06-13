@@ -1,15 +1,14 @@
 <!-- _coverpage.md -->
 
-# Map Generator
+# CityGenerator
 
-> Create procedural American-style cities
+> Create procedural City
 
 - Run in browser
 - PNG, SVG download
-- STL download
 
-[Launch](https://probabletrain.itch.io/city-generator)
-[GitHub](https://github.com/probabletrain/mapgenerator)
+[Author](https://probabletrain.itch.io/city-generator)
+[GitHub](https://github.com/universalbit-dev/CityGenerator/)
 [Usage](usageguide.md)
 [Implementation](algorithmoverview.md)
 
