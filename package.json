@@ -6,11 +6,11 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "npm install jsts@2.7.1 --save --include=dev && npm list three"
+    "postinstall": "npm install jsts@2.7.1 --save --include=dev && npm list three && npm i chokidar@latest -g"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ProbableTrain/MapGenerator.git"
+    "url": "git+https://github.com/universalbit-dev/CityGenerator/"
   },
   "contribution": "universalbit-dev",
   "author": "@probabletrain",
@@ -18,9 +18,9 @@
   "license": "LGPL-3.0",
   "info": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
   "bugs": {
-    "url": "https://github.com/ProbableTrain/MapGenerator/issues"
+    "url": "https://github.com/universalbit-dev/CityGenerator/issues"
   },
-  "homepage": "https://github.com/ProbableTrain/MapGenerator#readme",
+  "homepage": "https://github.com/universalbit-dev/CityGenerator/blob/master/README.md",
   "dependencies": {
     "@interactjs/types": "^1.9.8",
     "@svgdotjs/svg.js": "^3.0.16",
@@ -48,7 +48,8 @@
     "three": "^0.152.2",
     "three-addons": "^1.2.0",
     "three-csg-ts": "^1.0.4",
-    "typescript-parser": "^2.6.1"
+    "typescript-parser": "^2.6.1",
+    "vue": "^3.3.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
