@@ -1,7 +1,5 @@
 ##### [Support UniversalBit Project](https://github.com/universalbit-dev/universalbit-dev/tree/main/support)
 
-![FabCity](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/images/STL/model_preview.png?raw=true "Procedural City")
-
 
 ## Table of Contents
 
