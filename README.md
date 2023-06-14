@@ -71,3 +71,7 @@ Contributions are what make the open source community such an amazing place to b
 
 ## License
 Distributed under the LGPL-3.0 License. See [lgpl-3.0.txt](https://www.gnu.org/licenses/lgpl-3.0.txt)
+
+[Bash Reference Manual](https://www.gnu.org/software/bash/manual/html_node/index.html)
+
+
