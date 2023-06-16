@@ -172,33 +172,6 @@ class Main {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
-    downloadSTL(): void {
-        // All in screen space
-        const extendScreenX = this.domainController.screenDimensions.x * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
-        const extendScreenY = this.domainController.screenDimensions.y * ((Util.DRAW_INFLATE_AMOUNT - 1) / 2);
-        const ground: Vector[] = [
-            new Vector(-extendScreenX, -extendScreenY),
-            new Vector(-extendScreenX, this.domainController.screenDimensions.y + extendScreenY),
-            new Vector(this.domainController.screenDimensions.x + extendScreenX, this.domainController.screenDimensions.y + extendScreenY),
-            new Vector(this.domainController.screenDimensions.x + extendScreenX, -extendScreenY),
-        ];
-
-        this.mainGui.getBlocks().then((blocks) => {
-            this.modelGenerator = new ModelGenerator(ground,
-                this.mainGui.seaPolygon,
-                this.mainGui.coastlinePolygon,
-                this.mainGui.riverPolygon,
-                this.mainGui.mainRoadPolygons,
-                this.mainGui.majorRoadPolygons,
-                this.mainGui.minorRoadPolygons,
-                this.mainGui.buildingModels,
-                blocks,
-            );
-
-            
-        });
-    }
-
     private downloadFile(filename: string, file: any): void {
         saveAs(file, filename);
     }
