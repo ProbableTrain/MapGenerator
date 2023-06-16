@@ -17,43 +17,43 @@ import ModelGenerator from './ts/model_generator';
 import { saveAs } from 'file-saver';
 
 class Main {
-    private readonly STARTING_WIDTH = 1440;  // Initially zooms in if width > STARTING_WIDTH
+    public readonly STARTING_WIDTH = 1440;  // Initially zooms in if width > STARTING_WIDTH
 
     // UI
-    private gui: dat.GUI = new dat.GUI({width: 300});
-    private tensorFolder: dat.GUI;
-    private roadsFolder: dat.GUI;
-    private styleFolder: dat.GUI;
-    private optionsFolder: dat.GUI;
-    private downloadsFolder: dat.GUI;
+    public gui: dat.GUI = new dat.GUI({width: 300});
+    public tensorFolder: dat.GUI;
+    public roadsFolder: dat.GUI;
+    public styleFolder: dat.GUI;
+    public optionsFolder: dat.GUI;
+    public downloadsFolder: dat.GUI;
 
-    private domainController = DomainController.getInstance();
-    private dragController = new DragController(this.gui);
-    private tensorField: TensorFieldGUI;
-    private mainGui: MainGUI;  // In charge of glueing everything together
+    public domainController = DomainController.getInstance();
+    public dragController = new DragController(this.gui);
+    public tensorField: TensorFieldGUI;
+    public mainGui: MainGUI;  // In charge of glueing everything together
 
     // Options
-    private imageScale = 3;  // Multiplier for res of downloaded image
+    public imageScale = 3;  // Multiplier for res of downloaded image
     public highDPI = true;  // Increases resolution for hiDPI displays
 
     // Style options
-    private canvas: HTMLCanvasElement;
-    private tensorCanvas: DefaultCanvasWrapper;
-    private _style: Style;
-    private colourScheme: string = "Google";  // See colour_schemes.json
-    private zoomBuildings: boolean = false;  // Show buildings only when zoomed in?
-    private buildingModels: boolean = true;  // Draw pseudo-3D buildings?
-    private showFrame: boolean = false;
+    public canvas: HTMLCanvasElement;
+    public tensorCanvas: DefaultCanvasWrapper;
+    public _style: Style;
+    public colourScheme: string = "Google";  // See colour_schemes.json
+    public zoomBuildings: boolean = false;  // Show buildings only when zoomed in?
+    public buildingModels: boolean = true;  // Draw pseudo-3D buildings?
+    public showFrame: boolean = false;
 
     // Force redraw of roads when switching from tensor vis to map vis
-    private previousFrameDrawTensor = true;
+    public previousFrameDrawTensor = true;
 
     // 3D camera position
-    private cameraX = 0;
-    private cameraY = 0;
+    public cameraX = 0;
+    public cameraY = 0;
 
-    private firstGenerate = true;  // Don't randomise tensor field on first generate
-    private modelGenerator: ModelGenerator;
+    public firstGenerate = true;  // Don't randomise tensor field on first generate
+    public modelGenerator: ModelGenerator;
 
     constructor() {
         // GUI Setup
@@ -102,7 +102,7 @@ class Main {
         this.styleFolder.add(this, 'cameraY', -15, 15).step(1).onChange(() => this.setCameraDirection());
 
 
-        const noiseParamsPlaceholder: NoiseParams = {  // Placeholder values for park + water noise
+        var noiseParamsPlaceholder: NoiseParams = {  // Placeholder values for park + water noise
             globalNoise: false,
             noiseSizePark: 20,
             noiseAnglePark: 90,
@@ -172,7 +172,7 @@ class Main {
         this.domainController.cameraDirection = new Vector(this.cameraX / 10, this.cameraY / 10);
     }
 
-    private downloadFile(filename: string, file: any): void {
+    public downloadFile(filename: string, file: any): void {
         saveAs(file, filename);
     }
 
@@ -227,13 +227,6 @@ class Main {
 
         const serializer = new XMLSerializer();
         let source = serializer.serializeToString(svgElement);
-        //add name spaces.
-        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-        }
-        if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-        }
 
         //add xml declaration
         source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
@@ -251,7 +244,7 @@ class Main {
         element.clear();
     }
 
-    private showTensorField(): boolean {
+    public showTensorField(): boolean {
         return !this.tensorFolder.closed || this.mainGui.roadsEmpty();
     }
 
