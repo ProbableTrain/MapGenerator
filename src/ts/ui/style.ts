@@ -40,28 +40,28 @@ export interface ColourScheme {
  * Controls how screen-space data is drawn
  */
 export default abstract class Style {
-    protected canvas: CanvasWrapper;
-    protected domainController: DomainController = DomainController.getInstance();
-    public abstract createCanvasWrapper(c: HTMLCanvasElement, scale: number, resizeToWindow: boolean): CanvasWrapper;
-    public abstract draw(canvas?: CanvasWrapper): void;
+    canvas: CanvasWrapper;
+    domainController: DomainController = DomainController.getInstance();
+    abstract createCanvasWrapper(c: HTMLCanvasElement, scale: number, resizeToWindow: boolean): CanvasWrapper;
+    abstract draw(canvas?: CanvasWrapper): void;
 
-    public update(): void {}
+    update(): void {}
 
     // Polygons
-    public seaPolygon: Vector[] = [];
-    public lots: Vector[][] = [];
-    public buildingModels: BuildingModel[] = [];
-    public parks: Vector[][] = [];
+    seaPolygon: Vector[] = [];
+    lots: Vector[][] = [];
+    buildingModels: BuildingModel[] = [];
+    parks: Vector[][] = [];
 
     // Polylines
-    public coastline: Vector[] = [];
-    public river: Vector[] = [];
-    public secondaryRiver: Vector[] = [];
-    public minorRoads: Vector[][] = [];
-    public majorRoads: Vector[][] = [];
-    public mainRoads: Vector[][] = [];
-    public coastlineRoads: Vector[][] = [];
-    public showFrame: boolean;
+    coastline: Vector[] = [];
+    river: Vector[] = [];
+    secondaryRiver: Vector[] = [];
+    minorRoads: Vector[][] = [];
+    majorRoads: Vector[][] = [];
+    mainRoads: Vector[][] = [];
+    coastlineRoads: Vector[][] = [];
+    showFrame: boolean;
 
     constructor(protected dragController: DragController, protected colourScheme: ColourScheme) {
         if (!colourScheme.bgColour) log.error("ColourScheme Error - bgColour not defined");
@@ -98,42 +98,42 @@ export default abstract class Style {
         }
     }
 
-    public set zoomBuildings(b: boolean) {
+    set zoomBuildings(b: boolean) {
         this.colourScheme.zoomBuildings = b;
     }
 
-    public set showBuildingModels(b: boolean) {
+    set showBuildingModels(b: boolean) {
         this.colourScheme.buildingModels = b;
     }
 
-    public get showBuildingModels(): boolean {
+    get showBuildingModels(): boolean {
         return this.colourScheme.buildingModels;
     }
 
-    public set canvasScale(scale: number) {
+    set canvasScale(scale: number) {
         this.canvas.canvasScale = scale;
     }
 
-    public get needsUpdate(): boolean {
+    get needsUpdate(): boolean {
         return this.canvas.needsUpdate;
     }
 
-    public set needsUpdate(n: boolean) {
+    set needsUpdate(n: boolean) {
         this.canvas.needsUpdate = n;
     }
 }
 
 export class DefaultStyle extends Style {
-    constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme, private heightmap=false) {
+    constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme, private heightmap=true) {
         super(dragController, colourScheme);
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
 
-    public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
+    createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
         return new DefaultCanvasWrapper(c, scale, resizeToWindow);
     }
 
-    public draw(canvas=this.canvas as DefaultCanvasWrapper): void {
+    draw(canvas=this.canvas as DefaultCanvasWrapper): void {
         let bgColour;
         if (this.colourScheme.zoomBuildings) {
             bgColour = this.domainController.zoom >= 2 ? this.colourScheme.bgColourIn : this.colourScheme.bgColour;
@@ -245,24 +245,24 @@ export class DefaultStyle extends Style {
 }
 
 export class RoughStyle extends Style {
-    private dragging = false;
+    dragging = false;
 
     constructor(c: HTMLCanvasElement, dragController: DragController, colourScheme: ColourScheme) {
         super(dragController, colourScheme);
         this.canvas = this.createCanvasWrapper(c, 1, true);
     }
 
-    public createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
+    createCanvasWrapper(c: HTMLCanvasElement, scale=1, resizeToWindow=true): CanvasWrapper {
         return new RoughCanvasWrapper(c, scale, resizeToWindow);
     }
 
-    public update() {
+    update() {
         const dragging = this.dragController.isDragging || this.domainController.isScrolling;
         if (!dragging && this.dragging) this.canvas.needsUpdate = true;
         this.dragging = dragging;
     }
 
-    public draw(canvas=this.canvas as RoughCanvasWrapper): void {
+    draw(canvas=this.canvas as RoughCanvasWrapper): void {
         canvas.setOptions({
             fill: this.colourScheme.bgColour,
             roughness: 1,
