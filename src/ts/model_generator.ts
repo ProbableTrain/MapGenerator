@@ -138,7 +138,7 @@ export default class ModelGenerator {
      * Rotate and scale mesh so up is in the right direction
      */
     private threeToBlender(mesh: THREE.Object3D): void {
-        mesh.scale.multiplyScalar(0.02);
+        mesh.scale.multiplyScalar(0.04);
         mesh.updateMatrixWorld(true);
     }
 
