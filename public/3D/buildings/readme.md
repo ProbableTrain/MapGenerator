@@ -1,6 +1,6 @@
 ### 3D Buildings
 
-![building001](https://github.com/universalbit-dev/CityGenerator/blob/master/public/3D/buildings/building001.stl "building001")
+[View](https://github.com/universalbit-dev/CityGenerator/blob/master/public/3D/buildings/building001.stl "building001")
 
 ##### .STL Files Generated with Blender v.2.82a
 - [View](https://github.com/universalbit-dev/CityGenerator/blob/master/public/3D/buildings/building001.stl)
