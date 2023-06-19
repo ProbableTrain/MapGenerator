@@ -5,27 +5,38 @@
 
 * [About the Project](#about-the-project-probabletrain)
 * [Getting Started](#getting-started)
-  * [Installation](#installation)
-* [Usage](#usage)
+* [Installation](#installation)
+* [3D Buildings](https://github.com/universalbit-dev/CityGenerator/tree/master/public/3D/buildings)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](https://www.gnu.org/licenses/lgpl-3.0.txt)
 * [Contact](#contact)
 
-## About The Project: @probabletrain
-#### [WebSite](https://maps.probabletrain.com/#/)
-#### [Support](https://ko-fi.com/probabletrain)
+##### About The Project: @probabletrain
+##### [WebSite](https://maps.probabletrain.com/#/)
+##### [Support](https://ko-fi.com/probabletrain)
 
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
 #### [Generated](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/algorithmoverview.md) cities can be downloaded as a | '.png' | '.svg' | 'heightmap'| 
 
-#### [Blender City]
-#### [Building Tools](https://github.com/universalbit-dev/building_tools)
-
-## Getting Started
-#### [Three](https://threejs.org/manual/#en/fundamentals)
+#### Getting Started
+* [Blender](https://www.blender.org/)
+* [Building Tools](https://github.com/universalbit-dev/building_tools)
+* [ThreeJS](https://threejs.org/manual/#en/fundamentals)
+  
 To get a local copy up and running follow these steps.
-### [Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
+##### Install [Nodejs 18.15.0](https://nodejs.org/en/blog/release/v18.15.0)
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+```
+```
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+```
+```
+nvm i 18
+```
+
 
 * [Gulp](https://www.npmjs.com/package/gulp)
 ```
