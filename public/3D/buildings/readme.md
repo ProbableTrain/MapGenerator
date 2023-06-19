@@ -5,8 +5,9 @@
  
 
 #### Some useful features are present in the ThreeJS editor
-.GLB Files Generated with Blender v.2.82a
 - [Threejs Editor](https://threejs.org/editor/)
+
+.GLB Files Generated with Blender v.2.82a
 - [Import .GLB]
   ![alt text](https://github.com/universalbit-dev/CityGenerator/blob/master/public/3D/buildings/building001.png "Title")
 - [Export Geometry]
