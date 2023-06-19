@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Map Generator</title>
+<head lang="en">
+
+  <meta charset="utf-8">
+  <title>CityGenerator</title>
   <link rel="stylesheet" href="style.css">
   <script href="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
   <script type="importmap">
-  {
-    "imports": {
+  {"imports": {
       "three": "https://unpkg.com/three@v0.152.2/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.152.2/examples/jsm/"
-      }
+      "three/addons/": "https://unpkg.com/three@0.152.2/examples/jsm/"}
   }
   </script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/ccxt@3.1.40/dist/ccxt.browser.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+
+
 </head>
 
-<body style="background-color:grey;">
+<body style="background-color:grey,margin: 0;" <style>
+
   <svg id="map-svg"></svg>
   <div>
     <canvas id="map-canvas"></canvas>  <!-- Must match util.ts and style.css -->
     <canvas id="img-canvas"></canvas>
   </div>
   <script src="bundle.js"></script>
+
 </body>
 
 </html>

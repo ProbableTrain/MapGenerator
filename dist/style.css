@@ -34,6 +34,6 @@ html, body {
     border-left: 3px solid #FFFFFF;
 }
 
-.ac .dg .c input[type="text"] {
+.ac .dg .c .input {
     width: 80px;
 }
