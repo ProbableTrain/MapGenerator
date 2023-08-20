@@ -12,12 +12,10 @@ Dependencies:
 sudo apt install libcurl4-openssl-dev
 ```
 	
-	
 #### jansson			http://www.digip.org/jansson/
 ```
 sudo apt install libjansson-dev
 ```
-
 
 #### [Basic *nix build instructions:]
 ```
@@ -44,7 +42,7 @@ nvm use 18
 npm i --build-from-source
 ```
 
-#### setup [pm2](https://pm2.io/docs/runtime/guide/process-management/) globally
+#### Setup [pm2](https://pm2.io/docs/runtime/guide/process-management/) globally
 
 ```
 npm i pm2 -g
@@ -53,6 +51,7 @@ npm i pm2 -g
 ```
 pm2 start armadillium-workers.js
 ```
+
 ```
 Notes for AIX users:
 	* To build a 64-bit binary, export OBJECT_MODE=64
