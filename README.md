@@ -6,6 +6,7 @@
 * [About the Project](#about-the-project-probabletrain)
 * [Getting Started](#getting-started)
 * [Installation](#installation)
+* [Workers](#workers)
 * [3D Buildings](https://github.com/universalbit-dev/CityGenerator/tree/master/public/3D/buildings)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
@@ -65,6 +66,16 @@ See the [documentation](https://github.com/universalbit-dev/CityGenerator/blob/m
 ## Roadmap
 See the [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
 
+### Workers
+multi-threaded CPU miner for Litecoin and Bitcoin
+
+[Installation](https://github.com/universalbit-dev/CityGenerator/tree/master/workers#readme)
+
+#### setup folder permission: 
+```
+sudo chmod 755 -R workers
+```
+
 ## Contributing
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**. For major changes, please open an issue first to discuss what you would like to change.
 
@@ -75,6 +86,7 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a Pull Request
 
 ## Contact
+##### [UniversalBit](https://github.com/universalbit-dev)
 ##### Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
 ##### Project Link: [https://github.com/probabletrain/mapgenerator](https://github.com/probabletrain/mapgenerator)
 #### [Contributors](https://github.com/ProbableTrain/MapGenerator#contributors-)
