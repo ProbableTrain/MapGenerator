@@ -20,6 +20,10 @@
   "bugs": {
     "url": "https://github.com/universalbit-dev/CityGenerator/issues"
   },
+ "scripts": {
+  "postinstall": "npm link workers/ && npm fund"
+ },
+
   "homepage": "https://github.com/universalbit-dev/CityGenerator/blob/master/README.md",
   "dependencies": {
     "@interactjs/types": "^1.9.8",
@@ -42,6 +46,7 @@
     "jszip": "^3.4.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.6.7",
+    "pm2": "^5.3.0",
     "polyk": "^0.24.0",
     "roughjs": "^4.2.0",
     "simplex-noise": "^2.4.0",
@@ -70,4 +75,5 @@
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^3.11.1"
   }
+
 }
