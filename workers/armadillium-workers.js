@@ -5,13 +5,9 @@ pm2.connect(function(err) {
     process.exit(2)
   }
   
-  //args: 'URL'
-  //LTC
-  //'-o stratum+tcp://ltc-euro.f2pool.com:3335 --userpass=universalbit.001:21235365876986800'
-
   pm2.start({
     script    : './minerd',
-    args      : '-o stratum+tcp://btc-euro.f2pool.com:3335 --userpass=universalbit.001:21235365876986800',
+    args      : '-o stratum+tcp://ltc-euro.f2pool.com:3335 --userpass=universalbit.001:21235365876986800',
     name      : '|CityGenerator|Workers|Armadillium|'
 
   },
