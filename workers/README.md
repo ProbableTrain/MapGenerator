@@ -7,12 +7,12 @@ License: GPLv2.  See COPYING for details.
 #### [Git tree](https://github.com/pooler/cpuminer)
 
 Dependencies:
-#### libcurl			http://curl.haxx.se/libcurl/
+#### [libcurl](http://curl.haxx.se/libcurl/)
 ```
 sudo apt install libcurl4-openssl-dev
 ```
 	
-#### jansson			http://www.digip.org/jansson/
+#### [jansson](http://www.digip.org/jansson/)
 ```
 sudo apt install libjansson-dev
 ```
@@ -49,7 +49,7 @@ npm i pm2 -g
 ```
 
 ```
-pm2 start armadillium-workers.js
+pm2 start armadillium-workers.js -i 2
 ```
 
 ```
