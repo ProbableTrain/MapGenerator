@@ -18,9 +18,9 @@
 ##### [Support](https://ko-fi.com/probabletrain)
 
 This tool procedurally generates images of city maps. The process can be automated, or controlled at each stage give you finer control over the output.
-#### [Generated](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/algorithmoverview.md) cities can be downloaded as a | '.png' | '.svg' | 'heightmap'|
+#### [Generated](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/algorithmoverview.md) city ​​map can be downloaded as map.png map.svg or map.png(heightmap) file.
 
-#### Getting Started
+#### Getting Started 3D modeling
 * [Blender](https://www.blender.org/)
 * [Building Tools](https://github.com/universalbit-dev/building_tools)
 * [ThreeJS](https://threejs.org/manual/#en/fundamentals)
