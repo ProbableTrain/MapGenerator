@@ -52,7 +52,6 @@
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
     "three": "^0.152.2",
-    "three-addons": "^1.2.0",
     "three-csg-ts": "^1.0.4",
     "typescript-parser": "^2.6.1",
     "vue": "^3.3.4"
