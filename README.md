@@ -54,7 +54,7 @@ npm install --global gulp-cli
 ```
 git clone https://github.com/universalbit-dev/CityGenerator.git
 ```
-* Install NPM packages
+* Install packages with npm 
 ```
 cd CityGenerator
 npm i
