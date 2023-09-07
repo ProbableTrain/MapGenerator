@@ -69,7 +69,7 @@
     "gulp": "^4.0.0",
     "gulp-notify": "^4.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
-    "tsify": "^4.0.1",
+    "tsify": "^5.0.4",
     "typescript": "^4.5.4",
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^3.11.1"
