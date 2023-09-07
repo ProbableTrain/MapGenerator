@@ -22,7 +22,7 @@ This tool procedurally generates images of city maps. The process can be automat
 
 #### Getting Started 3D modeling
 * [Blender](https://www.blender.org/)
-* [Building Tools](https://github.com/universalbit-dev/building_tools)
+* [Building Tools](https://ranjian0.github.io/building_tools/)
 * [ThreeJS](https://threejs.org/manual/#en/fundamentals)
 
 To get a local copy up and running follow these steps.
