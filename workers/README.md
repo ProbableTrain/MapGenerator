@@ -20,8 +20,6 @@ sudo apt install libcurl4-openssl-dev libjansson-dev build-essential
 make
 ```
 
-#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
-
 ##### Install [Node v20.6.0](https://nodejs.org/en/blog/release/v20.6.0)
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
@@ -30,7 +28,6 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 ```
 [Node v20.6.0](https://nodejs.org/en/blog/release/v20.6.0)
 ```
@@ -56,8 +53,12 @@ sudo chmod 755 -R workers
 
 #### Start process      [Cluster Mode](https://pm2.keymetrics.io/docs/usage/cluster-mode/)
 ```
-pm2 start armadillium-workers.js -i 2
+pm2 start workers.js -i 2
 ```
+
+#### Setup HA Cluster:
+#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
+
 
 ```
 Notes for AIX users:
