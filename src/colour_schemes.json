@@ -8,7 +8,7 @@
         "minorRoadColour": "#F8F8F8",
         "mainRoadOutline": "#282828",
         "mainRoadColour": "#FAFA7A",
-        "buildingModels": true,
+        "buildingModels": false,
     },
     "Apple": {
         "bgColour": "rgb(248,245,238)",
@@ -51,7 +51,7 @@
         "mainRoadOutline": "rgb(149,161,157)",
         "buildingModels": true,
     },
-    "Drawn (slow)": {  // Special canvas
+    "Drawn": {
         "bgColour": "rgb(242,236,222)",
         "seaColour": "#dbd2bd",
         "minorRoadColour": "#666666",
@@ -61,7 +61,7 @@
         "buildingColour": "rgb(242,236,222)",
         "buildingModels": true,
     },
-    "Drawn2 (slow)": {
+    "Drawn2": {
         "bgColour": "white",
         "seaColour": "#c2c5bf",
         "minorRoadColour": "#666666",
@@ -69,7 +69,7 @@
         "mainRoadColour": "#222222",
         "buildingStroke": "#333333",
         "buildingColour": "rgb(242,236,222)",
-        "buildingModels": true,
+        "buildingModels": false,
     },
     "Google": {
         "bgColour": "rgb(236,236,236)",
@@ -84,7 +84,7 @@
         "mainRoadColour": "rgb(255,242,175)",
         "mainRoadOutline": "rgb(246,207,101)",
         "zoomBuildings": false,
-        "buildingModels": true,
+        "buildingModels": false,
         "outlineSize": 2,
     },
     "GoogleNoZoom": {
@@ -132,14 +132,6 @@
         "frameTextColour": "rgb(162,162,157)",
         "buildingModels": true,
 
-    "UltraLight": {
-        "bgColour": "rgb(247,247,247)",
-        "seaColour": "rgb(237,237,237)",
-        "buildingStroke": "rgb(238,238,238)",
-        "buildingModels": true,
-      },
-        "grassColour": "rgb(229,229,229)",
-        "minorRoadColour": "white",
     },
     "Wy": {
         "bgColour": "white",
