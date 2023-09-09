@@ -1,6 +1,3 @@
-#### Setup HA Cluster:
-#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
-
 This is a multi-threaded CPU miner for Litecoin and Bitcoin,
 fork of Jeff Garzik's reference cpuminer.
 
@@ -54,4 +51,8 @@ sudo chmod 755 -R workers
 cd workers
 pm2 start workers.js -i 2
 ```
+
+#### Setup HA Cluster:
+#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
+
 
