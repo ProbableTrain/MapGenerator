@@ -45,9 +45,11 @@ The following behaviors are considered harassment and are unacceptable within ou
     Sustained disruption of community events, including talks and presentations.
 
 * Weapons Policy
+  
 No weapons will be allowed at CityGenerator events, community spaces, or in other spaces covered by the scope of this Code of Conduct. Weapons include but are not limited to guns, explosives (including fireworks), and large knives such as those used for hunting or display, as well as any other item used for the purpose of causing injury or harm to others. Anyone seen in possession of one of these items will be asked to leave immediately, and will only be allowed to return without the weapon. Community members are further expected to comply with all state and local laws on this matter.
 
 * Consequences of Unacceptable Behavior
+  
 Unacceptable behavior from any community member, including sponsors and those with decision-making authority, will not be tolerated.
 
 Anyone asked to stop unacceptable behavior is expected to comply immediately.
@@ -59,6 +61,7 @@ If you are subject to or witness unacceptable behavior, or have any other concer
 [@universalbit-dev]
 
 Additionally, community organizers are available to help community members engage with local law enforcement or to otherwise help those experiencing unacceptable behavior feel safe. In the context of in-person events, organizers will also provide escorts as desired by the person experiencing distress.
+
 * Scope
 
 We expect all community participants (contributors, paid or otherwise; sponsors; and other guests) to abide by this Code of Conduct in all community venues–online and in-person–as well as in all one-on-one communications pertaining to community business.
@@ -70,6 +73,7 @@ This code of conduct and its related procedures also applies to unacceptable beh
 
 
 * License and attribution
+  
 This Code of Conduct is distributed under a Creative Commons Attribution-ShareAlike license.Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)(https://creativecommons.org/licenses/by-sa/3.0/)
 
 Portions of text derived from the Django Code of Conduct and the Geek Feminism Anti-Harassment Policy.
