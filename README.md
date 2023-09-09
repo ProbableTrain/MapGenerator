@@ -1,5 +1,5 @@
 ##### [Support UniversalBit Project](https://github.com/universalbit-dev/universalbit-dev/tree/main/support)
-<img src="https://github.com/universalbit-dev/CityGenerator/blob/master/img/%5Bmap%5D01.png" width="9%"></img> <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/img/%5Bmap%5D02.png" width="9%"></img> <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/img/%5Bmap%5D03.png" width="9%"></img> <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/img/%5Bmap%5D04.png" width="9%"></img> <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/img/%5Bmap%5D05.png" width="9%"></img> <img src="https://github.com/universalbit-dev/CityGenerator/blob/master/img/%5Bmap%5D06.png" width="9%"></img> 
+<img src="/img/%5Bmap%5D01.png" width="9%"></img> <img src="/img/%5Bmap%5D02.png" width="9%"></img> <img src="/img/%5Bmap%5D03.png" width="9%"></img> <img src="/img/%5Bmap%5D04.png" width="9%"></img> <img src="img/%5Bmap%5D05.png" width="9%"></img> <img src="/img/%5Bmap%5D06.png" width="9%"></img> 
 
 ## Table of Contents
 
