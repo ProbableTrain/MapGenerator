@@ -58,9 +58,7 @@ npm i && npm audit fix
 ```
 gulp
 ```
-* # Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
-
-  
+* open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
 * [documentation](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/usageguide.md).
 * [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
 
