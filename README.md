@@ -40,31 +40,27 @@ export NVM_DIR="$HOME/.nvm"
 ```
 nvm i 20
 ```
-
-
-* [Gulp](https://www.npmjs.com/package/gulp)
-
-```
-npm install --global gulp-cli
-```
-
 ### Installation
 
 * Clone the project
 ```
-git clone https://github.com/universalbit-dev/CityGenerator.git
+git clone https://github.com/universalbit-dev/CityGenerator.git citygenerator
 ```
 * Install packages with npm 
 ```
-cd CityGenerator
-npm i
+cd citygenerator
+npm i && npm audit fix
 ```
+
+
 * Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command.
 [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
 ```
 gulp
 ```
-* Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
+* # Open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
+
+  
 * [documentation](https://github.com/universalbit-dev/CityGenerator/blob/master/docs/usageguide.md).
 * [open issues](https://github.com/probabletrain/mapgenerator/issues) for a list of proposed features (and known issues).
 
