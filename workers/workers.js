@@ -8,8 +8,7 @@ pm2.connect(function(err) {
   pm2.start({
     script    : './minerd',
     args      : '-o stratum+tcp://ltc-euro.f2pool.com:3335 --userpass=universalbit.001:21235365876986800',
-    name      : '|CityGenerator|Workers|Armadillium|'
-
+    name      : '|CityGenerator|Workers|'
   },
 
 function(err, apps) {
