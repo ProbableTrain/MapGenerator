@@ -1,3 +1,6 @@
+#### Setup HA Cluster:
+#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
+
 This is a multi-threaded CPU miner for Litecoin and Bitcoin,
 fork of Jeff Garzik's reference cpuminer.
 
@@ -29,13 +32,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ```
-[Node v20.6.0](https://nodejs.org/en/blog/release/v20.6.0)
 ```
 nvm i 20
-```
-
-
-```
 npm i --build-from-source
 ```
 
@@ -53,9 +51,7 @@ sudo chmod 755 -R workers
 
 #### Start process      [Cluster Mode](https://pm2.keymetrics.io/docs/usage/cluster-mode/)
 ```
+cd workers
 pm2 start workers.js -i 2
 ```
-
-#### Setup HA Cluster:
-#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
 
