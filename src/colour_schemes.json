@@ -1,26 +1,3 @@
-// bgColour: string;
-// bgColourIn?: string;
-// buildingColour?: string;
-// buildingSideColour?: string;
-// buildingStroke?: string;
-// seaColour: string;
-// grassColour?: string;
-// minorRoadColour: string;
-// minorRoadOutline?: string;
-// majorRoadColour?: string;
-// majorRoadOutline?: string;
-// mainRoadColour?: string;
-// mainRoadOutline?: string;  // Be careful, inherits majorRoadOutline, not mainRoadColour
-// outlineSize?: number;      // Cascade semantics in style.ts
-// minorWidth?: number;
-// majorWidth?: number;
-// mainWidth?: number;
-// zoomBuildings?: boolean;
-// buildingModels?: boolean;
-//
-// Scheme name startsWith 'Drawn' means scheme will use RoughJS canvas
-// // Scheme name startsWith 'Heightmap' draws heightmap
-
 {
     "Default": {
         "bgColour": "rgb(236,229,219)",
@@ -84,7 +61,7 @@
         "buildingColour": "rgb(242,236,222)",
         "buildingModels": true,
     },
-    "Drawn2 (slow)": {  // Special canvas
+    "Drawn2 (slow)": {
         "bgColour": "white",
         "seaColour": "#c2c5bf",
         "minorRoadColour": "#666666",
@@ -126,7 +103,7 @@
         "buildingModels": true,
         "outlineSize": 2,
     },
-    "Heightmap": { // Using 0 as sea level
+    "Heightmap": {
         "bgColour": "rgb(30,30,30)",
         "seaColour": "rgb(20,20,20)",
         "minorRoadColour": "rgb(28,28,28)",
@@ -154,6 +131,7 @@
         "mainRoadColour": "rgb(208,208,208)",
         "frameTextColour": "rgb(162,162,157)",
         "buildingModels": true,
+
     "UltraLight": {
         "bgColour": "rgb(247,247,247)",
         "seaColour": "rgb(237,237,237)",
