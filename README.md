@@ -1,7 +1,5 @@
 ##### [Support UniversalBit Project](https://github.com/universalbit-dev/universalbit-dev/tree/main/support)
 
-![01](docs/assets/images/[map]01.png)
-
 ## Table of Contents
 
 * [About the Project](#about-the-project-probabletrain)
