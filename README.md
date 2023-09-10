@@ -1,6 +1,6 @@
 ##### [Support UniversalBit Project](https://github.com/universalbit-dev/universalbit-dev/tree/main/support)
 
-![map01](/docs/assets/images/%5Bmap%5D01.png)
+![01](docs/assets/images/[map]01.png)
 
 ## Table of Contents
 
