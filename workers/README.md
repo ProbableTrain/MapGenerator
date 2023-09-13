@@ -56,4 +56,4 @@ pm2 start workers.js -i 1
 * [jansson](http://www.digip.org/jansson/)
   
 #### Setup HA Cluster:
-#### [HArmadillium](https://github.com/universalbit-dev/armadillium/blob/main/HArmadillium.md)
+#### [HArmadillium](https://universalbit-dev.github.io/HArmadillium/)
