@@ -7,7 +7,6 @@
 * [Installation](#installation)
 * [Workers](#workers)
 * [3D Buildings](https://github.com/universalbit-dev/CityGenerator/tree/master/public/3D/buildings)
-* [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](https://www.gnu.org/licenses/lgpl-3.0.txt)
 * [Contact](#contact)
