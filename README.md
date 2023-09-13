@@ -65,7 +65,7 @@ gulp
 
 ### Workers
 ##### Multi-threaded CPU miner for Litecoin and Bitcoin
-[Installation](https://github.com/universalbit-dev/CityGenerator/tree/master/workers#readme)
+[Installation](https://github.com/universalbit-dev/CityGenerator/blob/master/workers/workers.md)
 
 
 ##### Contributing
