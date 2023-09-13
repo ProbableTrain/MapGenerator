@@ -6,8 +6,9 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "npm install jsts@2.7.1 --save --include=dev && npm list three && npm i chokidar@latest -g"
-  },
+    "postinstall": "npm link workers/ && npm fund"
+},
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/universalbit-dev/CityGenerator/"
@@ -20,9 +21,6 @@
   "bugs": {
     "url": "https://github.com/universalbit-dev/CityGenerator/issues"
   },
- "scripts": {
-  "postinstall": "npm link workers/ && npm fund"
- },
   "homepage": "https://github.com/universalbit-dev/CityGenerator/blob/master/README.md",
   "dependencies": {
     "@interactjs/types": "^1.9.8",
@@ -48,6 +46,7 @@
     "pm2": "^5.3.0",
     "polyk": "^0.24.0",
     "roughjs": "^4.2.0",
+    "semver":"^7.5.4",
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
     "three": "^0.152.2",
