@@ -67,16 +67,6 @@ gulp
 ##### Multi-threaded CPU miner for Litecoin and Bitcoin
 [Installation](https://github.com/universalbit-dev/CityGenerator/blob/master/workers/workers.md)
 
-
-##### Contributing
-##### Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**. For major changes, please open an issue first to discuss what you would like to change.
-
-* Fork the Project
-* Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-* Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-* Push to the Branch (`git push origin feature/AmazingFeature`)
-* Open a Pull Request
-
 ## Contact
 ##### UniversalBit - [UniversalBit-dev](https://github.com/universalbit-dev)
 ##### Keir - [@probabletrain](https://twitter.com/probabletrain) - probabletrain@gmail.com
