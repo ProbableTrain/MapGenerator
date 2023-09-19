@@ -7,8 +7,7 @@
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "npm link workers/ && npm fund"
-},
-
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/universalbit-dev/CityGenerator/"
@@ -46,7 +45,7 @@
     "pm2": "^5.3.0",
     "polyk": "^0.24.0",
     "roughjs": "^4.2.0",
-    "semver":"^7.5.4",
+    "semver": "^7.5.2",
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
     "three": "^0.156.0",
