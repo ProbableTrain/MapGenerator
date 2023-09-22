@@ -1,17 +1,4 @@
 {
-  "name": "mapgenerator",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/main.ts",
-  "scripts": {
-    "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "npm link workers/ && npm fund"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/universalbit-dev/CityGenerator/"
-  },
   "contribution": "universalbit-dev",
   "author": "@probabletrain",
   "contributors": "trees-and-airlines,Keir,Ersagun Kuruca,Jason-Patrick",
@@ -48,6 +35,7 @@
     "semver": "^7.5.2",
     "simplex-noise": "^2.4.0",
     "simplify-js": "^1.2.4",
+    "systeminformation": "^5.21.8",
     "three": "^0.156.0",
     "three-addons": "^1.2.0",
     "three-csg-ts": "^1.0.4"
@@ -71,3 +59,4 @@
     "watchify": "^3.11.1"
   }
 }
+
