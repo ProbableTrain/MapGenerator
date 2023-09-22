@@ -52,10 +52,12 @@ cd citygenerator
 npm i && npm audit fix
 ```
 
-
+* [Use latest JavaScript version in your gulpfile](https://www.npmjs.com/package/gulp#use-latest-javascript-version-in-your-gulpfile)
 * Build with Gulp. This will watch for changes to any Typescript files. If you edit the HTML or CSS you will have to rerun this command.
 [Gulp Notify](https://github.com/mikaelbr/gulp-notify) sends a notification whenever a build finishes.
 ```
+npm install --save-dev @babel/register @babel/core @babel/preset-env
+npm i gulp -g
 gulp
 ```
 * open `dist/index.html` in a web browser, refresh the page whenever the project is rebuilt.
