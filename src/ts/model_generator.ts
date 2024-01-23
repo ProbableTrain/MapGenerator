@@ -17,6 +17,10 @@ enum ModelGeneratorStates {
 
 export default class ModelGenerator {
     private readonly groundLevel = 20;  // Thickness of groundMesh
+    
+    // Using THREE.extrudeGeometry with depth = 0 flips normals
+    // Specifying a small minimum extrusion depth prevents issues with Boolean modifiers in Blender
+    private readonly minExtrudeDepth = 0.01;
 
     private readonly exportSTL = require('threejs-export-stl');
     private resolve: (blob: any) => void = b => {};
@@ -72,12 +76,12 @@ export default class ModelGenerator {
                 return false;
             }
             case ModelGeneratorStates.SUBTRACT_OCEAN: {
-                const seaLevelMesh = this.polygonToMesh(this.ground, 0);
+                const seaLevelMesh = this.polygonToMesh(this.ground, this.minExtrudeDepth);
                 this.threeToBlender(seaLevelMesh);
                 const seaLevelSTL = this.exportSTL.fromMesh(seaLevelMesh);
                 this.zip.file("model/domain.stl", seaLevelSTL);
 
-                const seaMesh = this.polygonToMesh(this.sea, 0);
+                const seaMesh = this.polygonToMesh(this.sea, this.minExtrudeDepth);
                 this.threeToBlender(seaMesh);
                 const seaMeshSTL = this.exportSTL.fromMesh(seaMesh);
                 this.zip.file("model/sea.stl", seaMeshSTL);
@@ -85,7 +89,7 @@ export default class ModelGenerator {
                 break;
             }
             case ModelGeneratorStates.ADD_COASTLINE: {
-                const coastlineMesh = this.polygonToMesh(this.coastline, 0);
+                const coastlineMesh = this.polygonToMesh(this.coastline, this.minExtrudeDepth);
                 this.threeToBlender(coastlineMesh);
                 const coastlineSTL = this.exportSTL.fromMesh(coastlineMesh);
                 this.zip.file("model/coastline.stl", coastlineSTL);
@@ -93,7 +97,7 @@ export default class ModelGenerator {
                 break;
             }
             case ModelGeneratorStates.SUBTRACT_RIVER: {
-                const riverMesh = this.polygonToMesh(this.river, 0);
+                const riverMesh = this.polygonToMesh(this.river, this.minExtrudeDepth);
                 this.threeToBlender(riverMesh);
                 const riverSTL = this.exportSTL.fromMesh(riverMesh);
                 this.zip.file("model/river.stl", riverSTL);
@@ -114,7 +118,7 @@ export default class ModelGenerator {
                 }
 
                 const road = this.polygonsToProcess.pop();
-                const roadsMesh = this.polygonToMesh(road, 0);
+                const roadsMesh = this.polygonToMesh(road, this.minExtrudeDepth);
                 this.roadsGeometry.merge(roadsMesh.geometry as THREE.Geometry, this.groundMesh.matrix);
                 break;
             }

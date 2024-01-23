@@ -26,20 +26,18 @@ For questions, problems, or improvements, contact me on Twitter [@probabletrain]
 For this guide I'm using Blender, which is excellent and free 3D modeling software.
 If you're already handy with Blender this section might be all you need. Otherwise, see the next section for screenshots and more detail.
 
-**Version**: Constructing the model requires boolean operations on objects with co-planar surfaces. The only way I got this to properly work in Blender was using version **2.79b** which still has the `Carve` solver for the boolean modifier. I couldn't get it to work on 2.8+. According to the Blender forums, proper boolean operations with coplanar surfaces is in development, so this may change.
-
-- Import `sea` and `domain` and extrude them both in the z axis. Subtract `sea` from `domain` using boolean difference. Make sure to use `Carve` as the solver.
+- Import `sea` and `domain` and extrude them both in the z axis. Subtract `sea` from `domain` using boolean difference.
+  - If using a Blender version below 2.8, you may need to use `Carve` as the solver.
 - Import `coastline` and extrude in the z axis. Union with `domain`.
 - Import `river` and extrude in z axis. Subtract from `domain` with boolean difference.
 - If you don't care about accurate roads, import `blocks` and `buildings` and place them on top of `domain`.
-- If you want proper road geometry, import `roads`. Extract in z, select all, press `p -> By loose parts`. This splits each road into its own object.
+- If you want proper road geometry, import `roads`. Extrude in z, select all, press `p -> By loose parts`. This splits each road into its own object.
 - Enable `Bool Tools` addon
 - Select `domain` and all of the separate road objects, with `domain` as the active object.
 - Use `BoolTools -> difference` to subtract roads from `domain`.
 - If the resulting mesh is fine, move on. Otherwise, select one of the top faces, press `shift+G -> normal` or `shift+G -> coplanar` to select all the top faces. Move these to a separate object with `p -> selection`. Delete the old object, extrude the new object.
 - Import roads again, extrude in z, use it to create the roads by filling the gaps in `domain`. Control the road depth with the z location of `roads`.
 - Import `domain` again, use it to create the sea and river. Control the depth with its z value.
-
 
 ## Detailed Blender Overview
 
